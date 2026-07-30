@@ -142,13 +142,9 @@ const Checkout: React.FC = () => {
   return (
     <div className="page-view open" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <div className="ck-nav">
-        <Link to="/" className="ck-back">
-          ← Back to Store
-        </Link>
-        <Link to="/" className="ck-logo" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+        <Link to="/" className="ck-logo">
           <img src={`${import.meta.env.BASE_URL}images/logo.png`} alt="Hazed Studios" style={{ height: '110px', objectFit: 'contain' }} />
         </Link>
-        <div className="ck-tag"></div>
       </div>
 
       <div className="ord-sec">

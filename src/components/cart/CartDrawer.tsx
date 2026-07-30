@@ -53,10 +53,10 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
             cart.map((item, i) => (
               <div className="cart-item" key={i}>
                 <div className="ci-img">
-                  {item.visual && item.visual.startsWith('/images/') ? (
+                  {item.visual ? (
                     <img src={item.visual} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                   ) : (
-                    item.visual || 'H.S'
+                    'H.S'
                   )}
                 </div>
                 <div className="ci-info">

@@ -271,7 +271,7 @@ button,
 
 /* ANN BAR */
 .ann {
-    background: var(--cr);
+    background: #9a8878;
     color: var(--bg);
     font-size: 12px;
     letter-spacing: .22em;
@@ -404,7 +404,7 @@ nav {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: 60vw;
     height: 100vh;
     background: var(--bg);
     z-index: 1000;
@@ -412,6 +412,8 @@ nav {
     transition: transform 0.4s ease;
     display: flex;
     flex-direction: column;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
+    border-right: 1px solid var(--bd);
 }
 
 .mob-menu-ov.open {
@@ -447,8 +449,9 @@ nav {
 
 .mob-menu-links a {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 32px;
-    letter-spacing: .1em;
+    font-size: 20px;
+    font-style: italic;
+    letter-spacing: .15em;
     text-transform: uppercase;
     text-decoration: none;
     color: var(--dk);
@@ -483,7 +486,7 @@ nav {
 .nav-cart-btn {
     font-size: 12px;
     letter-spacing: .2em;
-    color: var(--cr);
+    color: var(--mu);
     text-transform: uppercase;
     cursor: pointer;
     border: 1px solid var(--bd);
@@ -493,7 +496,7 @@ nav {
 }
 
 .nav-cart-btn:hover {
-    background: var(--cr);
+    background: var(--mu);
     color: var(--bg);
 }
 
@@ -615,6 +618,48 @@ nav {
     position: relative;
     overflow: hidden;
     background: linear-gradient(160deg, var(--bll) 0%, var(--crl) 50%, var(--bg) 100%);
+}
+
+.hero-btn {
+    position: relative;
+    padding: 16px 52px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: #111;
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.55);
+    border-radius: 2px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: color 0.45s ease, border-color 0.45s ease;
+}
+
+.hero-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #111;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.45s cubic-bezier(0.76, 0, 0.24, 1);
+    z-index: 0;
+}
+
+.hero-btn:hover::before {
+    transform: scaleX(1);
+}
+
+.hero-btn:hover {
+    color: #fff;
+    border-color: #111;
+}
+
+.hero-btn span {
+    position: relative;
+    z-index: 1;
 }
 
 .hero-canvas {
@@ -2067,7 +2112,7 @@ nav {
     backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--bd);
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     padding: 0 48px;
     height: 68px;
@@ -2098,6 +2143,9 @@ nav {
     font-weight: 300;
     letter-spacing: .3em;
     color: var(--dk);
+    display: flex;
+    align-items: center;
+    text-decoration: none;
 }
 
 .ck-tag {
@@ -3233,24 +3281,24 @@ footer {
         display: block;
     }
 
+    .sp-title {
+        font-size: 28px;
+    }
+
     .nav-inner {
         padding: 12px 20px;
     }
 
     .nav-logo-container {
-        padding: 0 10px;
+        padding: 0 30px;
     }
 
     .nav-logo-img {
-        transform: scale(1.4);
+        transform: scale(2.0);
     }
 
     .ck-nav {
         padding: 0 20px;
-    }
-
-    .ck-tag {
-        display: none;
     }
 
     .hero {
@@ -3437,64 +3485,7 @@ footer {
     }
 }
 
-/* DEFAULT (DESKTOP) HIDE MOBILE MENU */
-.mob-menu-btn {
-    display: none;
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: var(--dk);
-    cursor: pointer;
-}
 
-.mob-menu-ov {
-    position: fixed;
-    inset: 0;
-    background: rgba(250, 246, 240, 0.98);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s;
-}
-
-.mob-menu-ov.open {
-    opacity: 1;
-    visibility: visible;
-}
-
-.mob-menu-close {
-    position: absolute;
-    top: 32px;
-    right: 32px;
-    background: none;
-    border: none;
-    font-size: 32px;
-    color: var(--dk);
-    cursor: pointer;
-}
-
-.mob-menu-links {
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
-    text-align: center;
-}
-
-.mob-menu-links a {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 32px;
-    color: var(--dk);
-    text-decoration: none;
-    transition: color 0.3s;
-}
-
-.mob-menu-links a:hover {
-    color: var(--cr);
-}
 
 @media(max-width:768px) {
     .nav-links {

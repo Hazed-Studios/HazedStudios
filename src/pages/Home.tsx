@@ -64,18 +64,13 @@ const Home: React.FC<HomeProps> = () => {
 
   return (
     <div className="home-wrapper">
-      <section className="hero">
-        <canvas ref={canvasRef} className="hero-canvas" />
+      <section className="hero" style={{ backgroundImage: `url('${import.meta.env.BASE_URL}images/hero-bg.png')`, backgroundSize: '110%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
         <div className="hero-content" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
-          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(48px, 12vw, 84px)', fontWeight: 300, color: 'var(--dk2)', marginBottom: '40px', letterSpacing: '0.05em', textAlign: 'center' }}>
-            HAZED.STUDIOS
-          </div>
           <button
-            className="btn-cr"
-            style={{ padding: '20px 60px', textTransform: 'uppercase', letterSpacing: '0.3em', fontSize: '12px', background: 'var(--cr)', color: 'var(--bg)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 10px 30px rgba(192,127,69,0.2)' }}
+            className="hero-btn"
             onClick={() => navigate('/shop')}
           >
-            Shop Now
+            <span>Shop Now</span>
           </button>
         </div>
       </section>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ScrollToTop from './components/shared/ScrollToTop';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -21,6 +22,7 @@ const App: React.FC = () => {
 
   return (
     <Router basename="/HS-Website">
+      <ScrollToTop />
       <Notification />
       <CookieBanner />
       <AdminLogin />
