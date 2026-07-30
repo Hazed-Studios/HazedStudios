@@ -8,6 +8,7 @@ const AdminPanel: React.FC = () => {
   const { showNotif } = useNotificationStore();
 
   const [activeTab, setActiveTab] = useState('overview');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
@@ -41,10 +42,20 @@ const AdminPanel: React.FC = () => {
   return (
     <div className="adm-panel open">
       <div className="adm-nav">
+        <button className="adm-hamburger mobile-only" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <svg 
+            width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            style={{ transform: isMenuOpen ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}
+          >
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
         <div className="adm-logo">
           HAZED.<span>ADMIN</span>
         </div>
-        <div className="adm-tabs">
+        <div className="adm-tabs desktop-only">
           {['overview', 'orders', 'customers', 'stock', 'finance'].map((tab) => (
             <button
               key={tab}
@@ -55,10 +66,32 @@ const AdminPanel: React.FC = () => {
             </button>
           ))}
         </div>
-        <button className="adm-close" onClick={logout}>
+        <button className="adm-close desktop-only" onClick={logout}>
           Close Session
         </button>
       </div>
+      
+      {/* Mobile Menu Dropdown */}
+      {isMenuOpen && (
+        <div className="adm-mobile-menu mobile-only">
+          {['overview', 'orders', 'customers', 'stock', 'finance'].map((tab) => (
+            <button
+              key={tab}
+              className={`adm-mobile-tab ${activeTab === tab ? 'on' : ''}`}
+              onClick={() => {
+                setActiveTab(tab);
+                setIsMenuOpen(false);
+              }}
+            >
+              {tab}
+            </button>
+          ))}
+          <button className="adm-mobile-tab" onClick={logout} style={{ color: '#c0392b' }}>
+            Close Session
+          </button>
+        </div>
+      )}
+
       <div className="adm-body">
         <h1 className="adm-page-title" style={{ textTransform: 'capitalize' }}>
           {activeTab} Dashboard

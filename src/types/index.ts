@@ -10,6 +10,7 @@ export interface Product {
   details: string[];
   serial: string;
   visual: string;
+  gallery?: string[];
 }
 
 export interface CartItem {

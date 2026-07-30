@@ -18,16 +18,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     navigate('/checkout');
   };
 
-  const cartWhatsapp = () => {
-    if (!cart.length) return;
-    const items = cart.map((i) => `${i.quantity || 1}x ${i.name} (${i.size} - ${i.color})`).join(', ');
-    window.open(
-      `https://wa.me/201555553777?text=Hi%20HAZED.STUDIOS!%20I'd%20like%20to%20order:%20${encodeURIComponent(
-        items
-      )}%20—%20Total:%20${total.toLocaleString()}%20EGP`,
-      '_blank'
-    );
-  };
 
   return (
     <>
@@ -87,9 +77,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
             <button className="btn-checkout" onClick={handleCheckout}>
               Checkout →
             </button>
-            <button className="cart-wa" onClick={cartWhatsapp}>
-              Order via WhatsApp
-            </button>
+
           </div>
         )}
       </div>

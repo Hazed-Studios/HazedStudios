@@ -6,6 +6,7 @@ import Footer from './components/layout/Footer';
 import CartDrawer from './components/cart/CartDrawer';
 import Notification from './components/shared/Notification';
 import CookieBanner from './components/shared/CookieBanner';
+import SearchOverlay from './components/shared/SearchOverlay';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminPanel from './components/admin/AdminPanel';
 import Home from './pages/Home';
@@ -98,13 +99,7 @@ const App: React.FC = () => {
       </Routes>
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-      
-      {/* Simple Search Overlay Component inline for brevity */}
-      <div className={`search-ov ${isSearchOpen ? 'open' : ''}`}>
-        <button className="search-x" onClick={() => setIsSearchOpen(false)}>×</button>
-        <div className="search-lbl">Search Item</div>
-        <input className="search-inp" placeholder="Type a product name..." autoFocus={isSearchOpen} />
-      </div>
+      <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </Router>
   );
 };
