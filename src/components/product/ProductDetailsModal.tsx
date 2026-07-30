@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Product } from '../../types';
 import { useCartStore, useNotificationStore } from '../../context/store';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductDetailsModalProps {
   product: Product | null;
@@ -18,6 +19,8 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
   const { addToCart } = useCartStore();
   const { showNotif } = useNotificationStore();
   const [selectedSize, setSelectedSize] = useState<string>('M');
+  const [quantity, setQuantity] = useState<number>(1);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (product) {
@@ -42,10 +45,25 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
       size: selectedSize,
       color: 'Baby Blue',
       visual: product.visual,
+      quantity,
     });
-    showNotif(`${product.name} added to bag`);
+    showNotif(`${product.name} added to cart`);
     onClose();
     onOpenCart();
+  };
+
+  const handleBuyNow = () => {
+    addToCart({
+      id: product.dbId,
+      name: product.name,
+      price: product.price,
+      size: selectedSize,
+      color: 'Baby Blue',
+      visual: product.visual,
+      quantity,
+    });
+    onClose();
+    navigate('/checkout');
   };
 
   const handleWishlist = () => {
@@ -91,16 +109,32 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
             })}
           </div>
 
-          <button
-            className="pdp-atc"
-            onClick={handleAddToCart}
-            disabled={product.stock === 0}
-          >
-            {product.stock === 0 ? 'Sold Out' : 'Add to Bag'}
-          </button>
-          <button className="pdp-wb" onClick={handleWishlist}>
-            Wishlist
-          </button>
+          <div className="pdp-sz-label" style={{ marginTop: '24px', marginBottom: '8px' }}>
+            <span>Quantity</span>
+          </div>
+          <div className="pdp-sizes" style={{ marginBottom: '24px', display: 'flex', gap: '16px' }}>
+            <button style={{ border: '1px solid var(--bd)', background: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }} onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
+            <span style={{ fontSize: '16px', display: 'flex', alignItems: 'center' }}>{quantity}</span>
+            <button style={{ border: '1px solid var(--bd)', background: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }} onClick={() => setQuantity(quantity + 1)}>+</button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
+            <button
+              className="pdp-atc"
+              onClick={handleAddToCart}
+              disabled={product.stock === 0}
+            >
+              {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
+            </button>
+            {product.stock > 0 && (
+              <button className="pdp-atc" style={{ background: 'transparent', color: 'var(--dk)', border: '1px solid var(--dk)' }} onClick={handleBuyNow}>
+                Buy Now
+              </button>
+            )}
+            <button className="pdp-wb" onClick={handleWishlist}>
+              Wishlist
+            </button>
+          </div>
 
           <div>
             {(product.details || []).map((d, i) => (

@@ -22,7 +22,7 @@ export const useProducts = () => {
           details: [
             'Premium linen blend',
             'Relaxed tailored fit',
-            'Exclusive Limited Release'
+            'Breathable'
           ],
           serial: 'DROP-01-POLO',
           visual: '/images/45305_221248_pm.jpg'

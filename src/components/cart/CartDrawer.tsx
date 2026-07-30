@@ -8,10 +8,10 @@ interface CartDrawerProps {
 }
 
 const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
-  const { cart, removeFromCart } = useCartStore();
+  const { cart, removeFromCart, updateQuantity } = useCartStore();
   const navigate = useNavigate();
 
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
+  const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
 
   const handleCheckout = () => {
     onClose();
@@ -20,11 +20,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
 
   const cartWhatsapp = () => {
     if (!cart.length) return;
-    const items = cart.map((i) => `${i.name} (${i.size} - ${i.color})`).join(', ');
+    const items = cart.map((i) => `${i.quantity || 1}x ${i.name} (${i.size} - ${i.color})`).join(', ');
     window.open(
       `https://wa.me/201555553777?text=Hi%20HAZED.STUDIOS!%20I'd%20like%20to%20order:%20${encodeURIComponent(
         items
-      )}%20—%20Total:%20${total}%20EGP`,
+      )}%20—%20Total:%20${total.toLocaleString()}%20EGP`,
       '_blank'
     );
   };
@@ -34,7 +34,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
       <div className={`cart-ov ${isOpen ? 'show' : ''}`} onClick={onClose} />
       <div className={`cart-drawer ${isOpen ? 'open' : ''}`}>
         <div className="cart-head">
-          <div className="cart-ttl">Your Bag</div>
+          <div className="cart-ttl">Your Cart</div>
           <button className="cart-x" onClick={onClose}>
             ×
           </button>
@@ -64,7 +64,12 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                   <div className="ci-sz">
                     {item.size} • {item.color}
                   </div>
-                  <div className="ci-price">{item.price.toLocaleString()} EGP</div>
+                  <div className="ci-price">{(item.price * (item.quantity || 1)).toLocaleString()} EGP</div>
+                  <div className="ci-qty" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '12px' }}>
+                    <button style={{ border: '1px solid var(--bd)', background: 'none', cursor: 'pointer', padding: '4px 10px', borderRadius: '4px', color: 'var(--dk)' }} onClick={() => updateQuantity(i, (item.quantity || 1) - 1)}>-</button>
+                    <span style={{ fontSize: '13px' }}>{item.quantity || 1}</span>
+                    <button style={{ border: '1px solid var(--bd)', background: 'none', cursor: 'pointer', padding: '4px 10px', borderRadius: '4px', color: 'var(--dk)' }} onClick={() => updateQuantity(i, (item.quantity || 1) + 1)}>+</button>
+                  </div>
                 </div>
                 <button className="ci-rm" onClick={() => removeFromCart(i)}>
                   ×

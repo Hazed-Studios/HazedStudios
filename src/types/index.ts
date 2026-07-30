@@ -19,6 +19,7 @@ export interface CartItem {
   size: string;
   color: string;
   visual: string;
+  quantity?: number;
 }
 
 export interface Customer {

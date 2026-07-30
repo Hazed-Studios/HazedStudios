@@ -18,7 +18,7 @@ const Checkout: React.FC = () => {
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [waLink, setWaLink] = useState('');
 
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
+  const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -34,11 +34,9 @@ const Checkout: React.FC = () => {
     }
 
     if (cart.length === 0) {
-      showNotif('Your bag is empty', '#c0392b');
+      showNotif('Your cart is empty', '#c0392b');
       return;
     }
-
-    const selectedProduct = cart[0];
 
     setIsSubmitting(true);
     try {
@@ -61,40 +59,50 @@ const Checkout: React.FC = () => {
         customerId = newCust.id;
       }
 
-      const { data: newOrder, error: oErr } = await supabase
-        .from('orders')
-        .insert({
-          customer_id: customerId,
-          product_id: selectedProduct.id,
-          size: `${selectedProduct.size} (${selectedProduct.color})`,
-          address: fa,
-          governorate: fgov,
-          total_price: selectedProduct.price,
-          status: 'Pending',
-        })
-        .select('id')
-        .single();
+      let firstOrderId = 0;
 
-      if (oErr) throw oErr;
+      for (const item of cart) {
+        const qty = item.quantity || 1;
+        const sizeString = `${qty}x ${item.size} (${item.color})`;
+        
+        const { data: newOrder, error: oErr } = await supabase
+          .from('orders')
+          .insert({
+            customer_id: customerId,
+            product_id: item.id,
+            size: sizeString,
+            address: fa,
+            governorate: fgov,
+            total_price: item.price * qty,
+            status: 'Pending',
+          })
+          .select('id')
+          .single();
 
-      // Update Stock (Optimistic)
-      const { data: stockData } = await supabase
-        .from('product_stock')
-        .select('quantity')
-        .eq('product_id', selectedProduct.id)
-        .eq('size', selectedProduct.size)
-        .single();
+        if (oErr) throw oErr;
+        if (firstOrderId === 0 && newOrder) firstOrderId = newOrder.id;
 
-      if (stockData && stockData.quantity > 0) {
-        await supabase
+        // Update Stock (Optimistic)
+        const { data: stockData } = await supabase
           .from('product_stock')
-          .update({ quantity: stockData.quantity - 1 })
-          .eq('product_id', selectedProduct.id)
-          .eq('size', selectedProduct.size);
+          .select('quantity')
+          .eq('product_id', item.id)
+          .eq('size', item.size)
+          .single();
+
+        if (stockData && stockData.quantity >= qty) {
+          await supabase
+            .from('product_stock')
+            .update({ quantity: stockData.quantity - qty })
+            .eq('product_id', item.id)
+            .eq('size', item.size);
+        }
       }
 
       // Send email via Edge Function (fire and forget)
       if (fe) {
+        const productsSummary = cart.map(i => `${i.quantity || 1}x ${i.name}`).join(', ');
+        const sizesSummary = cart.map(i => i.size).join(', ');
         fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-data`, {
           method: 'POST',
           headers: {
@@ -106,22 +114,19 @@ const Checkout: React.FC = () => {
             payload: {
               customerEmail: fe,
               customerName: fn,
-              product: selectedProduct.name,
-              size: selectedProduct.size,
+              product: productsSummary,
+              size: sizesSummary,
               address: fa,
               gov: fgov,
-              price: selectedProduct.price,
-              orderId: newOrder?.id || 0,
+              price: total,
+              orderId: firstOrderId,
             },
           }),
         }).catch((e) => console.log('Email send failed:', e.message));
       }
 
-      const msg = `Hi HAZED.STUDIOS! New order:%0A%0AName: ${encodeURIComponent(
-        fn
-      )}%0APhone: ${fp}%0AProduct: ${encodeURIComponent(
-        selectedProduct.name
-      )}%0AColor: ${encodeURIComponent(selectedProduct.color)}%0ASize: ${selectedProduct.size}%0AAddress: ${encodeURIComponent(fa + ', ' + fgov)}%0ATotal: ${selectedProduct.price.toLocaleString()} EGP`;
+      const waItems = cart.map(i => `${i.quantity || 1}x ${i.name} (${i.size} - ${i.color})`).join(', ');
+      const msg = `Hi HAZED.STUDIOS! New order:%0A%0AName: ${encodeURIComponent(fn)}%0APhone: ${fp}%0AItems: ${encodeURIComponent(waItems)}%0AAddress: ${encodeURIComponent(fa + ', ' + fgov)}%0ATotal: ${total.toLocaleString()} EGP`;
 
       setWaLink(`https://wa.me/201555553777?text=${msg}`);
       setOrderSuccess(true);
@@ -140,7 +145,7 @@ const Checkout: React.FC = () => {
         <Link to="/" className="ck-back">
           ← Back to Store
         </Link>
-        <Link to="/" className="ck-logo" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+        <Link to="/" className="ck-logo" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
           <img src="/images/logo.png" alt="Hazed Studios" style={{ height: '110px', objectFit: 'contain' }} />
         </Link>
         <div className="ck-tag"></div>

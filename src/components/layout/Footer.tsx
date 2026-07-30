@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
         <div>
           <div className="f-brand">HAZED.STUDIOS</div>
           <div className="f-tagline">
-            The moment you change, we're already there. Cairo, Egypt.
+            We Feel What You Feel. Cairo, Egypt.
           </div>
         </div>
 

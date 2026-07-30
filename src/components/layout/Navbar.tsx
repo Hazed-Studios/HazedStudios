@@ -55,7 +55,7 @@ const Navbar: React.FC<NavbarProps> = ({ onOpenCart, onOpenSearch }) => {
             <Search size={18} />
           </button>
           <button className="nav-cart-btn" onClick={onOpenCart}>
-            Bag ({cart.length})
+            Cart ({cart.length})
           </button>
         </div>
       </div>

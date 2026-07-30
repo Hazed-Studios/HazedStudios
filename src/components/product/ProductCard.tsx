@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Product } from '../../types';
 import { useCartStore, useNotificationStore } from '../../context/store';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductCardProps {
   product: Product;
@@ -11,6 +12,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
   const { addToCart, wishlist, toggleWishlist } = useCartStore();
   const { showNotif } = useNotificationStore();
   const [selectedSize, setSelectedSize] = useState<string>('M');
+  const [quantity, setQuantity] = useState<number>(1);
+  const navigate = useNavigate();
 
   const isWished = wishlist.includes(product.dbId);
 
@@ -23,8 +26,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
       size: selectedSize,
       color: 'Baby Blue',
       visual: product.visual,
+      quantity,
     });
-    showNotif(`${product.name} added to bag`);
+    showNotif(`${product.name} added to cart`);
+  };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    addToCart({
+      id: product.dbId,
+      name: product.name,
+      price: product.price,
+      size: selectedSize,
+      color: 'Baby Blue',
+      visual: product.visual,
+      quantity,
+    });
+    navigate('/checkout');
   };
 
   const handleToggleWish = (e: React.MouseEvent) => {
@@ -77,13 +95,32 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
             );
           })}
         </div>
-        <button
-          className="btn-atc"
-          onClick={handleAddToCart}
-          disabled={product.stock === 0}
-        >
-          {product.stock === 0 ? 'Sold Out' : 'Add to Bag'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--mu)', letterSpacing: '.1em' }}>QTY</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button style={{ background: 'none', border: '1px solid var(--bd)', color: 'var(--dk)', padding: '2px 8px', borderRadius: '4px' }} onClick={(e) => { e.stopPropagation(); setQuantity(Math.max(1, quantity - 1)); }}>-</button>
+            <span style={{ fontSize: '12px', color: 'var(--dk)' }}>{quantity}</span>
+            <button style={{ background: 'none', border: '1px solid var(--bd)', color: 'var(--dk)', padding: '2px 8px', borderRadius: '4px' }} onClick={(e) => { e.stopPropagation(); setQuantity(quantity + 1); }}>+</button>
+          </div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <button
+            className="btn-atc"
+            onClick={handleAddToCart}
+            disabled={product.stock === 0}
+          >
+            {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
+          </button>
+          {product.stock > 0 && (
+            <button
+              className="btn-atc"
+              style={{ background: 'transparent', color: 'var(--dk)', border: '1px solid var(--dk)' }}
+              onClick={handleBuyNow}
+            >
+              Buy Now
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="prod-info">

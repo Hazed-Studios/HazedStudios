@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import { useCartStore, useNotificationStore } from '../context/store';
+import { useNavigate } from 'react-router-dom';
 
 interface ShopProps {
   onOpenCart: () => void;
@@ -13,6 +14,8 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
 
   const [selectedColor, setSelectedColor] = useState<string>('Baby Blue');
   const [selectedSize, setSelectedSize] = useState<string>('M');
+  const [quantity, setQuantity] = useState<number>(1);
+  const navigate = useNavigate();
 
   // Get the first product (The Polo Linen Shirt)
   const thePolo = products[0];
@@ -31,9 +34,24 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
       size: selectedSize,
       color: selectedColor,
       visual: selectedColor === 'Baby Blue' ? '/images/baby_blue_polo.jpg' : '/images/natural_linen_polo.jpg',
+      quantity,
     });
-    showNotif(`${thePolo.name} added to bag`);
+    showNotif(`${thePolo.name} added to cart`);
     onOpenCart();
+  };
+
+  const handleBuyNow = () => {
+    if (!thePolo) return;
+    addToCart({
+      id: thePolo.dbId,
+      name: thePolo.name,
+      price: thePolo.price,
+      size: selectedSize,
+      color: selectedColor,
+      visual: selectedColor === 'Baby Blue' ? '/images/baby_blue_polo.jpg' : '/images/natural_linen_polo.jpg',
+      quantity,
+    });
+    navigate('/checkout');
   };
 
   return (
@@ -52,7 +70,7 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
             <div style={{ color: 'var(--mu)', fontSize: '15px' }}>Loading piece details...</div>
           ) : thePolo && (
             <>
-              <div className="sec-lbl">Drop 01</div>
+              <div className="sec-lbl">The Essential</div>
               <h2 className="sp-title">The Polo Linen Shirt</h2>
               <div className="sp-price">{thePolo.price.toLocaleString()} EGP</div>
 
@@ -90,9 +108,23 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
                 </div>
               </div>
 
-              <button className="sp-atc" onClick={handleAddToCart}>
-                Add to Bag
-              </button>
+              <div className="spc-section">
+                <div className="spc-label">Quantity</div>
+                <div className="spc-options" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <button style={{ border: '1px solid var(--bd)', background: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }} onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
+                  <span style={{ fontSize: '16px' }}>{quantity}</span>
+                  <button style={{ border: '1px solid var(--bd)', background: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }} onClick={() => setQuantity(quantity + 1)}>+</button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px', marginBottom: '40px' }}>
+                <button className="sp-atc" onClick={handleAddToCart}>
+                  Add to Cart
+                </button>
+                <button className="sp-atc" style={{ background: 'transparent', color: 'var(--dk)', border: '1px solid var(--dk)' }} onClick={handleBuyNow}>
+                  Buy Now
+                </button>
+              </div>
 
               <div className="sp-details">
                 <ul>
