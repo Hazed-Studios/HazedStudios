@@ -20,7 +20,7 @@ const App: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
-    <Router>
+    <Router basename="/HS-Website">
       <Notification />
       <CookieBanner />
       <AdminLogin />
