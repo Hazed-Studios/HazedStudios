@@ -25,7 +25,7 @@ export const useProducts = () => {
             'Breathable'
           ],
           serial: 'DROP-01-POLO',
-          visual: '/images/45305_221248_pm.jpg'
+          visual: `${import.meta.env.BASE_URL}images/45305_221248_pm.jpg`
         }
       ]);
       setLoading(false);
