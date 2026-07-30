@@ -1,0 +1,122 @@
+import React, { useState, useEffect } from 'react';
+import type { Product } from '../../types';
+import { useCartStore, useNotificationStore } from '../../context/store';
+
+interface ProductDetailsModalProps {
+  product: Product | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onOpenCart: () => void;
+}
+
+const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
+  product,
+  isOpen,
+  onClose,
+  onOpenCart,
+}) => {
+  const { addToCart } = useCartStore();
+  const { showNotif } = useNotificationStore();
+  const [selectedSize, setSelectedSize] = useState<string>('M');
+
+  useEffect(() => {
+    if (product) {
+      // Find the first available size
+      const sizes = ['S', 'M', 'L'];
+      for (const size of sizes) {
+        if ((product.sizeStock[size] || 0) > 0) {
+          setSelectedSize(size);
+          break;
+        }
+      }
+    }
+  }, [product]);
+
+  if (!product) return null;
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: product.dbId,
+      name: product.name,
+      price: product.price,
+      size: selectedSize,
+      color: 'Baby Blue',
+      visual: product.visual,
+    });
+    showNotif(`${product.name} added to bag`);
+    onClose();
+    onOpenCart();
+  };
+
+  const handleWishlist = () => {
+    showNotif(`${product.name} saved ♥`);
+  };
+
+  return (
+    <div className={`pdp-ov ${isOpen ? 'open' : ''}`}>
+      <div className="pdp-modal">
+        <button className="pdp-x" onClick={onClose}>
+          ×
+        </button>
+        <div className="pdp-left">
+          {product.visual.startsWith('/images/') ? (
+            <img src={product.visual} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          ) : (
+            <div className="pdp-img">{product.visual || 'H.S'}</div>
+          )}
+        </div>
+        <div className="pdp-right">
+          <div className="pdp-cat">{product.cat} — Collection 01</div>
+          <div className="pdp-name">{product.name}</div>
+          <div className="pdp-price">{product.price.toLocaleString()} EGP</div>
+          <div className="pdp-story">{product.story}</div>
+
+          <div className="pdp-sz-label">
+            <span>Select Size</span>
+            <button>Size Guide</button>
+          </div>
+          <div className="pdp-sizes">
+            {['S', 'M', 'L'].map((s) => {
+              const isOk = (product.sizeStock[s] || 0) > 0;
+              return (
+                <button
+                  key={s}
+                  className={`pdp-sz ${selectedSize === s ? 'on' : ''}`}
+                  style={{ opacity: isOk ? 1 : 0.3, cursor: isOk ? 'pointer' : 'not-allowed' }}
+                  onClick={() => isOk && setSelectedSize(s)}
+                >
+                  {s}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            className="pdp-atc"
+            onClick={handleAddToCart}
+            disabled={product.stock === 0}
+          >
+            {product.stock === 0 ? 'Sold Out' : 'Add to Bag'}
+          </button>
+          <button className="pdp-wb" onClick={handleWishlist}>
+            Wishlist
+          </button>
+
+          <div>
+            {(product.details || []).map((d, i) => (
+              <div key={i} className="pdp-detail">
+                {d}
+              </div>
+            ))}
+          </div>
+
+          <div className="pdp-serial">
+            Serial — <span>{product.serial || ''}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProductDetailsModal;
