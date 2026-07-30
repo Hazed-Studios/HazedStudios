@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface HomeProps {
   onOpenCart: () => void;
@@ -6,6 +7,7 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const navigate = useNavigate();
 
   // Canvas particles
   useEffect(() => {
@@ -71,7 +73,7 @@ const Home: React.FC<HomeProps> = () => {
           <button
             className="btn-cr"
             style={{ padding: '20px 60px', textTransform: 'uppercase', letterSpacing: '0.3em', fontSize: '12px', background: 'var(--cr)', color: 'var(--bg)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 10px 30px rgba(192,127,69,0.2)' }}
-            onClick={() => window.location.href = '/shop'}
+            onClick={() => navigate('/shop')}
           >
             Shop Now
           </button>

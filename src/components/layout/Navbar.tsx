@@ -48,7 +48,7 @@ const Navbar: React.FC<NavbarProps> = ({ onOpenCart, onOpenSearch }) => {
           </div>
         </div>
         <Link to="/" className="nav-logo-container">
-          <img src="/images/logo.png" alt="Hazed Studios" className="nav-logo-img" />
+          <img src={`${import.meta.env.BASE_URL}images/logo.png`} alt="Hazed Studios" className="nav-logo-img" />
         </Link>
         <div className="nav-r">
           <button className="nav-search" onClick={onOpenSearch}>
