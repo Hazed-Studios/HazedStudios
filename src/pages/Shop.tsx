@@ -12,12 +12,20 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
   const { addToCart } = useCartStore();
   const { showNotif } = useNotificationStore();
 
+  const colorMap: Record<string, string> = {
+    'Baby Blue': '#a4c2d3',
+    'Natural Linen': '#e3dac9'
+  };
+
   const [selectedColor, setSelectedColor] = useState<string>('Baby Blue');
   const [selectedSize, setSelectedSize] = useState<string>('M');
   const [quantity, setQuantity] = useState<number>(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [totalStockLeft, setTotalStockLeft] = useState<number | null>(null);
+  const [showSizeChart, setShowSizeChart] = useState(false);
   const navigate = useNavigate();
 
   // Get the first product (The Polo Linen Shirt)
@@ -28,8 +36,31 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
     window.scrollTo(0, 0);
   }, []);
 
-  const nextImage = () => setCurrentImageIndex((i) => (i + 1) % images.length);
-  const prevImage = () => setCurrentImageIndex((i) => (i - 1 + images.length) % images.length);
+  useEffect(() => {
+    if (!thePolo) return;
+    const fetchStock = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${apiUrl}/api/stock/${thePolo.dbId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setTotalStockLeft(data.quantity);
+        }
+      } catch (err) {
+        console.error('Failed to fetch stock', err);
+      }
+    };
+    fetchStock();
+  }, [thePolo]);
+
+  const nextImage = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setCurrentImageIndex((i) => (i + 1) % images.length);
+  };
+  const prevImage = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setCurrentImageIndex((i) => (i - 1 + images.length) % images.length);
+  };
 
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
@@ -91,15 +122,18 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
             <div style={{ color: 'var(--mu)', fontSize: '11px', letterSpacing: '.2em' }}>CURATING...</div>
           ) : (
             <div 
-              style={{ position: 'relative', width: '100%', maxWidth: '600px', margin: '0 auto', overflow: 'hidden', borderRadius: '12px', boxShadow: '0 20px 40px rgba(26, 18, 8, .1)' }}
+              className="sp-img-container"
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
               onTouchEnd={onTouchEndEvent}
+              onClick={() => setIsZoomed(true)}
+              style={{ cursor: 'zoom-in' }}
             >
               <div 
                 style={{ 
                   display: 'flex', 
                   width: '100%', 
+                  height: '100%',
                   transition: 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)', 
                   transform: `translateX(-${currentImageIndex * 100}%)` 
                 }}
@@ -113,7 +147,7 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
                     style={{ 
                       flex: '0 0 100%',
                       width: '100%', 
-                      height: 'auto', 
+                      height: '100%', 
                       objectFit: 'cover',
                       margin: 0,
                       boxShadow: 'none',
@@ -157,38 +191,71 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
               <div className="sec-lbl">The Essential</div>
               <h2 className="sp-title">The Polo Linen Shirt</h2>
               <div className="sp-price">{thePolo.price.toLocaleString()} EGP</div>
+              {totalStockLeft !== null && totalStockLeft <= 10 && totalStockLeft > 0 && (
+                <div style={{ color: 'var(--cr)', fontSize: '13px', fontWeight: 500, fontStyle: 'italic', marginTop: '4px' }}>
+                  Only {totalStockLeft} pieces left
+                </div>
+              )}
+
 
               <div className="sp-desc">
                 {thePolo.story}
               </div>
 
               <div className="spc-section">
-                <div className="spc-label">Color</div>
-                <div className="spc-options">
+                <div className="spc-label">
+                  Color - <span style={{ color: 'var(--dk)', fontWeight: 500 }}>{selectedColor}</span>
+                </div>
+                <div className="spc-options" style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
                   {['Baby Blue', 'Natural Linen'].map(c => (
                     <button
                       key={c}
-                      className={`spc-btn ${selectedColor === c ? 'on' : ''}`}
                       onClick={() => setSelectedColor(c)}
-                    >
-                      {c}
-                    </button>
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        background: colorMap[c],
+                        border: 'none',
+                        padding: 0,
+                        cursor: 'pointer',
+                        transition: 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
+                        outline: 'none',
+                        boxShadow: selectedColor === c 
+                          ? '0 0 0 2px var(--bg), 0 0 0 4px var(--cr)' 
+                          : 'inset 0 0 0 1px rgba(0,0,0,0.1)'
+                      }}
+                      title={c}
+                      aria-label={c}
+                    />
                   ))}
                 </div>
               </div>
 
               <div className="spc-section">
-                <div className="spc-label">Size</div>
+                <div className="spc-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>Size</span>
+                  <button 
+                    onClick={() => setShowSizeChart(true)} 
+                    style={{ background: 'none', border: 'none', color: 'var(--mu)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '.1em', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                  >
+                    Size Guide
+                  </button>
+                </div>
                 <div className="spc-options">
-                  {['S', 'M', 'L'].map(s => (
-                    <button
-                      key={s}
-                      className={`spc-btn ${selectedSize === s ? 'on' : ''}`}
-                      onClick={() => setSelectedSize(s)}
-                    >
-                      {s}
-                    </button>
-                  ))}
+                  {['S', 'M', 'L'].map(s => {
+                    const isOk = thePolo ? (thePolo.sizeStock[s] || 0) > 0 : true;
+                    return (
+                      <button
+                        key={s}
+                        className={`spc-btn ${selectedSize === s ? 'on' : ''} ${!isOk ? 'out-of-stock' : ''}`}
+                        style={{ opacity: isOk ? 1 : 0.4, cursor: isOk ? 'pointer' : 'not-allowed' }}
+                        onClick={() => isOk && setSelectedSize(s)}
+                      >
+                        {s}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -219,6 +286,31 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
           )}
         </div>
       </section>
+
+      {isZoomed && (
+        <div 
+          style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(250, 246, 240, 0.98)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out' }}
+          onClick={() => setIsZoomed(false)}
+        >
+          <img 
+            src={images[currentImageIndex]} 
+            style={{ maxWidth: '95vw', maxHeight: '95vh', objectFit: 'contain', borderRadius: '4px', boxShadow: '0 20px 40px rgba(26, 18, 8, .1)' }} 
+            alt="Zoomed product" 
+          />
+          <button style={{ position: 'absolute', top: '24px', right: '32px', background: 'none', border: 'none', fontSize: '40px', fontWeight: 300, color: 'var(--dk)', cursor: 'pointer' }}>×</button>
+        </div>
+      )}
+
+      {/* Size Chart Modal */}
+      {showSizeChart && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowSizeChart(false)}>
+          <div style={{ position: 'relative', width: '90%', maxWidth: '600px', background: 'var(--bg)', padding: '16px', borderRadius: '8px' }} onClick={(e) => e.stopPropagation()}>
+            <button style={{ position: 'absolute', top: '16px', right: '16px', background: 'var(--cr)', color: 'var(--bg)', border: 'none', width: '30px', height: '30px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }} onClick={() => setShowSizeChart(false)}>×</button>
+            <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '18px', fontWeight: 600, color: 'var(--dk)' }}>Size Guide</h3>
+            <img src={`${import.meta.env.BASE_URL}images/size_chart.png`} alt="Size Chart" style={{ width: '100%', height: 'auto', display: 'block' }} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

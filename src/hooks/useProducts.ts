@@ -28,7 +28,8 @@ export const useProducts = () => {
           visual: `${import.meta.env.BASE_URL}images/45305_221248_pm.jpg`,
           gallery: [
             `${import.meta.env.BASE_URL}images/R.jpg`,
-            `${import.meta.env.BASE_URL}images/45305_221248_pm.jpg`
+            `${import.meta.env.BASE_URL}images/45305_221248_pm.jpg`,
+            `${import.meta.env.BASE_URL}images/08254734711-p.jpg`
           ]
         }
       ]);

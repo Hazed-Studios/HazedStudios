@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProducts } from '../../hooks/useProducts';
 
@@ -11,11 +11,18 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose }) => {
   const [query, setQuery] = useState('');
   const { products } = useProducts();
   const navigate = useNavigate();
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Reset query when closed
+  // Reset query when closed, focus when opened
   useEffect(() => {
     if (!isOpen) {
       setQuery('');
+    } else {
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }, 100);
     }
   }, [isOpen]);
 
@@ -33,9 +40,9 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose }) => {
       <button className="search-x" onClick={onClose}>×</button>
       <div className="search-lbl">Search Item</div>
       <input
+        ref={inputRef}
         className="search-inp"
         placeholder="Type a product name..."
-        autoFocus={isOpen}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />

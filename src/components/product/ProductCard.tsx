@@ -86,8 +86,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
             return (
               <button
                 key={s}
-                className={`sz ${selectedSize === s ? 'on' : ''}`}
-                style={{ opacity: isOk ? 1 : 0.3, cursor: isOk ? 'pointer' : 'not-allowed' }}
+                className={`sz ${selectedSize === s ? 'on' : ''} ${!isOk ? 'out-of-stock' : ''}`}
+                style={{ opacity: isOk ? 1 : 0.4, cursor: isOk ? 'pointer' : 'not-allowed' }}
                 onClick={(e) => handleSizeSelect(e, s, isOk)}
               >
                 {s}

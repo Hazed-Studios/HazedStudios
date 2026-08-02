@@ -20,6 +20,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
   const { showNotif } = useNotificationStore();
   const [selectedSize, setSelectedSize] = useState<string>('M');
   const [quantity, setQuantity] = useState<number>(1);
+  const [showSizeChart, setShowSizeChart] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -91,7 +92,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
 
           <div className="pdp-sz-label">
             <span>Select Size</span>
-            <button>Size Guide</button>
+            <button onClick={() => setShowSizeChart(true)}>Size Guide</button>
           </div>
           <div className="pdp-sizes">
             {['S', 'M', 'L'].map((s) => {
@@ -99,8 +100,8 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
               return (
                 <button
                   key={s}
-                  className={`pdp-sz ${selectedSize === s ? 'on' : ''}`}
-                  style={{ opacity: isOk ? 1 : 0.3, cursor: isOk ? 'pointer' : 'not-allowed' }}
+                  className={`pdp-sz ${selectedSize === s ? 'on' : ''} ${!isOk ? 'out-of-stock' : ''}`}
+                  style={{ opacity: isOk ? 1 : 0.4, cursor: isOk ? 'pointer' : 'not-allowed' }}
                   onClick={() => isOk && setSelectedSize(s)}
                 >
                   {s}
@@ -149,6 +150,17 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Size Chart Modal */}
+      {showSizeChart && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowSizeChart(false)}>
+          <div style={{ position: 'relative', width: '90%', maxWidth: '600px', background: 'var(--bg)', padding: '16px', borderRadius: '8px' }} onClick={(e) => e.stopPropagation()}>
+            <button style={{ position: 'absolute', top: '16px', right: '16px', background: 'var(--cr)', color: 'var(--bg)', border: 'none', width: '30px', height: '30px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }} onClick={() => setShowSizeChart(false)}>×</button>
+            <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '18px', fontWeight: 600, color: 'var(--dk)' }}>Size Guide</h3>
+            <img src={`${import.meta.env.BASE_URL}images/size_chart.png`} alt="Size Chart" style={{ width: '100%', height: 'auto', display: 'block' }} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

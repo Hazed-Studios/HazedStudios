@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useCartStore, useNotificationStore } from '../context/store';
-import { supabase } from '../lib/supabase';
 import { Link } from 'react-router-dom';
 
 const EGYPTIAN_GOVERNORATES = [
@@ -79,12 +78,27 @@ const Checkout: React.FC = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [discountApplied, setDiscountApplied] = useState(false);
 
   const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
+  const discountAmount = discountApplied ? total * 0.10 : 0;
+  const subtotalAfterDiscount = total - discountAmount;
 
-  const isFreeShipping = total > 2400;
+  const isFreeShipping = subtotalAfterDiscount >= 2400;
   const shippingCost = isFreeShipping ? 0 : (['Cairo', 'Giza'].includes(formData.fgov) ? 80 : 100);
-  const finalTotal = total + shippingCost;
+  const finalTotal = subtotalAfterDiscount + shippingCost;
+
+  const handleApplyCoupon = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (couponCode.trim().toUpperCase() === 'HS10') {
+      setDiscountApplied(true);
+      showNotif('10% Discount applied!', '#2ecc71');
+    } else {
+      setDiscountApplied(false);
+      showNotif('Invalid coupon code', '#c0392b');
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -106,64 +120,30 @@ const Checkout: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      let { data: existingCust } = await supabase
-        .from('customers')
-        .select('id')
-        .eq('phone', fp)
-        .maybeSingle();
-
-      let customerId;
-      if (existingCust) {
-        customerId = existingCust.id;
-      } else {
-        const { data: newCust, error: cErr } = await supabase
-          .from('customers')
-          .insert({ name: fn, phone: fp, email: fe, governorate: fgov })
-          .select('id')
-          .single();
-        if (cErr) throw cErr;
-        customerId = newCust.id;
-      }
-
-      let firstOrderId = 0;
-
-      for (const item of cart) {
-        const qty = item.quantity || 1;
-        const sizeString = `${qty}x ${item.size} (${item.color})`;
-        
-        const { data: newOrder, error: oErr } = await supabase
-          .from('orders')
-          .insert({
-            customer_id: customerId,
-            product_id: item.id,
-            size: sizeString,
-            address: fa,
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/api/checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customer: {
+            name: fn,
+            email: fe,
+            phone: fp,
             governorate: fgov,
-            total_price: item.price * qty,
-            status: 'Pending',
-          })
-          .select('id')
-          .single();
+            address: fa,
+          },
+          cart,
+          total: finalTotal
+        }),
+      });
 
-        if (oErr) throw oErr;
-        if (firstOrderId === 0 && newOrder) firstOrderId = newOrder.id;
-
-        // Update Stock (Optimistic)
-        const { data: stockData } = await supabase
-          .from('product_stock')
-          .select('quantity')
-          .eq('product_id', item.id)
-          .eq('size', item.size)
-          .single();
-
-        if (stockData && stockData.quantity >= qty) {
-          await supabase
-            .from('product_stock')
-            .update({ quantity: stockData.quantity - qty })
-            .eq('product_id', item.id)
-            .eq('size', item.size);
-        }
+      if (!response.ok) {
+        throw new Error('Checkout failed');
       }
+      
+      const { orderId: firstOrderId } = await response.json();
 
       // Send email to Store Owner via FormSubmit
       if (fn) {
@@ -352,10 +332,35 @@ const Checkout: React.FC = () => {
               </div>
 
               <div style={{ marginTop: '20px', marginBottom: '32px' }}>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+                  <input
+                    type="text"
+                    className="fi"
+                    placeholder="Coupon Code"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    style={{ flex: 1 }}
+                    disabled={discountApplied}
+                  />
+                  <button
+                    onClick={handleApplyCoupon}
+                    disabled={discountApplied || !couponCode}
+                    style={{ padding: '0 20px', background: discountApplied ? 'var(--bd)' : 'var(--dk)', color: 'var(--bg)', border: 'none', cursor: discountApplied ? 'not-allowed' : 'pointer', fontSize: '11px', letterSpacing: '.1em', textTransform: 'uppercase', transition: 'all 0.3s' }}
+                  >
+                    {discountApplied ? 'Applied' : 'Apply'}
+                  </button>
+                </div>
+
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <span style={{ fontSize: '11px', color: 'var(--mu)' }}>Subtotal</span>
                   <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{total.toLocaleString()} EGP</span>
                 </div>
+                {discountApplied && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--cr)' }}>Discount (10%)</span>
+                    <span style={{ fontSize: '13px', color: 'var(--cr)' }}>-{discountAmount.toLocaleString()} EGP</span>
+                  </div>
+                )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                   <span style={{ fontSize: '11px', color: 'var(--mu)' }}>Shipping</span>
                   <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{isFreeShipping ? 'Free' : `${shippingCost} EGP`}</span>
