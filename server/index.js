@@ -8,7 +8,6 @@ const nodemailer = require('nodemailer');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
-const xss = require('xss-clean');
 
 // Load environment variables from the parent directory's .env file
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
@@ -18,7 +17,6 @@ const port = process.env.PORT || 5000;
 
 // Security Middleware
 app.use(helmet()); // Set security HTTP headers
-app.use(xss()); // Sanitize data against XSS
 app.use(hpp()); // Prevent HTTP Parameter Pollution
 
 // CORS Configuration - Only allow specific origins in production
