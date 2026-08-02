@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import { useCartStore, useNotificationStore } from '../context/store';
 import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ShopProps {
   onOpenCart: () => void;
@@ -161,16 +162,20 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
                   <button 
                     className="desktop-arrow"
                     onClick={prevImage}
-                    style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(250, 246, 240, 0.8)', border: 'none', width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer', alignItems: 'center', justifyContent: 'center', color: 'var(--dk)', fontSize: '16px', transition: 'all 0.3s', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', zIndex: 10 }}
+                    style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(4px)', border: '1px solid rgba(0,0,0,0.05)', width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--dk)', transition: 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)', boxShadow: '0 4px 14px rgba(0,0,0,0.08)', zIndex: 10 }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.transform = 'translateY(-50%) scale(1.05)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.85)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1)'; }}
                   >
-                    ←
+                    <ChevronLeft size={22} strokeWidth={1.5} />
                   </button>
                   <button 
                     className="desktop-arrow"
                     onClick={nextImage}
-                    style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(250, 246, 240, 0.8)', border: 'none', width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer', alignItems: 'center', justifyContent: 'center', color: 'var(--dk)', fontSize: '16px', transition: 'all 0.3s', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', zIndex: 10 }}
+                    style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(4px)', border: '1px solid rgba(0,0,0,0.05)', width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--dk)', transition: 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)', boxShadow: '0 4px 14px rgba(0,0,0,0.08)', zIndex: 10 }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.transform = 'translateY(-50%) scale(1.05)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.85)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1)'; }}
                   >
-                    →
+                    <ChevronRight size={22} strokeWidth={1.5} />
                   </button>
                   <div style={{ position: 'absolute', bottom: '24px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px', zIndex: 10 }}>
                     {images.map((_: any, idx: number) => (
