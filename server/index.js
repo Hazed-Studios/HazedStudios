@@ -33,6 +33,7 @@ app.use(cors({
 
 // Body parser with 10kb limit
 app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Global Rate Limiting - Limit each IP to 100 requests per 15 mins
 const globalLimiter = rateLimit({
@@ -211,7 +212,7 @@ app.post('/api/admin/data', async (req, res) => {
 
 // Route: Contact Form with Attachment
 app.post('/api/contact', strictLimiter, upload.single('Attachment'), async (req, res) => {
-  const { Name, Email, Message } = req.body;
+  const { Name, Email, Message } = req.body || {};
   const file = req.file;
 
   if (!Name || !Email || !Message) {
