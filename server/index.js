@@ -16,7 +16,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // Security Middleware
-app.use(helmet()); // Set security HTTP headers
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } })); // Set security HTTP headers
 app.use(hpp()); // Prevent HTTP Parameter Pollution
 
 // CORS Configuration - Only allow specific origins in production
