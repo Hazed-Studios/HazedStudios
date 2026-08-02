@@ -22,15 +22,16 @@ const AdminPanel: React.FC = () => {
       if (tab === 'overview' || tab === 'finance') {
         const ords = await callEdge('getOrders');
         const custs = await callEdge('getCustomers');
-        setData({ ords, custs });
+        setData((prev: any) => ({ ...prev, ords, custs }));
       } else if (tab === 'orders') {
         const ords = await callEdge('getOrders');
-        setData({ ords });
+        setData((prev: any) => ({ ...prev, ords }));
       } else if (tab === 'customers') {
         const custs = await callEdge('getCustomers');
-        setData({ custs });
+        setData((prev: any) => ({ ...prev, custs }));
       } else if (tab === 'stock') {
-        // Stock doesn't strictly need Edge, but we can fetch via supabase
+        const stock = await callEdge('getStock');
+        setData((prev: any) => ({ ...prev, stock }));
       }
     } catch (e: any) {
       showNotif(`Failed to load ${tab}: ${e.message}`, '#c0392b');
@@ -142,7 +143,11 @@ const AdminPanel: React.FC = () => {
                       <td>{o.governorate}</td>
                       <td>{o.address}</td>
                       <td>{o.total_price} EGP</td>
-                      <td>{o.status}</td>
+                      <td>
+                        <span className={`status-pill status-${(o.status || 'pending').toLowerCase()}`}>
+                          {o.status}
+                        </span>
+                      </td>
                       <td>{new Date(o.created_at).toLocaleDateString('en-GB')}</td>
                     </tr>
                   ))}
@@ -151,7 +156,98 @@ const AdminPanel: React.FC = () => {
             </div>
           </div>
         )}
-        {/* Additional tabs omitted for brevity but they are supported conceptually */}
+        
+        {activeTab === 'customers' && data?.custs && (
+          <div className="adm-section on">
+            <div className="ord-table-wrap">
+              <table className="ord-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Governorate</th>
+                    <th>Joined</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.custs.map((c: any) => (
+                    <tr key={c.id}>
+                      <td>#{String(c.id).padStart(3, '0')}</td>
+                      <td>{c.name}</td>
+                      <td>{c.phone}</td>
+                      <td>{c.email}</td>
+                      <td>{c.governorate}</td>
+                      <td>{new Date(c.created_at).toLocaleDateString('en-GB')}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'stock' && data?.stock && (
+          <div className="adm-section on">
+            <div className="ord-table-wrap">
+              <table className="ord-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Variation</th>
+                    <th>Quantity Remaining</th>
+                    <th>Last Updated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.stock.map((s: any) => (
+                    <tr key={s.id}>
+                      <td>{s.product_name}</td>
+                      <td>{s.size}</td>
+                      <td>
+                        <span style={{ 
+                          fontWeight: 'bold',
+                          color: s.quantity < 5 ? '#c0392b' : (s.quantity < 15 ? '#e67e22' : '#27ae60') 
+                        }}>
+                          {s.quantity}
+                        </span>
+                      </td>
+                      <td>{new Date(s.last_updated).toLocaleString('en-GB')}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'finance' && data?.ords && (
+          <div className="adm-section on">
+            <div className="kpi-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
+              <div className="kpi">
+                <div className="kpi-lbl">Gross Revenue</div>
+                <div className="kpi-val">
+                  {data.ords.reduce((s: number, o: any) => s + (o.total_price || 0), 0).toLocaleString()}
+                  <em> EGP</em>
+                </div>
+              </div>
+              <div className="kpi">
+                <div className="kpi-lbl">Total Sales Volume</div>
+                <div className="kpi-val">{data.ords.length}</div>
+              </div>
+              <div className="kpi">
+                <div className="kpi-lbl">Average Order Value</div>
+                <div className="kpi-val">
+                  {data.ords.length > 0 
+                    ? Math.round(data.ords.reduce((s: number, o: any) => s + (o.total_price || 0), 0) / data.ords.length).toLocaleString() 
+                    : 0}
+                  <em> EGP</em>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

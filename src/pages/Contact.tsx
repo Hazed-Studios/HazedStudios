@@ -13,19 +13,20 @@ const Contact: React.FC = () => {
     const form = e.currentTarget;
     const formData = new FormData(form);
     
-    formData.append('_subject', `New Contact Inquiry from ${formData.get('Name') || 'Website'}`);
-
-    fetch('https://formsubmit.co/ajax/hazed.co.hr@gmail.com', {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    fetch(`${apiUrl}/api/contact`, {
       method: 'POST',
       body: formData,
-      headers: {
-        'Accept': 'application/json'
-      }
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('Failed');
+      return response.json();
+    })
     .then(() => {
       setStatus('Message sent successfully. We will get back to you shortly.');
       setIsSubmitting(false);
+      form.reset();
+      setFileName('');
     })
     .catch(error => {
       setStatus('Failed to send message. Please try again.');
