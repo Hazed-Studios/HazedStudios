@@ -1,12 +1,28 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 const Footer: React.FC = () => {
+  const tapCount = useRef(0);
+  const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleBrandClick = () => {
+    tapCount.current += 1;
+    if (tapCount.current >= 7) {
+      window.dispatchEvent(new CustomEvent('openAdminLogin'));
+      tapCount.current = 0;
+    }
+    
+    if (tapTimer.current) clearTimeout(tapTimer.current);
+    tapTimer.current = setTimeout(() => {
+      tapCount.current = 0;
+    }, 1000);
+  };
+
   return (
     <footer>
       <div className="footer-grid">
         <div>
-          <div className="f-brand">HAZED.STUDIOS</div>
+          <div className="f-brand" onClick={handleBrandClick} style={{ cursor: 'pointer' }}>HAZED.STUDIOS</div>
           <div className="f-tagline">
             We Feel What You Feel. Cairo, Egypt.
           </div>

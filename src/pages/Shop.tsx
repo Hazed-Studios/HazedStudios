@@ -29,8 +29,8 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
   const [showSizeChart, setShowSizeChart] = useState(false);
   const navigate = useNavigate();
 
-  // Get the first product (The Polo Linen Shirt)
-  const thePolo = products[0];
+  // Find the product matching the selected color (each color is a separate DB row)
+  const thePolo = products.find((p) => p.name.includes(selectedColor)) || products[0];
   const images = thePolo?.gallery || (thePolo ? [thePolo.visual] : []);
 
   useEffect(() => {
@@ -39,19 +39,7 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
 
   useEffect(() => {
     if (!thePolo) return;
-    const fetchStock = async () => {
-      try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-        const response = await fetch(`${apiUrl}/api/stock/${thePolo.dbId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setTotalStockLeft(data.quantity);
-        }
-      } catch (err) {
-        console.error('Failed to fetch stock', err);
-      }
-    };
-    fetchStock();
+    setTotalStockLeft(thePolo.stock);
   }, [thePolo]);
 
   const nextImage = (e?: React.MouseEvent) => {
@@ -144,6 +132,7 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
                     key={idx}
                     src={src} 
                     alt="The Polo Linen Shirt" 
+                    loading="lazy"
                     className="sp-img" 
                     style={{ 
                       flex: '0 0 100%',

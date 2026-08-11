@@ -37,7 +37,7 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Global Rate Limiting - Limit each IP to 100 requests per 15 mins
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
+  windowMs: 15 * 60 * 1000,
   max: 100,
   message: 'Too many requests from this IP, please try again in 15 minutes'
 });
@@ -75,7 +75,7 @@ app.get('/api/stock/:productId', async (req, res) => {
       'SELECT SUM(quantity) as total FROM product_stock WHERE product_id = ?',
       [productId]
     );
-    
+
     res.json({ quantity: rows[0]?.total || 0 });
   } catch (err) {
     console.error('Error fetching stock:', err);
@@ -86,10 +86,10 @@ app.get('/api/stock/:productId', async (req, res) => {
 // Route: Create Checkout Order
 app.post('/api/checkout', strictLimiter, async (req, res) => {
   const connection = await pool.getConnection();
-  
+
   try {
     const { customer, cart, total } = req.body;
-    
+
     await connection.beginTransaction();
 
     // 1. Create or get customer
@@ -97,7 +97,7 @@ app.post('/api/checkout', strictLimiter, async (req, res) => {
       'SELECT id FROM customers WHERE phone = ?',
       [customer.phone]
     );
-    
+
     let customerId;
 
     if (customerResult.length > 0) {
@@ -117,13 +117,13 @@ app.post('/api/checkout', strictLimiter, async (req, res) => {
       const sizeString = `${item.quantity || 1}x ${item.size} (${item.color})`;
       const sizeColorStr = `${item.size} - ${item.color}`;
       const totalPrice = item.price * qty;
-      
+
       // Insert order
       const [insertOrder] = await connection.execute(
         'INSERT INTO orders (customer_id, product_id, size, address, governorate, total_price, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
         [customerId, item.id, sizeString, customer.address, customer.governorate, totalPrice, 'Pending']
       );
-      
+
       if (firstOrderId === 0 && insertOrder.insertId) {
         firstOrderId = insertOrder.insertId;
       }
@@ -171,7 +171,7 @@ app.post('/api/admin/data', async (req, res) => {
         JOIN customers c ON o.customer_id = c.id
         ORDER BY o.created_at DESC
       `);
-      
+
       const formattedOrders = orders.map(o => ({
         id: o.id,
         size: o.size,

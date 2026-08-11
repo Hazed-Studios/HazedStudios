@@ -73,7 +73,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
 
       <div className="prod-vis">
         {product.visual.startsWith('/images/') ? (
-          <img src={product.visual} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          <img src={product.visual} alt={product.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
         ) : (
           <div className="prod-sym">{product.visual || 'H.S'}</div>
         )}

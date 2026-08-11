@@ -44,7 +44,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
               <div className="cart-item" key={i}>
                 <div className="ci-img">
                   {item.visual ? (
-                    <img src={item.visual} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    <img src={item.visual} alt={item.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                   ) : (
                     'H.S'
                   )}

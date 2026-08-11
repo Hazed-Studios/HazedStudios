@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useCartStore, useNotificationStore } from '../context/store';
+import { supabase } from '../lib/supabase';
 import { Link } from 'react-router-dom';
 
 const EGYPTIAN_GOVERNORATES = [
@@ -118,32 +119,89 @@ const Checkout: React.FC = () => {
       return;
     }
 
+    // Validate stock availability before creating anything
+    for (const item of cart) {
+      const qty = item.quantity || 1;
+      const { data: stockCheck, error: stockCheckErr } = await supabase
+        .from('product_stock')
+        .select('quantity')
+        .eq('product_id', item.id)
+        .eq('size', item.size)
+        .single();
+
+      if (stockCheckErr || !stockCheck) {
+        showNotif(`Unable to verify stock for ${item.name} (${item.size})`, '#c0392b');
+        return;
+      }
+
+      if (stockCheck.quantity < qty) {
+        showNotif(
+          `Only ${stockCheck.quantity} left in stock for ${item.name} (${item.size}) — please lower the quantity`,
+          '#c0392b'
+        );
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      const response = await fetch(`${apiUrl}/api/checkout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          customer: {
-            name: fn,
-            email: fe,
-            phone: fp,
-            governorate: fgov,
-            address: fa,
-          },
-          cart,
-          total: finalTotal
-        }),
-      });
+      let { data: existingCust } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('phone', fp)
+        .maybeSingle();
 
-      if (!response.ok) {
-        throw new Error('Checkout failed');
+      let customerId;
+      if (existingCust) {
+        customerId = existingCust.id;
+      } else {
+        const { data: newCust, error: cErr } = await supabase
+          .from('customers')
+          .insert({ name: fn, phone: fp, email: fe, governorate: fgov })
+          .select('id')
+          .single();
+        if (cErr) throw cErr;
+        customerId = newCust.id;
       }
-      
-      const { orderId: firstOrderId } = await response.json();
+
+      let firstOrderId = 0;
+
+      for (const item of cart) {
+        const qty = item.quantity || 1;
+        const sizeString = `${qty}x ${item.size} (${item.color})`;
+
+        const { data: newOrderId, error: oErr } = await supabase.rpc('create_order', {
+          p_customer_id: customerId,
+          p_product_id: item.id,
+          p_size: sizeString,
+          p_address: fa,
+          p_governorate: fgov,
+          p_total_price: item.price * qty,
+        });
+
+        if (oErr) throw oErr;
+        if (firstOrderId === 0 && newOrderId) firstOrderId = newOrderId;
+
+        // Update stock (optimistic)
+        const { data: stockData } = await supabase
+          .from('product_stock')
+          .select('quantity')
+          .eq('product_id', item.id)
+          .eq('size', item.size)
+          .single();
+
+        if (stockData && stockData.quantity >= qty) {
+          const { error: stockErr } = await supabase
+            .from('product_stock')
+            .update({ quantity: stockData.quantity - qty })
+            .eq('product_id', item.id)
+            .eq('size', item.size);
+
+          if (stockErr) {
+            console.error('Stock update failed for product', item.id, item.size, stockErr);
+          }
+        }
+      }
 
       // Send email to Store Owner via FormSubmit
       if (fn) {
