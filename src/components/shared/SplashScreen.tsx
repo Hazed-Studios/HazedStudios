@@ -63,11 +63,12 @@ const SplashScreen: React.FC = () => {
           style={{ width: '180px', height: 'auto', marginBottom: '32px' }} 
         />
         <div style={{ 
-          width: '60px', 
-          height: '1px', 
+          width: '140px', 
+          height: '4px', 
           backgroundColor: 'rgba(0,0,0,0.1)', 
           overflow: 'hidden', 
           position: 'relative',
+          borderRadius: '4px',
           opacity: isFadingOut ? 0 : 1,
           transition: 'opacity 0.3s ease'
         }}>
@@ -78,6 +79,7 @@ const SplashScreen: React.FC = () => {
             height: '100%',
             width: '40%',
             backgroundColor: 'var(--cr)',
+            borderRadius: '4px',
             animation: 'splashLoad 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite'
           }} />
         </div>
