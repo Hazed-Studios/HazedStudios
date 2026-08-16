@@ -133,8 +133,9 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
                   <img 
                     key={idx}
                     src={src} 
-                    alt="The Polo Linen Shirt" 
-                    loading="lazy"
+                    alt={`The Polo Linen Shirt - view ${idx + 1}`} 
+                    loading={idx === 0 ? "eager" : "lazy"}
+                    decoding="async"
                     className="sp-img" 
                     style={{ 
                       flex: '0 0 100%',

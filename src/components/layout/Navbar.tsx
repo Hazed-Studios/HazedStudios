@@ -94,4 +94,4 @@ const Navbar: React.FC<NavbarProps> = ({ onOpenCart, onOpenSearch }) => {
   );
 };
 
-export default Navbar;
+export default React.memo(Navbar);
