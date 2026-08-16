@@ -306,6 +306,12 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
               <div className="sp-details">
                 <ul>
                   {thePolo.details.map((d, i) => <li key={i}>{d}</li>)}
+                  {selectedColor === 'Natural Linen' && (
+                    <li>Model is 179cm and 70kg</li>
+                  )}
+                  {selectedColor === 'Baby Blue' && (
+                    <li>Model is 173cm and 65kg</li>
+                  )}
                 </ul>
               </div>
             </>
