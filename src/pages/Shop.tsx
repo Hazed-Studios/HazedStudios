@@ -173,7 +173,7 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
                   </button>
                   <div style={{ position: 'absolute', bottom: '24px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px', zIndex: 10 }}>
                     {images.map((_: any, idx: number) => (
-                      <div key={idx} style={{ width: '8px', height: '8px', borderRadius: '50%', background: idx === currentImageIndex ? 'var(--cr)' : 'rgba(192, 127, 69, 0.4)', transition: 'all 0.3s' }} />
+                      <div key={idx} style={{ width: '8px', height: '8px', borderRadius: '50%', background: idx === currentImageIndex ? 'rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.5)', transition: 'all 0.3s' }} />
                     ))}
                   </div>
                 </>
