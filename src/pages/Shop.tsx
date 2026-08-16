@@ -214,6 +214,19 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
                 {thePolo.story}
               </div>
 
+              <div style={{
+                background: 'var(--bg2)',
+                border: '1px solid var(--bd)',
+                padding: '16px',
+                marginBottom: '32px',
+                fontSize: '12px',
+                color: 'var(--dk)',
+                lineHeight: 1.6
+              }}>
+                <div><strong>First model:</strong> 179 cm, 70 kg, wearing size M in Natural Linen.</div>
+                <div style={{ marginTop: '8px' }}><strong>Second model:</strong> 173 cm, 65 kg, wearing size M in Baby Blue.</div>
+              </div>
+
               <div className="spc-section">
                 <div className="spc-label">
                   Color - <span style={{ color: 'var(--dk)', fontWeight: 500 }}>{selectedColor}</span>
@@ -306,12 +319,6 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
               <div className="sp-details">
                 <ul>
                   {thePolo.details.map((d, i) => <li key={i}>{d}</li>)}
-                  {selectedColor === 'Natural Linen' && (
-                    <li>Model is 179cm and 70kg</li>
-                  )}
-                  {selectedColor === 'Baby Blue' && (
-                    <li>Model is 173cm and 65kg</li>
-                  )}
                 </ul>
               </div>
             </>
