@@ -3820,3 +3820,49 @@ footer {
     cursor: pointer;
     padding: 4px;
 }
+
+/* Mobile responsive admin tables */
+@media (max-width: 768px) {
+    .adm-table {
+        display: block !important;
+        width: 100% !important;
+        background: transparent !important;
+        border: none !important;
+    }
+    .adm-table thead {
+        display: none !important;
+    }
+    .adm-table tbody, .adm-table tr {
+        display: block !important;
+        width: 100% !important;
+    }
+    .adm-table tr {
+        margin-bottom: 24px !important;
+        border: 1px solid var(--bd) !important;
+        background: var(--bg2) !important;
+        border-radius: 4px;
+        padding: 8px 12px;
+    }
+    .adm-table td {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 12px 0 !important;
+        text-align: right !important;
+        border-bottom: 1px solid var(--bd2) !important;
+        white-space: normal !important;
+        gap: 16px !important;
+    }
+    .adm-table td:last-child {
+        border-bottom: none !important;
+    }
+    .adm-table td::before {
+        content: attr(data-label);
+        text-transform: uppercase;
+        font-size: 9px;
+        letter-spacing: 0.15em;
+        color: var(--mu);
+        text-align: left;
+        flex-shrink: 0;
+    }
+}

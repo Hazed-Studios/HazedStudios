@@ -269,7 +269,7 @@ const AdminPanel: React.FC = () => {
                   <div style={styles.admCardTtl}>Recent Orders</div>
                 </div>
                 <div style={{ overflowX: 'auto' }}>
-                  <table style={styles.table}>
+                  <table className="adm-table" style={styles.table}>
                     <thead>
                       <tr>
                         {['#', 'Customer', 'Product', 'Size', 'Gov.', 'Total', 'Status', 'Date'].map((h) => (
@@ -283,14 +283,14 @@ const AdminPanel: React.FC = () => {
                       ) : (
                         recentOrders.map((o: any) => (
                           <tr key={o.id}>
-                            <td style={styles.td}>#{String(o.id).padStart(3, '0')}</td>
-                            <td style={styles.td}>{o.customers?.name || '—'}</td>
-                            <td style={styles.td}>{o.products?.name || '—'}</td>
-                            <td style={styles.td}>{o.size}</td>
-                            <td style={styles.td}>{o.governorate}</td>
-                            <td style={styles.tdPrice}>{(o.total_price || 0).toLocaleString()} EGP</td>
-                            <td style={styles.td}><StatusBadge status={o.status} /></td>
-                            <td style={styles.tdMuted}>{new Date(o.created_at).toLocaleDateString('en-GB')}</td>
+                            <td data-label="#" style={styles.td}>#{String(o.id).padStart(3, '0')}</td>
+                            <td data-label="Customer" style={styles.td}>{o.customers?.name || '—'}</td>
+                            <td data-label="Product" style={styles.td}>{o.products?.name || '—'}</td>
+                            <td data-label="Size" style={styles.td}>{o.size}</td>
+                            <td data-label="Gov." style={styles.td}>{o.governorate}</td>
+                            <td data-label="Total" style={styles.tdPrice}>{(o.total_price || 0).toLocaleString()} EGP</td>
+                            <td data-label="Status" style={styles.td}><StatusBadge status={o.status} /></td>
+                            <td data-label="Date" style={styles.tdMuted}>{new Date(o.created_at).toLocaleDateString('en-GB')}</td>
                           </tr>
                         ))
                       )}
@@ -335,7 +335,7 @@ const AdminPanel: React.FC = () => {
 
             <div style={styles.admCard}>
               <div style={{ overflowX: 'auto' }}>
-                <table style={styles.table}>
+                <table className="adm-table" style={styles.table}>
                   <thead>
                     <tr>
                       {['#', 'Customer', 'Phone', 'Product', 'Size', 'Gov.', 'Address', 'Total', 'Status', 'WhatsApp', 'Date'].map((h) => (
@@ -349,15 +349,15 @@ const AdminPanel: React.FC = () => {
                     ) : (
                       orders.map((o: any) => (
                         <tr key={o.id}>
-                          <td style={styles.td}>#{String(o.id).padStart(3, '0')}</td>
-                          <td style={styles.td}>{o.customers?.name || '—'}</td>
-                          <td style={styles.td}>{o.customers?.phone || ''}</td>
-                          <td style={{ ...styles.td, minWidth: '180px', whiteSpace: 'normal' }}>{o.products?.name || '—'}</td>
-                          <td style={styles.td}>{o.size}</td>
-                          <td style={styles.td}>{o.governorate}</td>
-                          <td style={{ ...styles.td, minWidth: '220px', whiteSpace: 'normal', fontSize: '10px', color: 'var(--mu)' }}>{o.address || '—'}</td>
-                          <td style={styles.tdPrice}>{(o.total_price || 0).toLocaleString()} EGP</td>
-                          <td style={styles.td}>
+                          <td data-label="#" style={styles.td}>#{String(o.id).padStart(3, '0')}</td>
+                          <td data-label="Customer" style={styles.td}>{o.customers?.name || '—'}</td>
+                          <td data-label="Phone" style={styles.td}>{o.customers?.phone || ''}</td>
+                          <td data-label="Product" style={{ ...styles.td, minWidth: '180px', whiteSpace: 'normal' }}>{o.products?.name || '—'}</td>
+                          <td data-label="Size" style={styles.td}>{o.size}</td>
+                          <td data-label="Gov." style={styles.td}>{o.governorate}</td>
+                          <td data-label="Address" style={{ ...styles.td, minWidth: '220px', whiteSpace: 'normal', fontSize: '10px', color: 'var(--mu)' }}>{o.address || '—'}</td>
+                          <td data-label="Total" style={styles.tdPrice}>{(o.total_price || 0).toLocaleString()} EGP</td>
+                          <td data-label="Status" style={styles.td}>
                             <select
                               value={o.status}
                               onChange={(e) => updateOrderStatus(o.id, e.target.value)}
@@ -368,10 +368,10 @@ const AdminPanel: React.FC = () => {
                               ))}
                             </select>
                           </td>
-                          <td style={styles.td}>
+                          <td data-label="WhatsApp" style={styles.td}>
                             <button style={styles.waBtn} onClick={() => handleWhatsAppOrder(o)}>WhatsApp ↗</button>
                           </td>
-                          <td style={styles.tdMuted}>{new Date(o.created_at).toLocaleDateString('en-GB')}</td>
+                          <td data-label="Date" style={styles.tdMuted}>{new Date(o.created_at).toLocaleDateString('en-GB')}</td>
                         </tr>
                       ))
                     )}
@@ -397,7 +397,7 @@ const AdminPanel: React.FC = () => {
 
             <div style={styles.admCard}>
               <div style={{ overflowX: 'auto' }}>
-                <table style={styles.table}>
+                <table className="adm-table" style={styles.table}>
                   <thead>
                     <tr>
                       {['Name', 'Phone', 'Governorate', 'Orders', 'Total Spent', 'Last Order', 'WhatsApp'].map((h) => (
@@ -411,13 +411,13 @@ const AdminPanel: React.FC = () => {
                     ) : (
                       customersWithStats.map((c: any) => (
                         <tr key={c.id}>
-                          <td style={styles.td}>{c.name}</td>
-                          <td style={styles.td}>{c.phone}</td>
-                          <td style={styles.td}>{c.governorate || '—'}</td>
-                          <td style={styles.td}>{c.orderCount}</td>
-                          <td style={styles.tdPrice}>{c.totalSpent.toLocaleString()} EGP</td>
-                          <td style={styles.tdMuted}>{c.lastOrder || '—'}</td>
-                          <td style={styles.td}>
+                          <td data-label="Name" style={styles.td}>{c.name}</td>
+                          <td data-label="Phone" style={styles.td}>{c.phone}</td>
+                          <td data-label="Gov." style={styles.td}>{c.governorate || '—'}</td>
+                          <td data-label="Orders" style={styles.td}>{c.orderCount}</td>
+                          <td data-label="Total Spent" style={styles.tdPrice}>{c.totalSpent.toLocaleString()} EGP</td>
+                          <td data-label="Last Order" style={styles.tdMuted}>{c.lastOrder || '—'}</td>
+                          <td data-label="WhatsApp" style={styles.td}>
                             <button style={styles.waBtn} onClick={() => handleWhatsAppCustomer(c)}>WhatsApp</button>
                           </td>
                         </tr>
