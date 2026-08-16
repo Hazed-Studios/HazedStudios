@@ -628,7 +628,7 @@ nav {
 }
 
 .sri-price {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 16px;
     color: var(--cr);
     margin-top: 4px;
@@ -1348,7 +1348,7 @@ nav {
 }
 
 .prod-price {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 19px;
     font-weight: 300;
     color: var(--cr);
@@ -1535,7 +1535,7 @@ nav {
 }
 
 .pdp-price {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 28px;
     font-weight: 300;
     color: var(--cr);
@@ -2432,7 +2432,7 @@ nav {
 }
 
 .ci-price {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 17px;
     color: var(--cr);
 }
@@ -3024,6 +3024,7 @@ nav {
     margin-bottom: 4px;
 }
 
+
 .si-num {
     font-family: 'Cormorant Garamond', serif;
     font-size: 36px;
@@ -3248,7 +3249,7 @@ nav {
 }
 
 .sp-price {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 28px;
     color: var(--cr);
     margin-bottom: 32px;
@@ -3829,13 +3830,17 @@ footer {
         background: transparent !important;
         border: none !important;
     }
+
     .adm-table thead {
         display: none !important;
     }
-    .adm-table tbody, .adm-table tr {
+
+    .adm-table tbody,
+    .adm-table tr {
         display: block !important;
         width: 100% !important;
     }
+
     .adm-table tr {
         margin-bottom: 24px !important;
         border: 1px solid var(--bd) !important;
@@ -3843,6 +3848,7 @@ footer {
         border-radius: 4px;
         padding: 8px 12px;
     }
+
     .adm-table td {
         display: flex !important;
         justify-content: space-between !important;
@@ -3853,9 +3859,11 @@ footer {
         white-space: normal !important;
         gap: 16px !important;
     }
+
     .adm-table td:last-child {
         border-bottom: none !important;
     }
+
     .adm-table td::before {
         content: attr(data-label);
         text-transform: uppercase;
