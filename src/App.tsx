@@ -7,6 +7,7 @@ import CartDrawer from './components/cart/CartDrawer';
 import Notification from './components/shared/Notification';
 import CookieBanner from './components/shared/CookieBanner';
 import SearchOverlay from './components/shared/SearchOverlay';
+import SplashScreen from './components/shared/SplashScreen';
 import { useAdminStore } from './context/store';
 
 // Lazy loaded components (code-splitting)
@@ -36,6 +37,7 @@ const App: React.FC = () => {
 
   return (
     <Router basename={import.meta.env.BASE_URL}>
+      <SplashScreen />
       <ScrollToTop />
       <Notification />
       <CookieBanner />
