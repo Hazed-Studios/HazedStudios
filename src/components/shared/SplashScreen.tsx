@@ -67,7 +67,7 @@ const SplashScreen: React.FC = () => {
             left: 0,
             height: '100%',
             width: '40%',
-            backgroundColor: 'var(--dk)',
+            backgroundColor: 'var(--cr)',
             animation: 'splashLoad 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite'
           }} />
         </div>
