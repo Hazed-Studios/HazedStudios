@@ -219,7 +219,7 @@ const AdminPanel: React.FC = () => {
             ))}
           </div>
 
-          <a href="/" onClick={handleLogout} style={{ ...styles.closeBtn, textAlign: 'center' }} className="adm-mobile-close">
+          <a href={import.meta.env.BASE_URL} onClick={handleLogout} style={{ ...styles.closeBtn, textAlign: 'center' }} className="adm-mobile-close">
             ← Back to Store
           </a>
         </div>
