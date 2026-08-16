@@ -10,7 +10,7 @@ const SplashScreen: React.FC = () => {
       setIsFadingOut(true);
       setTimeout(() => {
         setIsVisible(false);
-      }, 800); // 800ms fade out transition matches CSS
+      }, 1000); // 1000ms transition matches CSS
     }, 1800);
 
     // Lock body scroll while splash is active
@@ -29,14 +29,13 @@ const SplashScreen: React.FC = () => {
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'var(--bg)',
+        backgroundColor: isFadingOut ? 'transparent' : 'var(--bg)',
         zIndex: 999999,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        opacity: isFadingOut ? 0 : 1,
-        transition: 'opacity 0.8s cubic-bezier(0.65, 0, 0.35, 1)',
+        transition: 'background-color 0.8s cubic-bezier(0.65, 0, 0.35, 1)',
         pointerEvents: isFadingOut ? 'none' : 'auto', // Prevent clicks while fading
       }}
     >
@@ -44,7 +43,9 @@ const SplashScreen: React.FC = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        animation: 'splashPulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+        animation: isFadingOut 
+          ? 'logoMoveUp 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards' 
+          : 'splashPulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
       }}>
         <img 
           src={`${import.meta.env.BASE_URL}images/logo.png`} 
@@ -56,7 +57,9 @@ const SplashScreen: React.FC = () => {
           height: '1px', 
           backgroundColor: 'rgba(0,0,0,0.1)', 
           overflow: 'hidden', 
-          position: 'relative' 
+          position: 'relative',
+          opacity: isFadingOut ? 0 : 1,
+          transition: 'opacity 0.3s ease'
         }}>
           <div style={{
             position: 'absolute',
@@ -78,6 +81,16 @@ const SplashScreen: React.FC = () => {
           @keyframes splashLoad {
             0% { left: -40%; }
             100% { left: 140%; }
+          }
+          @keyframes logoMoveUp {
+            0% {
+              transform: translateY(0) scale(1);
+              opacity: 1;
+            }
+            100% {
+              transform: translateY(-40vh) scale(0.6);
+              opacity: 0;
+            }
           }
         `}
       </style>
