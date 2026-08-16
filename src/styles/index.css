@@ -628,7 +628,7 @@ nav {
 }
 
 .sri-price {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 16px;
     color: var(--cr);
     margin-top: 4px;
@@ -1348,7 +1348,7 @@ nav {
 }
 
 .prod-price {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 19px;
     font-weight: 300;
     color: var(--cr);
@@ -1535,7 +1535,7 @@ nav {
 }
 
 .pdp-price {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 28px;
     font-weight: 300;
     color: var(--cr);
@@ -2432,7 +2432,7 @@ nav {
 }
 
 .ci-price {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 17px;
     color: var(--cr);
 }
@@ -3248,7 +3248,7 @@ nav {
 }
 
 .sp-price {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 28px;
     color: var(--cr);
     margin-bottom: 32px;
