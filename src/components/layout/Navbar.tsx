@@ -38,6 +38,7 @@ const Navbar: React.FC<NavbarProps> = ({ onOpenCart, onOpenSearch }) => {
           <button
             className="mob-menu-btn"
             onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open Mobile Menu"
           >
             ☰
           </button>
@@ -47,14 +48,14 @@ const Navbar: React.FC<NavbarProps> = ({ onOpenCart, onOpenSearch }) => {
             <Link to="/contact">Contact Us</Link>
           </div>
         </div>
-        <Link to="/" className="nav-logo-container">
+        <Link to="/" className="nav-logo-container" aria-label="Go to Homepage">
           <img src={`${import.meta.env.BASE_URL}images/logo.png`} alt="Hazed Studios" className="nav-logo-img" />
         </Link>
         <div className="nav-r">
-          <button className="nav-search" onClick={onOpenSearch}>
+          <button className="nav-search" onClick={onOpenSearch} aria-label="Search Products">
             <Search size={18} />
           </button>
-          <button className="nav-cart-btn" onClick={onOpenCart}>
+          <button className="nav-cart-btn" onClick={onOpenCart} aria-label="View Cart">
             Cart ({cart.length})
           </button>
         </div>
