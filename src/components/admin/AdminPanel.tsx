@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useAdminStore } from '../../context/store';
 import { supabase } from '../../lib/supabase';
-import { useAdminService, useOrders, useCustomers, useProducts, useAnalytics } from './useAdmin';
+import { useAdminService, useOrders, useCustomers, useProducts, useAnalytics, usePagination } from './useAdmin';
 import { exporters, whatsapp } from './admin.utils';
 
 type TabType = 'overview' | 'orders' | 'customers' | 'stock' | 'finance';
@@ -99,18 +99,25 @@ const AdminPanel: React.FC = () => {
   const todayRevenue = orders
     .filter((o: any) => new Date(o.created_at).toDateString() === today)
     .reduce((s: number, o: any) => s + (o.total_price || 0), 0);
-  const stockValue = products.reduce((s: number, p: any) => s + (p.stock || 0) * (p.price || 0), 0);
+
+  const stockValue = products.reduce((sum: number, p: any) => {
+    const stock = Object.values(p.size_stock || {}).reduce((s: number, q: any) => s + (Number(q) || 0), 0) as number;
+    return sum + stock * (p.price || 0);
+  }, 0);
 
   const revenueByProduct = (() => {
-    const map: Record<string, { count: number; rev: number }> = {};
+    const revs: Record<string, { count: number; rev: number }> = {};
     orders.forEach((o: any) => {
       const name = o.products?.name || 'Unknown';
-      map[name] = map[name] || { count: 0, rev: 0 };
-      map[name].count++;
-      map[name].rev += o.total_price || 0;
+      if (!revs[name]) revs[name] = { count: 0, rev: 0 };
+      revs[name].count += 1;
+      revs[name].rev += o.total_price || 0;
     });
-    return Object.entries(map).sort((a, b) => b[1].rev - a[1].rev);
+    return Object.entries(revs).sort((a, b) => b[1].rev - a[1].rev);
   })();
+
+  const ordersPagination = usePagination(orders, 50);
+  const customersPagination = usePagination(customersWithStats, 50);
 
   const handleWhatsAppOrder = (o: any) => {
     const phone = o.customers?.phone || '';
@@ -344,10 +351,10 @@ const AdminPanel: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {orders.length === 0 ? (
-                      <tr><td colSpan={11} style={styles.emptyCell}>No orders yet.</td></tr>
+                    {ordersPagination.items.length === 0 ? (
+                      <tr><td colSpan={11} style={styles.emptyCell}>No orders found.</td></tr>
                     ) : (
-                      orders.map((o: any) => (
+                      ordersPagination.items.map((o: any) => (
                         <tr key={o.id}>
                           <td data-label="#" style={styles.td}>#{String(o.id).padStart(3, '0')}</td>
                           <td data-label="Customer" style={styles.td}>{o.customers?.name || '—'}</td>
@@ -378,6 +385,7 @@ const AdminPanel: React.FC = () => {
                   </tbody>
                 </table>
               </div>
+              <TablePagination pagination={ordersPagination} />
             </div>
           </div>
         )}
@@ -406,10 +414,10 @@ const AdminPanel: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {customersWithStats.length === 0 ? (
-                      <tr><td colSpan={7} style={styles.emptyCell}>No customers yet.</td></tr>
+                    {customersPagination.items.length === 0 ? (
+                      <tr><td colSpan={7} style={styles.emptyCell}>No customers found.</td></tr>
                     ) : (
-                      customersWithStats.map((c: any) => (
+                      customersPagination.items.map((c: any) => (
                         <tr key={c.id}>
                           <td data-label="Name" style={styles.td}>{c.name}</td>
                           <td data-label="Phone" style={styles.td}>{c.phone}</td>
@@ -426,6 +434,7 @@ const AdminPanel: React.FC = () => {
                   </tbody>
                 </table>
               </div>
+              <TablePagination pagination={customersPagination} />
             </div>
           </div>
         )}
@@ -530,6 +539,53 @@ const AdminPanel: React.FC = () => {
   );
 };
 
+const TablePagination = ({ pagination }: { pagination: any }) => {
+  const { currentPage, itemsPerPage, setItemsPerPage, total, goToPage, nextPage, prevPage, canGoNext, canGoPrev } = pagination;
+  
+  if (total === 0) return null;
+  
+  const startIdx = (currentPage - 1) * itemsPerPage + 1;
+  const endIdx = Math.min(startIdx + itemsPerPage - 1, total);
+
+  return (
+    <div style={styles.paginationContainer}>
+      <div style={styles.paginationLeft}>
+        Rows per page: 
+        <select 
+          value={itemsPerPage} 
+          onChange={(e) => {
+            setItemsPerPage(Number(e.target.value));
+            goToPage(1);
+          }}
+          style={styles.paginationSelect}
+        >
+          <option value={10}>10</option>
+          <option value={20}>20</option>
+          <option value={50}>50</option>
+          <option value={100}>100</option>
+        </select>
+      </div>
+      <div style={styles.paginationRight}>
+        <span>{startIdx}–{endIdx} of {total.toLocaleString()}</span>
+        <button 
+          onClick={prevPage} 
+          disabled={!canGoPrev}
+          style={{ ...styles.paginationBtn, opacity: canGoPrev ? 1 : 0.3, cursor: canGoPrev ? 'pointer' : 'default' }}
+        >
+          &lt;
+        </button>
+        <button 
+          onClick={nextPage} 
+          disabled={!canGoNext}
+          style={{ ...styles.paginationBtn, opacity: canGoNext ? 1 : 0.3, cursor: canGoNext ? 'pointer' : 'default' }}
+        >
+          &gt;
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const styles: Record<string, React.CSSProperties> = {
   container: {
     position: 'fixed',
@@ -540,39 +596,23 @@ const styles: Record<string, React.CSSProperties> = {
     flexDirection: 'column',
     overflow: 'hidden',
   },
-  nav: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '18px 40px',
-    borderBottom: '1px solid var(--bd)',
-    background: 'var(--bg2)',
-    flexShrink: 0,
-  },
   logo: { fontFamily: "'Cormorant Garamond', serif", fontSize: '17px', letterSpacing: '0.2em', color: 'var(--dk)' },
   closeBtn: {
     fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--mu)',
     background: 'none', border: '1px solid var(--bd)', padding: '8px 18px', cursor: 'pointer',
     transition: 'all 0.3s', textDecoration: 'none',
   },
-  tabs: { display: 'flex', gap: '4px' },
   tab: {
     fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', padding: '8px 18px',
     border: '1px solid transparent', cursor: 'pointer', transition: 'all 0.3s', background: 'none', color: 'var(--mu)',
   },
   tabActive: { background: 'var(--cr)', color: 'var(--bg)', borderColor: 'var(--cr)' },
-  body: { padding: '40px', overflowY: 'auto', flex: 1 },
   pageTitle: { fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', fontWeight: 300, marginBottom: '6px', color: 'var(--dk)' },
   pageSub: { fontSize: '10px', letterSpacing: '0.15em', color: 'var(--mu)', marginBottom: '40px' },
-  kpiGrid: {
-    display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2px',
-    background: 'var(--bd)', border: '1px solid var(--bd)', marginBottom: '40px',
-  },
   kpi: { background: 'var(--bg2)', padding: '28px' },
   kpiLbl: { fontSize: '8px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--mu)', marginBottom: '12px' },
   kpiVal: { fontFamily: "'Cormorant Garamond', serif", fontSize: '44px', fontWeight: 300, color: 'var(--dk)', lineHeight: 1, marginBottom: '6px' },
   kpiEm: { fontSize: '18px', color: 'var(--cr)', fontStyle: 'normal' },
-  admRow: { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2px', marginBottom: '24px' },
   admCard: { background: 'var(--bg2)', border: '1px solid var(--bd)', marginBottom: '24px' },
   admCardHead: { padding: '20px 24px', borderBottom: '1px solid var(--bd)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   admCardTtl: { fontSize: '8px', letterSpacing: '0.35em', textTransform: 'uppercase', color: 'var(--cr)' },
@@ -592,19 +632,60 @@ const styles: Record<string, React.CSSProperties> = {
   },
   statusSel: { background: 'transparent', border: '1px solid var(--bd)', color: 'var(--dk)', fontSize: '9px', padding: '4px 8px', cursor: 'pointer', outline: 'none' },
   waBtn: { background: '#25D366', border: 'none', color: 'white', fontSize: '7px', letterSpacing: '0.15em', textTransform: 'uppercase', padding: '5px 12px', cursor: 'pointer', transition: 'opacity 0.3s' },
-  stockGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px', background: 'var(--bd)', border: '1px solid var(--bd)' },
   stockItem: { background: 'var(--bg2)', padding: '24px' },
   stockName: { fontSize: '11px', letterSpacing: '0.1em', color: 'var(--dk)', marginBottom: '4px' },
   stockNum: { fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', color: 'var(--cr)', lineHeight: 1, marginBottom: '8px' },
   stockBarWrap: { height: '2px', background: 'rgba(192,127,69,.12)', marginBottom: '8px' },
   stockBar: { height: '100%', background: 'var(--cr)', transition: 'width 0.6s' },
-  sizeBadge: { fontSize: '8px', letterSpacing: '0.12em', border: '1px solid var(--bd)', padding: '3px 8px', color: 'var(--mu)' },
-  finGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2px', background: 'var(--bd)', border: '1px solid var(--bd)', marginBottom: '32px' },
-  finItem: { background: 'var(--bg2)', padding: '28px' },
-  finLbl: { fontSize: '8px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--mu)', marginBottom: '10px' },
-  finVal: { fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', fontWeight: 300, color: 'var(--cr)', lineHeight: 1 },
-  finEm: { fontSize: '14px', color: 'var(--mu)', fontStyle: 'normal' },
-  revRow: { padding: '14px 0', borderBottom: '1px solid var(--bd2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  sizeBadge: { fontSize: '8px', padding: '2px 4px', border: '1px solid var(--bd)', borderRadius: '2px', color: 'var(--mu)', background: 'var(--bg)' },
+  finItem: { background: 'var(--bg2)', padding: '24px', border: '1px solid var(--bd)' },
+  finLbl: { fontSize: '8px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--mu)', marginBottom: '12px' },
+  finVal: { fontFamily: "'Cormorant Garamond', serif", fontSize: '32px', color: 'var(--dk)', lineHeight: 1 },
+  finEm: { fontSize: '14px', color: 'var(--cr)', fontStyle: 'normal' },
+  revRow: { padding: '16px 0', borderBottom: '1px solid var(--bd2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  paginationContainer: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    padding: '12px 24px',
+    borderTop: '1px solid var(--bd)',
+    fontSize: '12px',
+    color: 'var(--dk)',
+    gap: '24px',
+    background: 'var(--bg2)',
+  },
+  paginationLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontWeight: 600,
+  },
+  paginationRight: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
+    fontWeight: 600,
+  },
+  paginationSelect: {
+    background: 'transparent',
+    border: 'none',
+    color: 'var(--dk)',
+    fontSize: '12px',
+    fontWeight: 600,
+    cursor: 'pointer',
+    outline: 'none',
+  },
+  paginationBtn: {
+    background: 'transparent',
+    border: 'none',
+    color: 'var(--dk)',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0 4px',
+  },
 };
 
 export default AdminPanel;

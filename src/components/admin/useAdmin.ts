@@ -403,6 +403,7 @@ export function useSearch<T extends Record<string, any>>(
 export interface UsePaginationResult<T> {
   currentPage: number;
   itemsPerPage: number;
+  setItemsPerPage: (val: number) => void;
   total: number;
   totalPages: number;
   items: T[];
@@ -415,9 +416,10 @@ export interface UsePaginationResult<T> {
 
 export function usePagination<T>(
   items: T[],
-  itemsPerPage: number = 10
+  initialItemsPerPage: number = 10
 ): UsePaginationResult<T> {
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(initialItemsPerPage);
   const totalPages = Math.ceil(items.length / itemsPerPage);
 
   const start = (currentPage - 1) * itemsPerPage;
@@ -425,7 +427,7 @@ export function usePagination<T>(
   const paginatedItems = items.slice(start, end);
 
   const goToPage = useCallback((page: number) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+    setCurrentPage(Math.max(1, Math.min(page, Math.max(1, totalPages))));
   }, [totalPages]);
 
   const nextPage = useCallback(() => {
@@ -440,9 +442,17 @@ export function usePagination<T>(
     }
   }, [currentPage]);
 
+  // Adjust page if we change itemsPerPage and the current page is out of bounds
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
   return {
     currentPage,
     itemsPerPage,
+    setItemsPerPage,
     total: items.length,
     totalPages,
     items: paginatedItems,
