@@ -2,12 +2,15 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useAppStore } from '../../context/store';
 
 const SplashScreen: React.FC = () => {
-  const [isVisible, setIsVisible] = useState(true);
+  const hasSeenSplash = sessionStorage.getItem('hasSeenSplash') === 'true';
+  const [isVisible, setIsVisible] = useState(!hasSeenSplash);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const { isLoaded } = useAppStore();
   const startTime = useRef(Date.now());
 
   useEffect(() => {
+    if (hasSeenSplash && !isVisible) return;
+
     // Lock body scroll while splash is active
     document.body.style.overflow = 'hidden';
     
@@ -23,6 +26,8 @@ const SplashScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (hasSeenSplash && !isVisible) return;
+
     if (isLoaded && isVisible && !isFadingOut) {
       const elapsed = Date.now() - startTime.current;
       const minDuration = 1200; // Show splash for at least 1.2s for the animation
@@ -30,12 +35,15 @@ const SplashScreen: React.FC = () => {
 
       const fadeTimer = setTimeout(() => {
         setIsFadingOut(true);
-        setTimeout(() => setIsVisible(false), 1000);
+        setTimeout(() => {
+          setIsVisible(false);
+          sessionStorage.setItem('hasSeenSplash', 'true');
+        }, 1000);
       }, remaining);
 
       return () => clearTimeout(fadeTimer);
     }
-  }, [isLoaded, isVisible, isFadingOut]);
+  }, [isLoaded, isVisible, isFadingOut, hasSeenSplash]);
 
   if (!isVisible) return null;
 
