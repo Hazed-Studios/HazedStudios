@@ -1,26 +1,41 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { useAppStore } from '../../context/store';
 
 const SplashScreen: React.FC = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
+  const { isLoaded } = useAppStore();
+  const startTime = useRef(Date.now());
 
   useEffect(() => {
-    // Keep the splash screen visible for 1.8 seconds, then start fading out
-    const timer = setTimeout(() => {
-      setIsFadingOut(true);
-      setTimeout(() => {
-        setIsVisible(false);
-      }, 1000); // 1000ms transition matches CSS
-    }, 1800);
-
     // Lock body scroll while splash is active
     document.body.style.overflow = 'hidden';
     
+    // Fallback: If not explicitly loaded after 3 seconds, force fade out
+    const fallbackTimer = setTimeout(() => {
+      useAppStore.getState().setLoaded(true);
+    }, 3000);
+
     return () => {
-      clearTimeout(timer);
+      clearTimeout(fallbackTimer);
       document.body.style.overflow = 'auto';
     };
   }, []);
+
+  useEffect(() => {
+    if (isLoaded && isVisible && !isFadingOut) {
+      const elapsed = Date.now() - startTime.current;
+      const minDuration = 1200; // Show splash for at least 1.2s for the animation
+      const remaining = Math.max(0, minDuration - elapsed);
+
+      const fadeTimer = setTimeout(() => {
+        setIsFadingOut(true);
+        setTimeout(() => setIsVisible(false), 1000);
+      }, remaining);
+
+      return () => clearTimeout(fadeTimer);
+    }
+  }, [isLoaded, isVisible, isFadingOut]);
 
   if (!isVisible) return null;
 

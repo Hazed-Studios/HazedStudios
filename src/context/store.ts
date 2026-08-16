@@ -97,3 +97,13 @@ export const useNotificationStore = create<NotificationState>((set) => ({
   },
   hideNotif: () => set({ message: null }),
 }));
+
+interface AppState {
+  isLoaded: boolean;
+  setLoaded: (loaded: boolean) => void;
+}
+
+export const useAppStore = create<AppState>((set) => ({
+  isLoaded: false,
+  setLoaded: (loaded) => set({ isLoaded: loaded }),
+}));

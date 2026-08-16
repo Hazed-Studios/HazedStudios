@@ -116,5 +116,14 @@ export const useProducts = () => {
     };
   }, []);
 
+  // Update global app state when products finish loading
+  useEffect(() => {
+    if (!loading) {
+      import('../context/store').then(({ useAppStore }) => {
+        useAppStore.getState().setLoaded(true);
+      });
+    }
+  }, [loading]);
+
   return { products, loading, error };
 };
