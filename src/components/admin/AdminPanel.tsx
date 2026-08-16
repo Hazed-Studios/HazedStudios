@@ -523,7 +523,7 @@ const AdminPanel: React.FC = () => {
                       <span style={{ fontSize: '11px', color: 'var(--dk)' }}>{name}</span>
                       <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                         <span style={{ fontSize: '10px', color: 'var(--mu)' }}>{d.count} units</span>
-                        <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '18px', color: 'var(--cr)' }}>
+                        <span style={{ fontFamily: "'Times New Roman', Times, serif", fontSize: '18px', color: 'var(--cr)' }}>
                           {d.rev.toLocaleString()} EGP
                         </span>
                       </div>
@@ -611,7 +611,7 @@ const styles: Record<string, React.CSSProperties> = {
   pageSub: { fontSize: '10px', letterSpacing: '0.15em', color: 'var(--mu)', marginBottom: '40px' },
   kpi: { background: 'var(--bg2)', padding: '28px' },
   kpiLbl: { fontSize: '8px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--mu)', marginBottom: '12px' },
-  kpiVal: { fontFamily: "'Cormorant Garamond', serif", fontSize: '44px', fontWeight: 300, color: 'var(--dk)', lineHeight: 1, marginBottom: '6px' },
+  kpiVal: { fontFamily: "'Times New Roman', Times, serif", fontSize: '44px', fontWeight: 300, color: 'var(--dk)', lineHeight: 1, marginBottom: '6px' },
   kpiEm: { fontSize: '18px', color: 'var(--cr)', fontStyle: 'normal' },
   admCard: { background: 'var(--bg2)', border: '1px solid var(--bd)', marginBottom: '24px' },
   admCardHead: { padding: '20px 24px', borderBottom: '1px solid var(--bd)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
@@ -622,7 +622,7 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: 'left', padding: '12px 20px', borderBottom: '1px solid var(--bd)', whiteSpace: 'nowrap', background: 'var(--bg2)',
   },
   td: { fontSize: '11px', color: 'var(--dk)', padding: '12px 20px', borderBottom: '1px solid var(--bd2)', whiteSpace: 'nowrap' },
-  tdPrice: { fontSize: '16px', color: 'var(--cr)', fontFamily: "'Cormorant Garamond', serif", padding: '12px 20px', borderBottom: '1px solid var(--bd2)' },
+  tdPrice: { fontSize: '16px', color: 'var(--cr)', fontFamily: "'Times New Roman', Times, serif", padding: '12px 20px', borderBottom: '1px solid var(--bd2)' },
   tdMuted: { fontSize: '11px', color: 'var(--mu)', padding: '12px 20px', borderBottom: '1px solid var(--bd2)' },
   emptyCell: { textAlign: 'center', color: 'var(--mu)', padding: '24px' },
   topProdRow: { padding: '12px 0', borderBottom: '1px solid var(--bd2)', display: 'flex', justifyContent: 'space-between' },
@@ -634,13 +634,13 @@ const styles: Record<string, React.CSSProperties> = {
   waBtn: { background: '#25D366', border: 'none', color: 'white', fontSize: '7px', letterSpacing: '0.15em', textTransform: 'uppercase', padding: '5px 12px', cursor: 'pointer', transition: 'opacity 0.3s' },
   stockItem: { background: 'var(--bg2)', padding: '24px' },
   stockName: { fontSize: '11px', letterSpacing: '0.1em', color: 'var(--dk)', marginBottom: '4px' },
-  stockNum: { fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', color: 'var(--cr)', lineHeight: 1, marginBottom: '8px' },
+  stockNum: { fontFamily: "'Times New Roman', Times, serif", fontSize: '36px', color: 'var(--cr)', lineHeight: 1, marginBottom: '8px' },
   stockBarWrap: { height: '2px', background: 'rgba(192,127,69,.12)', marginBottom: '8px' },
   stockBar: { height: '100%', background: 'var(--cr)', transition: 'width 0.6s' },
   sizeBadge: { fontSize: '8px', padding: '2px 4px', border: '1px solid var(--bd)', borderRadius: '2px', color: 'var(--mu)', background: 'var(--bg)' },
   finItem: { background: 'var(--bg2)', padding: '24px', border: '1px solid var(--bd)' },
   finLbl: { fontSize: '8px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--mu)', marginBottom: '12px' },
-  finVal: { fontFamily: "'Cormorant Garamond', serif", fontSize: '32px', color: 'var(--dk)', lineHeight: 1 },
+  finVal: { fontFamily: "'Times New Roman', Times, serif", fontSize: '32px', color: 'var(--dk)', lineHeight: 1 },
   finEm: { fontSize: '14px', color: 'var(--cr)', fontStyle: 'normal' },
   revRow: { padding: '16px 0', borderBottom: '1px solid var(--bd2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   paginationContainer: {
