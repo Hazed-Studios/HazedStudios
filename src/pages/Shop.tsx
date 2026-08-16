@@ -80,6 +80,7 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
       id: thePolo.dbId,
       name: thePolo.name,
       price: thePolo.price,
+      oldPrice: thePolo.oldPrice,
       size: selectedSize,
       color: selectedColor,
       visual: thePolo.visual,
@@ -95,6 +96,7 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
       id: thePolo.dbId,
       name: thePolo.name,
       price: thePolo.price,
+      oldPrice: thePolo.oldPrice,
       size: selectedSize,
       color: selectedColor,
       visual: thePolo.visual,
@@ -184,7 +186,20 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
             <>
               <div className="sec-lbl">The Essential</div>
               <h2 className="sp-title">The Polo Linen Shirt</h2>
-              <div className="sp-price">{thePolo.price.toLocaleString()} EGP</div>
+              <div className="sp-price">
+                {thePolo.oldPrice ? (
+                  <>
+                    <span style={{ textDecoration: 'line-through', color: 'var(--mu2)', marginRight: '12px', fontSize: '0.9em' }}>
+                      {thePolo.oldPrice.toLocaleString()} EGP
+                    </span>
+                    <span style={{ color: 'var(--cr)' }}>
+                      {thePolo.price.toLocaleString()} EGP
+                    </span>
+                  </>
+                ) : (
+                  <>{thePolo.price.toLocaleString()} EGP</>
+                )}
+              </div>
               {totalStockLeft !== null && totalStockLeft <= 10 && totalStockLeft > 0 && (
                 <div style={{ color: 'var(--cr)', fontSize: '13px', fontWeight: 500, fontStyle: 'italic', marginTop: '4px' }}>
                   Only {totalStockLeft} pieces left
@@ -258,15 +273,29 @@ const Shop: React.FC<ShopProps> = ({ onOpenCart }) => {
                 <div className="spc-options" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <button style={{ border: '1px solid var(--bd)', background: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }} onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
                   <span style={{ fontSize: '16px' }}>{quantity}</span>
-                  <button style={{ border: '1px solid var(--bd)', background: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }} onClick={() => setQuantity(quantity + 1)}>+</button>
+                  <button 
+                    style={{ border: '1px solid var(--bd)', background: 'none', cursor: (thePolo && quantity >= (thePolo.sizeStock[selectedSize] || 0)) ? 'not-allowed' : 'pointer', opacity: (thePolo && quantity >= (thePolo.sizeStock[selectedSize] || 0)) ? 0.5 : 1, padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }} 
+                    onClick={() => setQuantity(quantity + 1)}
+                    disabled={thePolo && quantity >= (thePolo.sizeStock[selectedSize] || 0)}
+                  >+</button>
                 </div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px', marginBottom: '40px' }}>
-                <button className="sp-atc" onClick={handleAddToCart}>
-                  Add to Cart
+                <button 
+                  className="sp-atc" 
+                  onClick={handleAddToCart}
+                  disabled={!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0}
+                  style={{ opacity: (!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0) ? 0.5 : 1, cursor: (!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0) ? 'not-allowed' : 'pointer' }}
+                >
+                  {(!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0) ? 'Out of Stock' : 'Add to Cart'}
                 </button>
-                <button className="sp-atc" style={{ background: 'transparent', color: 'var(--dk)', border: '1px solid var(--dk)' }} onClick={handleBuyNow}>
+                <button 
+                  className="sp-atc" 
+                  style={{ background: 'transparent', color: 'var(--dk)', border: '1px solid var(--dk)', opacity: (!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0) ? 0.5 : 1, cursor: (!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0) ? 'not-allowed' : 'pointer' }} 
+                  onClick={handleBuyNow}
+                  disabled={!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0}
+                >
                   Buy Now
                 </button>
               </div>

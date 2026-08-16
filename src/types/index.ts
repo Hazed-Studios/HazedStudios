@@ -4,6 +4,7 @@ export interface Product {
   name: string;
   cat: string;
   price: number;
+  oldPrice?: number;
   stock: number;
   sizeStock: Record<string, number>;
   story: string;
@@ -17,6 +18,7 @@ export interface CartItem {
   id: number; // array index or dbId depending on logic, let's use dbId
   name: string;
   price: number;
+  oldPrice?: number;
   size: string;
   color: string;
   visual: string;

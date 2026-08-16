@@ -64,7 +64,7 @@ const Home: React.FC<HomeProps> = () => {
 
   return (
     <div className="home-wrapper">
-      <section className="hero" style={{ backgroundImage: `url('${import.meta.env.BASE_URL}images/hero-bg.png')` }}>
+      <section className="hero" style={{ backgroundImage: `url('${import.meta.env.BASE_URL}images/IMG_9107.webp')` }}>
         <div className="hero-content" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
           <button
             className="hero-btn"

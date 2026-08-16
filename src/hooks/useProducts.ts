@@ -8,17 +8,20 @@ const FALLBACK_PRODUCTS: Product[] = [
     dbId: 1,
     name: 'Polo Linen Shirt',
     cat: 'Tops',
-    price: 1200,
+    price: 999,
+    oldPrice: 1200,
     stock: 50,
     sizeStock: { S: 15, M: 20, L: 15 },
     story:
       'Our highly anticipated drop. Crafted from premium linen, this polo redefines summer elegance with a relaxed yet tailored fit.',
     details: ['Premium linen blend', 'Relaxed tailored fit', 'Breathable'],
     serial: 'DROP-01-POLO',
-    visual: `${import.meta.env.BASE_URL}images/45305_221248_pm.jpg`,
+    visual: `${import.meta.env.BASE_URL}images/IMG_9247.JPG`,
     gallery: [
-      `${import.meta.env.BASE_URL}images/R.jpg`,
-      `${import.meta.env.BASE_URL}images/45305_221248_pm.jpg`,
+      `${import.meta.env.BASE_URL}images/IMG_9247.JPG`,
+      `${import.meta.env.BASE_URL}images/IMG_9248.JPG`,
+      `${import.meta.env.BASE_URL}images/IMG_9251.JPG`,
+      `${import.meta.env.BASE_URL}images/IMG_9252.JPG`,
     ],
   },
 ];
@@ -65,19 +68,33 @@ export const useProducts = () => {
             ? Object.values(sizeStock).reduce((sum, q) => sum + q, 0)
             : row.stock ?? 0;
 
+          let visual = row.visual || row.image_url;
+          let gallery = row.gallery || [];
+          
+          if (row.name.includes('Natural Linen')) {
+            // Front, Side, Back, Side
+            gallery = ['images/IMG_9233.JPG', 'images/IMG_9236.JPG', 'images/IMG_9238.JPG', 'images/IMG_9239.JPG'];
+            visual = gallery[0];
+          } else if (row.name.includes('Baby Blue')) {
+            // Front, Side, Back, Side
+            gallery = ['images/IMG_9247.JPG', 'images/IMG_9248.JPG', 'images/IMG_9251.JPG', 'images/IMG_9252.JPG'];
+            visual = gallery[0];
+          }
+
           return {
             id: row.id,
             dbId: row.id,
             name: row.name,
             cat: row.cat || row.collection || '',
-            price: Number(row.price) || 0,
+            price: 999,
+            oldPrice: 1200,
             stock: totalStock,
             sizeStock,
             story: row.story || row.description || '',
             details: row.details || [],
             serial: row.serial || row.sku || '',
-            visual: resolveImagePath(row.visual || row.image_url),
-            gallery: (row.gallery || []).map(resolveImagePath),
+            visual: resolveImagePath(visual),
+            gallery: gallery.map(resolveImagePath),
           };
         });
 

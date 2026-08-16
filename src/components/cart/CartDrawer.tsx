@@ -54,7 +54,20 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                   <div className="ci-sz">
                     {item.size} • {item.color}
                   </div>
-                  <div className="ci-price">{(item.price * (item.quantity || 1)).toLocaleString()} EGP</div>
+                  <div className="ci-price">
+                    {item.oldPrice ? (
+                      <>
+                        <span style={{ textDecoration: 'line-through', color: 'var(--mu2)', marginRight: '8px', fontSize: '0.9em' }}>
+                          {(item.oldPrice * (item.quantity || 1)).toLocaleString()} EGP
+                        </span>
+                        <span style={{ color: 'var(--cr)' }}>
+                          {(item.price * (item.quantity || 1)).toLocaleString()} EGP
+                        </span>
+                      </>
+                    ) : (
+                      <>{(item.price * (item.quantity || 1)).toLocaleString()} EGP</>
+                    )}
+                  </div>
                   <div className="ci-qty" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '12px' }}>
                     <button style={{ border: '1px solid var(--bd)', background: 'none', cursor: 'pointer', padding: '4px 10px', borderRadius: '4px', color: 'var(--dk)' }} onClick={() => updateQuantity(i, (item.quantity || 1) - 1)}>-</button>
                     <span style={{ fontSize: '13px' }}>{item.quantity || 1}</span>

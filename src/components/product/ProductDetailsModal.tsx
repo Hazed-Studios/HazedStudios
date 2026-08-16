@@ -43,6 +43,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
       id: product.dbId,
       name: product.name,
       price: product.price,
+      oldPrice: product.oldPrice,
       size: selectedSize,
       color: 'Baby Blue',
       visual: product.visual,
@@ -58,6 +59,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
       id: product.dbId,
       name: product.name,
       price: product.price,
+      oldPrice: product.oldPrice,
       size: selectedSize,
       color: 'Baby Blue',
       visual: product.visual,
@@ -116,22 +118,30 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
           <div className="pdp-sizes" style={{ marginBottom: '24px', display: 'flex', gap: '16px' }}>
             <button style={{ border: '1px solid var(--bd)', background: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }} onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
             <span style={{ fontSize: '16px', display: 'flex', alignItems: 'center' }}>{quantity}</span>
-            <button style={{ border: '1px solid var(--bd)', background: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }} onClick={() => setQuantity(quantity + 1)}>+</button>
+            <button 
+              style={{ border: '1px solid var(--bd)', background: 'none', cursor: (quantity >= (product.sizeStock[selectedSize] || 0)) ? 'not-allowed' : 'pointer', opacity: (quantity >= (product.sizeStock[selectedSize] || 0)) ? 0.5 : 1, padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }} 
+              onClick={() => setQuantity(quantity + 1)}
+              disabled={quantity >= (product.sizeStock[selectedSize] || 0)}
+            >+</button>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <button
               className="pdp-atc"
               onClick={handleAddToCart}
-              disabled={product.stock === 0}
+              disabled={(product.sizeStock[selectedSize] || 0) === 0}
+              style={{ opacity: (product.sizeStock[selectedSize] || 0) === 0 ? 0.5 : 1, cursor: (product.sizeStock[selectedSize] || 0) === 0 ? 'not-allowed' : 'pointer' }}
             >
-              {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
+              {(product.sizeStock[selectedSize] || 0) === 0 ? 'Out of Stock' : 'Add to Cart'}
             </button>
-            {product.stock > 0 && (
-              <button className="pdp-atc" style={{ background: 'transparent', color: 'var(--dk)', border: '1px solid var(--dk)' }} onClick={handleBuyNow}>
-                Buy Now
-              </button>
-            )}
+            <button 
+              className="pdp-atc" 
+              style={{ background: 'transparent', color: 'var(--dk)', border: '1px solid var(--dk)', opacity: (product.sizeStock[selectedSize] || 0) === 0 ? 0.5 : 1, cursor: (product.sizeStock[selectedSize] || 0) === 0 ? 'not-allowed' : 'pointer' }} 
+              onClick={handleBuyNow}
+              disabled={(product.sizeStock[selectedSize] || 0) === 0}
+            >
+              Buy Now
+            </button>
             <button className="pdp-wb" onClick={handleWishlist}>
               Wishlist
             </button>

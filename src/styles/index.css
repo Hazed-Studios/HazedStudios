@@ -265,7 +265,7 @@ button,
     font-weight: 600;
     max-width: 400px;
     border-radius: 8px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15), 0 5px 15px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     text-align: left;
@@ -287,7 +287,7 @@ button,
         justify-content: center;
         text-align: center;
     }
-    
+
     .notif.show {
         transform: translate(-50%, 0);
     }
@@ -640,7 +640,7 @@ nav {
 
 /* HERO */
 .hero {
-    min-height: 100vh;
+    min-height: calc(100vh - 60px);
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -878,7 +878,9 @@ nav {
 .mq {
     border-top: 1px solid var(--bd);
     border-bottom: 1px solid var(--bd);
-    padding: 15px 0;
+    height: 60px;
+    display: flex;
+    align-items: center;
     overflow: hidden;
     background: var(--crl);
 }
@@ -1595,12 +1597,16 @@ nav {
     color: var(--bg);
 }
 
-.sz.out-of-stock, .pdp-sz.out-of-stock, .spc-btn.out-of-stock {
+.sz.out-of-stock,
+.pdp-sz.out-of-stock,
+.spc-btn.out-of-stock {
     position: relative;
     overflow: hidden;
 }
 
-.sz.out-of-stock::after, .pdp-sz.out-of-stock::after, .spc-btn.out-of-stock::after {
+.sz.out-of-stock::after,
+.pdp-sz.out-of-stock::after,
+.spc-btn.out-of-stock::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -1611,7 +1617,9 @@ nav {
     transform: translate(-50%, -50%) rotate(45deg);
 }
 
-.sz.out-of-stock::before, .pdp-sz.out-of-stock::before, .spc-btn.out-of-stock::before {
+.sz.out-of-stock::before,
+.pdp-sz.out-of-stock::before,
+.spc-btn.out-of-stock::before {
     content: '';
     position: absolute;
     top: 50%;
@@ -2653,8 +2661,15 @@ nav {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .adm-section.on {
@@ -2691,13 +2706,13 @@ nav {
     padding: 32px;
     border-radius: 12px;
     border: 1px solid var(--bd);
-    box-shadow: 0 4px 24px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .kpi:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.04);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
 }
 
 .kpi-lbl {
@@ -2730,15 +2745,20 @@ nav {
     letter-spacing: .05em;
 }
 
-.kt-up { color: #27ae60; }
-.kt-dn { color: #e74c3c; }
+.kt-up {
+    color: #27ae60;
+}
+
+.kt-dn {
+    color: #e74c3c;
+}
 
 .adm-card {
     background: #ffffff;
     border: 1px solid var(--bd);
     border-radius: 12px;
     margin-bottom: 24px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
     overflow: hidden;
 }
 
@@ -2837,7 +2857,7 @@ nav {
     background: #ffffff;
     border-radius: 12px;
     border: 1px solid var(--bd);
-    box-shadow: 0 4px 24px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
 }
 
 .ord-table {
@@ -2886,11 +2906,35 @@ nav {
     text-align: center;
 }
 
-.status-pending { background: #fff3e0; color: #e67e22; border: 1px solid #ffe0b2; }
-.status-processing { background: #e3f2fd; color: #3498db; border: 1px solid #bbdefb; }
-.status-shipped { background: #f3e5f5; color: #9b59b6; border: 1px solid #e1bee7; }
-.status-delivered { background: #e8f5e9; color: #27ae60; border: 1px solid #c8e6c9; }
-.status-cancelled { background: #ffebee; color: #e74c3c; border: 1px solid #ffcdd2; }
+.status-pending {
+    background: #fff3e0;
+    color: #e67e22;
+    border: 1px solid #ffe0b2;
+}
+
+.status-processing {
+    background: #e3f2fd;
+    color: #3498db;
+    border: 1px solid #bbdefb;
+}
+
+.status-shipped {
+    background: #f3e5f5;
+    color: #9b59b6;
+    border: 1px solid #e1bee7;
+}
+
+.status-delivered {
+    background: #e8f5e9;
+    color: #27ae60;
+    border: 1px solid #c8e6c9;
+}
+
+.status-cancelled {
+    background: #ffebee;
+    color: #e74c3c;
+    border: 1px solid #ffcdd2;
+}
 
 .st-p {
     background: rgba(214, 137, 16, .1);
@@ -3683,6 +3727,12 @@ footer {
 
     .hero-h1 {
         font-size: clamp(40px, 12vw, 60px);
+    }
+
+    .hero {
+        background-position: 64% center;
+        /* Adjust this percentage to shift the image left/right */
+        background-size: cover;
     }
 
     .desktop-only {
