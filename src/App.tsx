@@ -35,7 +35,7 @@ const App: React.FC = () => {
   const { isAdmin } = useAdminStore();
 
   return (
-    <Router>
+    <Router basename={import.meta.env.BASE_URL}>
       <ScrollToTop />
       <Notification />
       <CookieBanner />
