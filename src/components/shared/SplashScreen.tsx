@@ -41,9 +41,9 @@ const SplashScreen: React.FC = () => {
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(135deg, #FCEDD6 0%, #97C6E0 50%, #C07F45 100%)',
-          backgroundSize: '200% 200%',
-          animation: 'gradientMove 3s ease infinite',
+          backgroundColor: '#FCEDD6',
+          backgroundImage: 'radial-gradient(circle at top right, rgba(151,198,224,0.7) 0%, transparent 60%), radial-gradient(circle at bottom left, rgba(192,127,69,0.7) 0%, transparent 60%)',
+          backgroundSize: '100% 100%',
           opacity: isFadingOut ? 0 : 1,
           transition: 'opacity 0.8s cubic-bezier(0.65, 0, 0.35, 1)',
           zIndex: -1,
@@ -84,11 +84,6 @@ const SplashScreen: React.FC = () => {
       </div>
       <style>
         {`
-          @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-          }
           @keyframes splashPulse {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.8; transform: scale(0.98); }
