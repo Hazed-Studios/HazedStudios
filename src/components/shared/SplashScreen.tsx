@@ -29,16 +29,26 @@ const SplashScreen: React.FC = () => {
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: isFadingOut ? 'transparent' : 'var(--bg)',
         zIndex: 999999,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        transition: 'background-color 0.8s cubic-bezier(0.65, 0, 0.35, 1)',
         pointerEvents: isFadingOut ? 'none' : 'auto', // Prevent clicks while fading
       }}
     >
+      <div 
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(135deg, #FCEDD6 0%, #97C6E0 50%, #C07F45 100%)',
+          backgroundSize: '200% 200%',
+          animation: 'gradientMove 3s ease infinite',
+          opacity: isFadingOut ? 0 : 1,
+          transition: 'opacity 0.8s cubic-bezier(0.65, 0, 0.35, 1)',
+          zIndex: -1,
+        }}
+      />
       <div style={{
         display: 'flex',
         flexDirection: 'column',
@@ -74,6 +84,11 @@ const SplashScreen: React.FC = () => {
       </div>
       <style>
         {`
+          @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
           @keyframes splashPulse {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.8; transform: scale(0.98); }
