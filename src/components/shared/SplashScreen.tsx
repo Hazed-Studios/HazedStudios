@@ -64,8 +64,8 @@ const SplashScreen: React.FC = () => {
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundColor: '#FCEDD6',
-          backgroundImage: 'radial-gradient(circle at top right, rgba(151,198,224,0.7) 0%, transparent 60%), radial-gradient(circle at bottom left, rgba(192,127,69,0.7) 0%, transparent 60%)',
+          backgroundColor: '#0d0b06',
+          backgroundImage: 'radial-gradient(circle, rgba(192, 127, 69, 0.05) 0%, rgba(13, 11, 6, 0) 70%)',
           backgroundSize: '100% 100%',
           opacity: isFadingOut ? 0 : 1,
           transition: 'opacity 0.8s cubic-bezier(0.65, 0, 0.35, 1)',
@@ -81,7 +81,7 @@ const SplashScreen: React.FC = () => {
           : 'splashPulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
       }}>
         <img 
-          src={`${import.meta.env.BASE_URL}images/logo.png`} 
+          src={`${import.meta.env.BASE_URL}images/HazedStudios White (NoBackground).png`} 
           alt="Hazed Studios" 
           style={{ width: '180px', height: 'auto', marginBottom: '32px' }} 
         />

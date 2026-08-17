@@ -13,20 +13,24 @@ import { useAdminStore } from './context/store';
 // Lazy loaded components (code-splitting)
 const AdminLogin = lazy(() => import('./components/admin/AdminLogin'));
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel'));
-const Home = lazy(() => import('./pages/Home'));
+// const Home = lazy(() => import('./pages/Home'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const Shop = lazy(() => import('./pages/Shop'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Returns = lazy(() => import('./pages/Returns'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Lookbook = lazy(() => import('./pages/Lookbook'));
+const EarlyAccess = lazy(() => import('./pages/EarlyAccess'));
 
 // Sleek minimal loader
 const PageLoader = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '120px 0', width: '100%' }}>
-    <div style={{ width: '24px', height: '24px', border: '2px solid var(--bd)', borderTopColor: 'var(--dk)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}>
-      <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-    </div>
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', width: '100%', backgroundColor: '#0d0b06' }}>
+    <img
+      src={`${import.meta.env.BASE_URL}images/HazedStudios White (NoBackground).png`}
+      alt="Loading..."
+      style={{ height: '100px', objectFit: 'contain', animation: 'pulse 1.5s ease-in-out infinite' }}
+    />
+    <style>{`@keyframes pulse { 0%, 100% { opacity: 0.5; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1); } }`}</style>
   </div>
 );
 
@@ -41,22 +45,18 @@ const App: React.FC = () => {
       <ScrollToTop />
       <Notification />
       <CookieBanner />
-      
+
       {/* Admin tools are completely excluded from the bundle for regular users */}
       <Suspense fallback={null}>
         <AdminLogin />
         {isAdmin && <AdminPanel />}
       </Suspense>
-      
+
       <Routes>
         <Route
           path="/"
           element={
-            <>
-              <Navbar onOpenCart={() => setIsCartOpen(true)} onOpenSearch={() => setIsSearchOpen(true)} />
-              <Suspense fallback={<PageLoader />}><Home onOpenCart={() => setIsCartOpen(true)} /></Suspense>
-              <Footer />
-            </>
+            <Suspense fallback={<PageLoader />}><EarlyAccess /></Suspense>
           }
         />
         <Route

@@ -1,0 +1,214 @@
+import React, { useState, useEffect } from 'react';
+import { Check, ArrowRight } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+
+const EarlyAccess: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email && !isSubmitting) {
+      setIsSubmitting(true);
+      
+      const { error } = await supabase
+        .from('waitlist')
+        .insert([{ email }]);
+        
+      setIsSubmitting(false);
+
+      if (!error) {
+        setSubmitted(true);
+      } else {
+        console.error('Error saving email:', error);
+        alert('Something went wrong. Please try again.');
+      }
+    }
+  };
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: '#0d0b06', // matches var(--dk2)
+      color: '#faf6f0', // matches var(--bg)
+      display: 'flex',
+      flexDirection: 'column',
+      fontFamily: "'Montserrat', sans-serif",
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      {/* Subtle background glow */}
+      <div style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '100vw',
+        height: '100vw',
+        background: 'radial-gradient(circle, rgba(192, 127, 69, 0.05) 0%, rgba(13, 11, 6, 0) 70%)',
+        pointerEvents: 'none'
+      }}></div>
+
+      {/* Header */}
+      <header style={{
+        padding: '40px 48px',
+        display: 'flex',
+        justifyContent: 'center',
+        opacity: isLoaded ? 1 : 0,
+        transform: isLoaded ? 'translateY(0)' : 'translateY(-20px)',
+        transition: 'all 1s ease-out'
+      }}>
+        <img
+          src={`${import.meta.env.BASE_URL}images/HazedStudios White (NoBackground).png`}
+          alt="Hazed Studios"
+          style={{ height: '150px', objectFit: 'contain' }}
+        />
+      </header>
+
+      {/* Main Content */}
+      <main style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '0 24px',
+        textAlign: 'center',
+        zIndex: 1,
+        opacity: isLoaded ? 1 : 0,
+        transform: isLoaded ? 'translateY(0)' : 'translateY(20px)',
+        transition: 'all 1s ease-out 0.2s'
+      }}>
+        <h2 style={{
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: 'clamp(40px, 8vw, 80px)',
+          fontWeight: 300,
+          lineHeight: 1.1,
+          marginBottom: '24px',
+          color: '#faf6f0'
+        }}>
+          Redefining the Standard.<br />
+          <em style={{ color: '#C07F45', fontStyle: 'italic' }}>Coming Soon.</em>
+        </h2>
+
+        <p style={{
+          maxWidth: '500px',
+          fontSize: '14px',
+          lineHeight: 1.8,
+          color: '#9a8878', // matches var(--mu)
+          marginBottom: '48px',
+          letterSpacing: '0.05em'
+        }}>
+          Be the first to experience our debut collection. Join the exclusive waitlist to secure early access and a <strong style={{ color: '#C07F45', fontWeight: 600 }}>special VIP discount</strong> on launch day.
+        </p>
+
+        <div style={{ width: '100%', maxWidth: '420px' }}>
+          {submitted ? (
+            <div style={{
+              padding: '24px',
+              border: '1px solid rgba(192, 127, 69, 0.3)',
+              backgroundColor: 'rgba(192, 127, 69, 0.05)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '12px',
+              animation: 'fadeIn 0.5s ease-out'
+            }}>
+              <Check size={28} color="#C07F45" />
+              <p style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '20px', fontStyle: 'italic', color: '#faf6f0' }}>Welcome to our community.</p>
+              <p style={{ margin: 0, fontSize: '12px', color: '#9a8878', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Keep an eye on your inbox.</p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email address"
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: 'none',
+                  borderBottom: '1px solid rgba(154, 136, 120, 0.4)',
+                  padding: '16px 0',
+                  color: '#faf6f0',
+                  fontSize: '16px',
+                  fontFamily: "'Cormorant Garamond', serif",
+                  outline: 'none',
+                  transition: 'border-color 0.3s'
+                }}
+                onFocus={(e) => e.target.style.borderBottomColor = '#C07F45'}
+                onBlur={(e) => e.target.style.borderBottomColor = 'rgba(154, 136, 120, 0.4)'}
+              />
+              <button
+                type="submit"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  background: '#C07F45',
+                  color: '#0d0b06',
+                  border: 'none',
+                  padding: '16px 24px',
+                  fontSize: '12px',
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  marginTop: '16px',
+                  transition: 'background 0.3s, transform 0.2s',
+                }}
+                onMouseOver={(e) => e.currentTarget.style.background = '#faf6f0'}
+                onMouseOut={(e) => e.currentTarget.style.background = '#C07F45'}
+                onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+                onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                disabled={isSubmitting}
+              >
+                <span>{isSubmitting ? 'Loading...' : 'Unlock Early Access'}</span>
+                <ArrowRight size={16} />
+              </button>
+            </form>
+          )}
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer style={{
+        padding: '32px 24px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '24px',
+        fontSize: '11px',
+        letterSpacing: '0.2em',
+        textTransform: 'uppercase',
+        color: '#9a8878',
+        opacity: isLoaded ? 1 : 0,
+        transition: 'opacity 1s ease-out 0.4s'
+      }}>
+        <div style={{ whiteSpace: 'nowrap' }}>&copy; {new Date().getFullYear()} Hazed Studios</div>
+        <div style={{ display: 'flex', gap: '24px' }}>
+          <a href="#" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#faf6f0'} onMouseOut={(e) => e.currentTarget.style.color = 'inherit'}>Instagram</a>
+          <a href="#" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#faf6f0'} onMouseOut={(e) => e.currentTarget.style.color = 'inherit'}>TikTok</a>
+        </div>
+      </footer>
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default EarlyAccess;
