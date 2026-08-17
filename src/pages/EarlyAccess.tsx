@@ -34,14 +34,13 @@ const EarlyAccess: React.FC = () => {
 
   return (
     <div style={{
-      minHeight: '100vh',
+      minHeight: '100dvh', // Use dvh for better mobile browser support
       backgroundColor: '#0d0b06', // matches var(--dk2)
       color: '#faf6f0', // matches var(--bg)
       display: 'flex',
       flexDirection: 'column',
       fontFamily: "'Montserrat', sans-serif",
-      position: 'relative',
-      overflow: 'hidden'
+      position: 'relative'
     }}>
       {/* Subtle background glow */}
       <div style={{
@@ -78,7 +77,7 @@ const EarlyAccess: React.FC = () => {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: '0 24px',
+        padding: '60px 24px', // Added more vertical padding to prevent conflicts
         textAlign: 'center',
         zIndex: 1,
         opacity: isLoaded ? 1 : 0,
@@ -182,6 +181,7 @@ const EarlyAccess: React.FC = () => {
       {/* Footer */}
       <footer style={{
         padding: '32px 24px',
+        backgroundColor: '#0d0b06', // Ensuring solid background on mobile
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
