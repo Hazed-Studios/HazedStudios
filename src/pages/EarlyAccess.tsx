@@ -21,11 +21,11 @@ const EarlyAccess: React.FC = () => {
     e.preventDefault();
     if (email && !isSubmitting) {
       setIsSubmitting(true);
-      
+
       const { error } = await supabase
         .from('waitlist')
         .insert([{ email }]);
-        
+
       setIsSubmitting(false);
 
       if (!error) {
@@ -72,7 +72,7 @@ const EarlyAccess: React.FC = () => {
         <img
           src={`${import.meta.env.BASE_URL}images/logo.png`}
           alt="Hazed Studios"
-          style={{ height: '100px', objectFit: 'contain' }}
+          style={{ height: '140px', objectFit: 'contain' }}
         />
       </header>
 
@@ -201,9 +201,9 @@ const EarlyAccess: React.FC = () => {
       }}>
         <div style={{ whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '8px' }}>
           &copy; {new Date().getFullYear()} Hazed Studios
-          <Lock 
-            size={12} 
-            style={{ cursor: 'pointer', opacity: 0.5, transition: 'opacity 0.3s' }} 
+          <Lock
+            size={12}
+            style={{ cursor: 'pointer', opacity: 0.5, transition: 'opacity 0.3s' }}
             onMouseOver={(e) => e.currentTarget.style.opacity = '1'}
             onMouseOut={(e) => e.currentTarget.style.opacity = '0.5'}
             onClick={() => setShowAdminModal(true)}

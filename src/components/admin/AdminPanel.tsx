@@ -10,6 +10,7 @@ import { useAdminStore } from '../../context/store';
 import { supabase } from '../../lib/supabase';
 import { useAdminService, useOrders, useCustomers, useProducts, useAnalytics, usePagination } from './useAdmin';
 import { exporters, whatsapp } from './admin.utils';
+import { useNavigate } from 'react-router-dom';
 
 type TabType = 'overview' | 'orders' | 'customers' | 'stock' | 'finance';
 
@@ -26,7 +27,7 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   return (
     <span
       style={{
-        fontSize: '7px',
+        fontSize: '10px',
         letterSpacing: '0.15em',
         textTransform: 'uppercase',
         padding: '3px 10px',
@@ -45,16 +46,19 @@ const AdminPanel: React.FC = () => {
   const { isAdmin, logout } = useAdminStore();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const { service } = useAdminService(isAdmin ? supabase : null);
 
-  const handleLogout = async () => {
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault();
     try {
       await supabase.auth.signOut();
     } catch (err) {
       console.error('Sign out error (continuing anyway):', err);
     } finally {
       logout();
+      navigate('/home');
     }
   };
 
@@ -297,7 +301,12 @@ const AdminPanel: React.FC = () => {
                             <td data-label="Gov." style={styles.td}>{o.governorate}</td>
                             <td data-label="Total" style={styles.tdPrice}>{(o.total_price || 0).toLocaleString()} EGP</td>
                             <td data-label="Status" style={styles.td}><StatusBadge status={o.status} /></td>
-                            <td data-label="Date" style={styles.tdMuted}>{new Date(o.created_at).toLocaleDateString('en-GB')}</td>
+                            <td data-label="Date" style={styles.tdMuted}>
+                              {new Date(o.created_at).toLocaleDateString('en-GB')} <br/>
+                              <span style={{ fontSize: '10px', opacity: 0.7 }}>
+                                {new Date(o.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </td>
                           </tr>
                         ))
                       )}
@@ -316,8 +325,8 @@ const AdminPanel: React.FC = () => {
                   ) : (
                     topProducts.map(([name, count]) => (
                       <div key={name} style={styles.topProdRow}>
-                        <span style={{ fontSize: '11px', color: 'var(--dk)' }}>{name}</span>
-                        <span style={{ fontSize: '11px', color: 'var(--cr)' }}>{count} sold</span>
+                        <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{name}</span>
+                        <span style={{ fontSize: '13px', color: 'var(--cr)' }}>{count} sold</span>
                       </div>
                     ))
                   )}
@@ -378,7 +387,12 @@ const AdminPanel: React.FC = () => {
                           <td data-label="WhatsApp" style={styles.td}>
                             <button style={styles.waBtn} onClick={() => handleWhatsAppOrder(o)}>WhatsApp ↗</button>
                           </td>
-                          <td data-label="Date" style={styles.tdMuted}>{new Date(o.created_at).toLocaleDateString('en-GB')}</td>
+                          <td data-label="Date" style={styles.tdMuted}>
+                            {new Date(o.created_at).toLocaleDateString('en-GB')} <br/>
+                            <span style={{ fontSize: '10px', opacity: 0.7 }}>
+                              {new Date(o.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </td>
                         </tr>
                       ))
                     )}
@@ -520,9 +534,9 @@ const AdminPanel: React.FC = () => {
                 ) : (
                   revenueByProduct.map(([name, d]) => (
                     <div key={name} style={styles.revRow}>
-                      <span style={{ fontSize: '11px', color: 'var(--dk)' }}>{name}</span>
+                      <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{name}</span>
                       <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                        <span style={{ fontSize: '10px', color: 'var(--mu)' }}>{d.count} units</span>
+                        <span style={{ fontSize: '12px', color: 'var(--mu)' }}>{d.count} units</span>
                         <span style={{ fontFamily: "'Times New Roman', Times, serif", fontSize: '18px', color: 'var(--cr)' }}>
                           {d.rev.toLocaleString()} EGP
                         </span>
@@ -598,48 +612,48 @@ const styles: Record<string, React.CSSProperties> = {
   },
   logo: { fontFamily: "'Cormorant Garamond', serif", fontSize: '17px', letterSpacing: '0.2em', color: 'var(--dk)' },
   closeBtn: {
-    fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--mu)',
+    fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--mu)',
     background: 'none', border: '1px solid var(--bd)', padding: '8px 18px', cursor: 'pointer',
     transition: 'all 0.3s', textDecoration: 'none',
   },
   tab: {
-    fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', padding: '8px 18px',
+    fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', padding: '8px 18px',
     border: '1px solid transparent', cursor: 'pointer', transition: 'all 0.3s', background: 'none', color: 'var(--mu)',
   },
   tabActive: { background: 'var(--cr)', color: 'var(--bg)', borderColor: 'var(--cr)' },
-  pageTitle: { fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', fontWeight: 300, marginBottom: '6px', color: 'var(--dk)' },
-  pageSub: { fontSize: '10px', letterSpacing: '0.15em', color: 'var(--mu)', marginBottom: '40px' },
+  pageTitle: { fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: 300, marginBottom: '6px', color: 'var(--dk)' },
+  pageSub: { fontSize: '13px', letterSpacing: '0.15em', color: 'var(--mu)', marginBottom: '40px' },
   kpi: { background: 'var(--bg2)', padding: '28px' },
-  kpiLbl: { fontSize: '8px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--mu)', marginBottom: '12px' },
+  kpiLbl: { fontSize: '11px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--mu)', marginBottom: '12px' },
   kpiVal: { fontFamily: "'Times New Roman', Times, serif", fontSize: '44px', fontWeight: 300, color: 'var(--dk)', lineHeight: 1, marginBottom: '6px' },
   kpiEm: { fontSize: '18px', color: 'var(--cr)', fontStyle: 'normal' },
   admCard: { background: 'var(--bg2)', border: '1px solid var(--bd)', marginBottom: '24px' },
   admCardHead: { padding: '20px 24px', borderBottom: '1px solid var(--bd)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  admCardTtl: { fontSize: '8px', letterSpacing: '0.35em', textTransform: 'uppercase', color: 'var(--cr)' },
+  admCardTtl: { fontSize: '11px', letterSpacing: '0.35em', textTransform: 'uppercase', color: 'var(--cr)' },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: {
-    fontSize: '7px', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--mu)',
+    fontSize: '10px', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--mu)',
     textAlign: 'left', padding: '12px 20px', borderBottom: '1px solid var(--bd)', whiteSpace: 'nowrap', background: 'var(--bg2)',
   },
-  td: { fontSize: '11px', color: 'var(--dk)', padding: '12px 20px', borderBottom: '1px solid var(--bd2)', whiteSpace: 'nowrap' },
-  tdPrice: { fontSize: '16px', color: 'var(--cr)', fontFamily: "'Times New Roman', Times, serif", padding: '12px 20px', borderBottom: '1px solid var(--bd2)' },
-  tdMuted: { fontSize: '11px', color: 'var(--mu)', padding: '12px 20px', borderBottom: '1px solid var(--bd2)' },
+  td: { fontSize: '13px', color: 'var(--dk)', padding: '12px 20px', borderBottom: '1px solid var(--bd2)', whiteSpace: 'nowrap' },
+  tdPrice: { fontSize: '18px', color: 'var(--cr)', fontFamily: "'Times New Roman', Times, serif", padding: '12px 20px', borderBottom: '1px solid var(--bd2)' },
+  tdMuted: { fontSize: '13px', color: 'var(--mu)', padding: '12px 20px', borderBottom: '1px solid var(--bd2)' },
   emptyCell: { textAlign: 'center', color: 'var(--mu)', padding: '24px' },
   topProdRow: { padding: '12px 0', borderBottom: '1px solid var(--bd2)', display: 'flex', justifyContent: 'space-between' },
   exportBtn: {
-    fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--cr)',
+    fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--cr)',
     background: 'none', border: '1px solid var(--bd)', padding: '6px 14px', cursor: 'pointer', transition: 'all 0.3s',
   },
-  statusSel: { background: 'transparent', border: '1px solid var(--bd)', color: 'var(--dk)', fontSize: '9px', padding: '4px 8px', cursor: 'pointer', outline: 'none' },
-  waBtn: { background: '#25D366', border: 'none', color: 'white', fontSize: '7px', letterSpacing: '0.15em', textTransform: 'uppercase', padding: '5px 12px', cursor: 'pointer', transition: 'opacity 0.3s' },
+  statusSel: { background: 'transparent', border: '1px solid var(--bd)', color: 'var(--dk)', fontSize: '12px', padding: '4px 8px', cursor: 'pointer', outline: 'none' },
+  waBtn: { background: '#25D366', border: 'none', color: 'white', fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', padding: '5px 12px', cursor: 'pointer', transition: 'opacity 0.3s' },
   stockItem: { background: 'var(--bg2)', padding: '24px' },
-  stockName: { fontSize: '11px', letterSpacing: '0.1em', color: 'var(--dk)', marginBottom: '4px' },
+  stockName: { fontSize: '13px', letterSpacing: '0.1em', color: 'var(--dk)', marginBottom: '4px' },
   stockNum: { fontFamily: "'Times New Roman', Times, serif", fontSize: '36px', color: 'var(--cr)', lineHeight: 1, marginBottom: '8px' },
   stockBarWrap: { height: '2px', background: 'rgba(192,127,69,.12)', marginBottom: '8px' },
   stockBar: { height: '100%', background: 'var(--cr)', transition: 'width 0.6s' },
-  sizeBadge: { fontSize: '8px', padding: '2px 4px', border: '1px solid var(--bd)', borderRadius: '2px', color: 'var(--mu)', background: 'var(--bg)' },
+  sizeBadge: { fontSize: '10px', padding: '2px 4px', border: '1px solid var(--bd)', borderRadius: '2px', color: 'var(--mu)', background: 'var(--bg)' },
   finItem: { background: 'var(--bg2)', padding: '24px', border: '1px solid var(--bd)' },
-  finLbl: { fontSize: '8px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--mu)', marginBottom: '12px' },
+  finLbl: { fontSize: '11px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--mu)', marginBottom: '12px' },
   finVal: { fontFamily: "'Times New Roman', Times, serif", fontSize: '32px', color: 'var(--dk)', lineHeight: 1 },
   finEm: { fontSize: '14px', color: 'var(--cr)', fontStyle: 'normal' },
   revRow: { padding: '16px 0', borderBottom: '1px solid var(--bd2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },

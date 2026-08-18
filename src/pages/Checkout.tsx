@@ -276,22 +276,22 @@ const Checkout: React.FC = () => {
         </Link>
       </div>
 
-      <div className="ord-sec">
-        <div className="ord-left">
-          <div className="ord-title">Complete Your <em>Order</em></div>
-          <div className="ord-sub">
-            Fill in your details below. Once confirmed, you will receive an automated email regarding your order status.
+      {!orderSuccess ? (
+        <div className="ord-sec">
+          <div className="ord-left">
+            <div className="ord-title">Complete Your <em>Order</em></div>
+            <div className="ord-sub">
+              Fill in your details below. Once confirmed, you will receive an automated email regarding your order status.
+            </div>
+
+            <div className="ord-feats">
+              <div className="ord-feat">Cash on Delivery & InstaPay Accepted</div>
+              <div className="ord-feat">Free standard shipping over 2400 EGP</div>
+              <div className="ord-feat">14-Day Returns & Exchanges</div>
+            </div>
           </div>
 
-          <div className="ord-feats">
-            <div className="ord-feat">Cash on Delivery & InstaPay Accepted</div>
-            <div className="ord-feat">Free standard shipping over 2400 EGP</div>
-            <div className="ord-feat">14-Day Returns & Exchanges</div>
-          </div>
-        </div>
-
-        <div className="ord-right">
-          {!orderSuccess ? (
+          <div className="ord-right">
             <form className="ord-form" onSubmit={submitOrder}>
               <div className="form-title">Shipping Details</div>
 
@@ -436,30 +436,35 @@ const Checkout: React.FC = () => {
                 By confirming, you agree to our terms of service and return policies.
               </div>
             </form>
-          ) : (
-            <div className="ord-success show">
-              <div className="ors-icon">✓</div>
-              <div className="ors-title">Order Received</div>
-              <div className="ors-text">
-                Thank you for choosing HAZED.STUDIOS. Your order has been placed successfully.
-                <br /><br />
-                {formData.paymentMethod === 'InstaPay' ? (
-                  <>
-                    Please transfer the total amount of <strong>{finalTotal.toLocaleString()} EGP</strong> to our InstaPay handle:
-                    <br />
-                    <strong style={{ fontSize: '20px', color: 'var(--cr)', display: 'block', margin: '16px 0' }}>your_instapay_handle</strong>
-                    Your order will be processed as soon as we receive the transfer.
-                  </>
-                ) : (
-                  <>
-                    We will process your order soon. You will pay in cash upon delivery.
-                  </>
-                )}
-              </div>
-            </div>
-          )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, padding: '40px 20px', textAlign: 'center' }}>
+          <div className="ord-success show" style={{ position: 'static', opacity: 1, visibility: 'visible', pointerEvents: 'auto', transform: 'none', maxWidth: '600px', width: '100%', margin: '0 auto', boxShadow: 'none' }}>
+            <div className="ors-icon">✓</div>
+            <div className="ors-title">Order Received</div>
+            <div className="ors-text">
+              Thank you for choosing HAZED.STUDIOS. Your order has been placed successfully.
+              <br /><br />
+              {formData.paymentMethod === 'InstaPay' ? (
+                <>
+                  Please transfer the total amount of <strong>{finalTotal.toLocaleString()} EGP</strong> to our InstaPay handle:
+                  <br />
+                  <strong style={{ fontSize: '20px', color: 'var(--cr)', display: 'block', margin: '16px 0' }}>your_instapay_handle</strong>
+                  Your order will be processed as soon as we receive the transfer.
+                </>
+              ) : (
+                <>
+                  We will process your order soon. You will pay in cash upon delivery.
+                </>
+              )}
+            </div>
+          </div>
+          <Link to="/home" style={{ marginTop: '40px', padding: '16px 32px', background: 'var(--cr)', color: 'var(--bg)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.2em', fontSize: '12px', fontWeight: 600, borderRadius: '8px', transition: 'background 0.3s, transform 0.2s', display: 'inline-block' }} onMouseOver={(e) => e.currentTarget.style.background = 'var(--dk)'} onMouseOut={(e) => e.currentTarget.style.background = 'var(--cr)'} onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'} onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+            Back to Home Page
+          </Link>
+        </div>
+      )}
     </div>
   );
 };

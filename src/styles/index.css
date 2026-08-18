@@ -438,6 +438,8 @@ nav {
     flex-direction: column;
     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
     border-right: 1px solid var(--bd);
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .mob-menu-ov.open {
@@ -465,21 +467,22 @@ nav {
 }
 
 .mob-menu-links {
-    margin-top: 80px;
+    margin-top: 60px;
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 24px;
 }
 
 .mob-menu-links a {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 20px;
-    font-style: italic;
-    letter-spacing: .15em;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    letter-spacing: .1em;
     text-transform: uppercase;
     text-decoration: none;
     color: var(--dk);
     transition: color 0.3s;
+    border-bottom: 1px solid var(--bd);
+    padding-bottom: 16px;
 }
 
 .mob-menu-links a:hover {

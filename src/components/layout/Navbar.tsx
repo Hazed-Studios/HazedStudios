@@ -22,6 +22,17 @@ const Navbar: React.FC<NavbarProps> = ({ onOpenCart, onOpenSearch }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   return (
     <nav style={{
       borderBottom: scrolled ? '1px solid var(--bd)' : 'none',
@@ -43,12 +54,12 @@ const Navbar: React.FC<NavbarProps> = ({ onOpenCart, onOpenSearch }) => {
             ☰
           </button>
           <div className="nav-links">
-            <Link to="/">Home</Link>
+            <Link to="/home">Home</Link>
             <Link to="/shop">Shop</Link>
             <Link to="/contact">Contact Us</Link>
           </div>
         </div>
-        <Link to="/" className="nav-logo-container" aria-label="Go to Homepage">
+        <Link to="/home" className="nav-logo-container" aria-label="Go to Homepage">
           <img src={`${import.meta.env.BASE_URL}images/logo.png`} alt="Hazed Studios" className="nav-logo-img" />
         </Link>
         <div className="nav-r">
@@ -80,7 +91,7 @@ const Navbar: React.FC<NavbarProps> = ({ onOpenCart, onOpenSearch }) => {
         <div className="mob-menu-inner">
           <button className="mob-menu-close" onClick={() => setMobileMenuOpen(false)}>×</button>
           <div className="mob-menu-links">
-            <Link to="/" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+            <Link to="/home" onClick={() => setMobileMenuOpen(false)}>Home</Link>
             <Link to="/shop" onClick={() => setMobileMenuOpen(false)}>Shop</Link>
             <Link to="/contact" onClick={() => setMobileMenuOpen(false)}>Contact Us</Link>
           </div>
