@@ -147,13 +147,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
           <div className="prod-cat">{product.cat}</div>
         </div>
         <div className="prod-price" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '6px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'nowrap' }}>
             {product.oldPrice && (
-              <span style={{ textDecoration: 'line-through', color: 'var(--mu)', opacity: 0.6 }}>
-                {product.oldPrice.toLocaleString()}
+              <span style={{ textDecoration: 'line-through', color: 'var(--mu)', opacity: 0.6, whiteSpace: 'nowrap' }}>
+                {product.oldPrice.toLocaleString()} EGP
               </span>
             )}
-            <span>{product.price.toLocaleString()} EGP</span>
+            <span style={{ whiteSpace: 'nowrap' }}>{product.price.toLocaleString()} EGP</span>
           </div>
           {product.oldPrice && (
             <span style={{

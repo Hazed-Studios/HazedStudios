@@ -1355,7 +1355,6 @@ nav {
 }
 
 .prod-price {
-    font-family: 'Times New Roman', Times, serif;
     font-size: 19px;
     font-weight: 300;
     color: var(--cr);
@@ -3256,7 +3255,6 @@ nav {
 }
 
 .sp-price {
-    font-family: 'Times New Roman', Times, serif;
     font-size: 28px;
     color: var(--cr);
     margin-bottom: 32px;
