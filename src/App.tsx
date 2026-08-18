@@ -30,7 +30,7 @@ const PageLoader = () => (
     <img
       src={`${import.meta.env.BASE_URL}images/logo.png`}
       alt="Loading..."
-      style={{ height: '100px', objectFit: 'contain', animation: 'pulse 1.5s ease-in-out infinite' }}
+      style={{ height: '140px', objectFit: 'contain', animation: 'pulse 1.5s ease-in-out infinite' }}
     />
     <style>{`@keyframes pulse { 0%, 100% { opacity: 0.5; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1); } }`}</style>
   </div>
