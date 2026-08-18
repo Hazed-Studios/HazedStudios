@@ -19,7 +19,8 @@ const Contact: React.FC = () => {
       Name: formData.get('Name'),
       Email: formData.get('Email'),
       Message: formData.get('Message'),
-      _template: 'table'
+      _template: 'table',
+      _captcha: 'false'
     };
     
     fetch('https://formsubmit.co/ajax/hazed.co.hr@gmail.com', {

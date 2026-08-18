@@ -193,7 +193,8 @@ const Checkout: React.FC = () => {
             Sizes: sizesSummary,
             Total: `${finalTotal} EGP`,
             Payment_Method: paymentMethod,
-            _template: 'table'
+            _template: 'table',
+            _captcha: 'false'
           })
         }).catch((e) => console.log('Store email send failed:', e.message));
       }
