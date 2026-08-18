@@ -3870,6 +3870,8 @@ footer {
         text-align: left !important;
         border-bottom: 1px solid var(--bd2) !important;
         white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
         gap: 8px !important;
     }
 
