@@ -62,7 +62,7 @@ const EarlyAccess: React.FC = () => {
 
       {/* Header */}
       <header style={{
-        padding: '40px 48px',
+        padding: '20px 48px',
         display: 'flex',
         justifyContent: 'center',
         opacity: isLoaded ? 1 : 0,
@@ -72,7 +72,7 @@ const EarlyAccess: React.FC = () => {
         <img
           src={`${import.meta.env.BASE_URL}images/logo.png`}
           alt="Hazed Studios"
-          style={{ height: '150px', objectFit: 'contain' }}
+          style={{ height: '100px', objectFit: 'contain' }}
         />
       </header>
 
@@ -95,7 +95,7 @@ const EarlyAccess: React.FC = () => {
           fontSize: 'clamp(40px, 8vw, 80px)',
           fontWeight: 300,
           lineHeight: 1.1,
-          marginBottom: '24px',
+          marginBottom: '16px',
           color: '#1a1208'
         }}>
           Redefining the Standard.<br />
@@ -107,7 +107,7 @@ const EarlyAccess: React.FC = () => {
           fontSize: '14px',
           lineHeight: 1.8,
           color: '#9a8878', // matches var(--mu)
-          marginBottom: '48px',
+          marginBottom: '24px',
           letterSpacing: '0.05em'
         }}>
           Be the first to experience our debut collection. Join the exclusive waitlist to secure early access and a <strong style={{ color: '#C07F45', fontWeight: 600 }}>special VIP discount</strong> on launch day.
@@ -130,7 +130,7 @@ const EarlyAccess: React.FC = () => {
               <p style={{ margin: 0, fontSize: '12px', color: '#9a8878', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Keep an eye on your inbox.</p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <form onSubmit={handleSubmit} style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <input
                 type="email"
                 required
@@ -167,7 +167,7 @@ const EarlyAccess: React.FC = () => {
                   textTransform: 'uppercase',
                   fontWeight: 600,
                   cursor: 'pointer',
-                  marginTop: '16px',
+                  marginTop: '8px',
                   transition: 'background 0.3s, transform 0.2s',
                 }}
                 onMouseOver={(e) => e.currentTarget.style.background = '#1a1208'}
@@ -186,7 +186,7 @@ const EarlyAccess: React.FC = () => {
 
       {/* Footer */}
       <footer style={{
-        padding: '32px 24px',
+        padding: '16px 24px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
