@@ -10,25 +10,25 @@ const Contact: React.FC = () => {
     if (e.target.files && e.target.files.length > 0) {
       const newFiles = Array.from(e.target.files);
       filesRef.current = [...filesRef.current, ...newFiles];
-      
+
       const dt = new DataTransfer();
       filesRef.current.forEach(f => dt.items.add(f));
       e.target.files = dt.files;
-      
+
       setFileNames(filesRef.current.map(f => f.name));
     }
   };
 
   const handleRemoveFile = (indexToRemove: number) => {
     filesRef.current = filesRef.current.filter((_, i) => i !== indexToRemove);
-    
+
     const input = document.getElementById('file-upload') as HTMLInputElement;
     if (input) {
       const dt = new DataTransfer();
       filesRef.current.forEach(f => dt.items.add(f));
       input.files = dt.files;
     }
-    
+
     setFileNames(filesRef.current.map(f => f.name));
   };
 
@@ -38,7 +38,7 @@ const Contact: React.FC = () => {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '60px' }}>
         <div style={{ flex: '1 1 400px', background: 'var(--bg2)', padding: '40px', borderRadius: '8px', border: '1px solid var(--bd)' }}>
           <h3 style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '26px', fontWeight: 300, fontStyle: 'italic', color: 'var(--dk)', margin: '0 0 24px 0' }}>Send us a message</h3>
-          
+
           <iframe name="hidden_iframe" id="hidden_iframe" style={{ display: 'none' }} onLoad={() => {
             if (isSubmitting) {
               setStatus('Message sent successfully. We will get back to you shortly.');
@@ -59,7 +59,7 @@ const Contact: React.FC = () => {
           {status ? (
             <div style={{ textAlign: 'center', padding: '40px 0' }}>
               <p style={{ color: 'var(--cr)', fontStyle: 'italic', fontSize: '18px', lineHeight: '1.8' }}>{status}</p>
-              <button 
+              <button
                 type="button"
                 onClick={() => setStatus('')}
                 style={{ marginTop: '20px', background: 'transparent', border: '1px solid var(--cr)', color: 'var(--cr)', padding: '10px 24px', fontSize: '11px', letterSpacing: '.2em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: '4px' }}
@@ -68,16 +68,16 @@ const Contact: React.FC = () => {
               </button>
             </div>
           ) : (
-            <form 
-              id="contact-form" 
-              action="https://formsubmit.co/hazed.co.hr@gmail.com" 
-              method="POST" 
-              encType="multipart/form-data" 
-              target="hidden_iframe" 
+            <form
+              id="contact-form"
+              action="https://formsubmit.co/hazed.co.hr@gmail.com"
+              method="POST"
+              encType="multipart/form-data"
+              target="hidden_iframe"
               onSubmit={(e) => {
                 setIsSubmitting(true);
                 const form = e.currentTarget;
-                
+
                 // Disable the original multi-file input so it doesn't get sent as a single field
                 const originalInput = document.getElementById('file-upload') as HTMLInputElement;
                 if (originalInput) originalInput.disabled = true;
@@ -85,7 +85,7 @@ const Contact: React.FC = () => {
                 // Remove any previously added dynamic inputs
                 const existingDynamicInputs = form.querySelectorAll('.dynamic-attachment');
                 existingDynamicInputs.forEach(input => input.remove());
-                
+
                 // Create individual file inputs for each file so FormSubmit processes them all
                 filesRef.current.forEach((file, index) => {
                   const dt = new DataTransfer();
@@ -102,7 +102,8 @@ const Contact: React.FC = () => {
             >
               <input type="hidden" name="_subject" value="New Contact Request" />
               <input type="hidden" name="_captcha" value="false" />
-              <input type="hidden" name="_template" value="box" />
+              <input type="hidden" name="_template" value="table" />
+              <div className="fg">
                 <label className="fl">Name</label>
                 <input type="text" name="Name" className="fi" placeholder="Your name" required />
               </div>
@@ -117,18 +118,18 @@ const Contact: React.FC = () => {
               <div className="fg">
                 <label className="fl">Attachment (Optional)</label>
                 <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
-                  <label 
-                    htmlFor="file-upload" 
-                    style={{ 
+                  <label
+                    htmlFor="file-upload"
+                    style={{
                       display: 'inline-block',
                       width: 'fit-content',
-                      padding: '10px 24px', 
-                      background: 'transparent', 
-                      border: '1px solid var(--cr)', 
-                      color: 'var(--cr)', 
-                      fontSize: '11px', 
-                      letterSpacing: '.2em', 
-                      textTransform: 'uppercase', 
+                      padding: '10px 24px',
+                      background: 'transparent',
+                      border: '1px solid var(--cr)',
+                      color: 'var(--cr)',
+                      fontSize: '11px',
+                      letterSpacing: '.2em',
+                      textTransform: 'uppercase',
                       cursor: 'pointer',
                       borderRadius: '4px',
                       transition: 'all 0.3s'
@@ -138,7 +139,7 @@ const Contact: React.FC = () => {
                   >
                     Choose Files
                   </label>
-                  
+
                   {fileNames.length > 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
                       {fileNames.map((name, idx) => (
@@ -146,8 +147,8 @@ const Contact: React.FC = () => {
                           <span style={{ fontSize: '13px', color: 'var(--mu)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '250px' }}>
                             {name}
                           </span>
-                          <button 
-                            type="button" 
+                          <button
+                            type="button"
                             onClick={() => handleRemoveFile(idx)}
                             style={{ background: 'none', border: 'none', color: 'var(--cr)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '0 4px', margin: '-4px 0' }}
                             title="Remove file"
@@ -158,12 +159,12 @@ const Contact: React.FC = () => {
                       ))}
                     </div>
                   )}
-                  <input 
+                  <input
                     id="file-upload"
-                    type="file" 
+                    type="file"
                     name="attachment"
                     onChange={handleFileChange}
-                    style={{ display: 'none' }} 
+                    style={{ display: 'none' }}
                     multiple
                   />
                 </div>
@@ -182,19 +183,19 @@ const Contact: React.FC = () => {
           <p>
             We are here to assist you with any inquiries regarding our collections, sizing, orders, or general questions.
           </p>
-          
+
           <h3>Email</h3>
           <p>
-            For all customer service and press inquiries, please reach out to us at:<br/>
+            For all customer service and press inquiries, please reach out to us at:<br />
             <a href="mailto:hazed.co.hr@gmail.com">hazed.co.hr@gmail.com</a>
           </p>
 
           <h3>Studio Hours</h3>
           <p>
-            Our Cairo-based client services team is available:<br/>
+            Our Cairo-based client services team is available:<br />
             Sunday - Thursday: 10:00 AM - 6:00 PM (EET)
           </p>
-          
+
           <p>
             <em>Please allow 24-48 hours for a response during standard business days.</em>
           </p>
