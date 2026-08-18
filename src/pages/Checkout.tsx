@@ -101,6 +101,12 @@ const Checkout: React.FC = () => {
     }
   };
 
+  const handleRemoveCoupon = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setDiscountApplied(false);
+    setCouponCode('');
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
@@ -370,11 +376,21 @@ const Checkout: React.FC = () => {
                     disabled={discountApplied}
                   />
                   <button
-                    onClick={handleApplyCoupon}
-                    disabled={discountApplied || !couponCode}
-                    style={{ padding: '0 20px', background: discountApplied ? 'var(--bd)' : 'var(--dk)', color: 'var(--bg)', border: 'none', cursor: discountApplied ? 'not-allowed' : 'pointer', fontSize: '11px', letterSpacing: '.1em', textTransform: 'uppercase', transition: 'all 0.3s' }}
+                    onClick={discountApplied ? handleRemoveCoupon : handleApplyCoupon}
+                    disabled={!discountApplied && !couponCode}
+                    style={{ 
+                      padding: '0 20px', 
+                      background: discountApplied ? 'transparent' : 'var(--dk)', 
+                      color: discountApplied ? 'var(--mu)' : 'var(--bg)', 
+                      border: discountApplied ? '1px solid var(--mu)' : 'none', 
+                      cursor: 'pointer', 
+                      fontSize: '11px', 
+                      letterSpacing: '.1em', 
+                      textTransform: 'uppercase', 
+                      transition: 'all 0.3s' 
+                    }}
                   >
-                    {discountApplied ? 'Applied' : 'Apply'}
+                    {discountApplied ? 'Clear' : 'Apply'}
                   </button>
                 </div>
 
