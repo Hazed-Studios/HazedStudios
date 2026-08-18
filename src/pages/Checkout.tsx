@@ -271,7 +271,7 @@ const Checkout: React.FC = () => {
   return (
     <div className="page-view open" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <div className="ck-nav">
-        <Link to="/" className="ck-logo">
+        <Link to="/home" className="ck-logo">
           <img src={`${import.meta.env.BASE_URL}images/logo.png`} alt="Hazed Studios" style={{ height: '110px', objectFit: 'contain' }} />
         </Link>
       </div>
