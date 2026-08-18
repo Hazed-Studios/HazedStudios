@@ -199,13 +199,13 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
             <>
               <div className="sec-lbl">The Essential</div>
               <h2 className="sp-title">The Polo Linen Shirt</h2>
-              <div className="sp-price">
+              <div className="sp-price" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                 {thePolo.oldPrice ? (
                   <>
-                    <span style={{ textDecoration: 'line-through', color: 'var(--mu2)', marginRight: '12px', fontSize: '0.9em' }}>
+                    <span style={{ textDecoration: 'line-through', color: 'var(--mu2)', fontSize: '0.9em', whiteSpace: 'nowrap' }}>
                       {thePolo.oldPrice.toLocaleString()} EGP
                     </span>
-                    <span style={{ color: 'var(--cr)', display: 'inline-flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ color: 'var(--cr)', display: 'inline-flex', alignItems: 'center', gap: '12px', whiteSpace: 'nowrap' }}>
                       {thePolo.price.toLocaleString()} EGP
                       <span style={{ 
                         fontFamily: 'system-ui, -apple-system, sans-serif',
