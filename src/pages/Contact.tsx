@@ -4,44 +4,6 @@ const Contact: React.FC = () => {
   const [status, setStatus] = useState<string>('');
   const [fileName, setFileName] = useState<string>('');
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    
-    // Add FormSubmit config fields directly to FormData to support file attachments
-    formData.append('_subject', `New Contact Request from ${formData.get('Name')}`);
-    formData.append('_template', 'table');
-    formData.append('_captcha', 'false');
-    
-    fetch('https://formsubmit.co/ajax/hazed.co.hr@gmail.com', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json'
-      },
-      body: formData,
-    })
-    .then(response => {
-      if (!response.ok) throw new Error('Failed');
-      return response.json();
-    })
-    .then(() => {
-      setStatus('Message sent successfully. We will get back to you shortly.');
-      setIsSubmitting(false);
-      form.reset();
-      setFileName('');
-    })
-    .catch(error => {
-      setStatus('Failed to send message. Please try again.');
-      setIsSubmitting(false);
-      console.error(error);
-    });
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setFileName(e.target.files[0].name);
@@ -56,10 +18,11 @@ const Contact: React.FC = () => {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '60px' }}>
         <div style={{ flex: '1 1 400px', background: 'var(--bg2)', padding: '40px', borderRadius: '8px', border: '1px solid var(--bd)' }}>
           <h3 style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '26px', fontWeight: 300, fontStyle: 'italic', color: 'var(--dk)', margin: '0 0 24px 0' }}>Send us a message</h3>
-          {status ? (
-            <p style={{ color: 'var(--cr)', fontStyle: 'italic', fontSize: '14px', lineHeight: '1.8' }}>{status}</p>
-          ) : (
-            <form onSubmit={handleSubmit}>
+            <form action="https://formsubmit.co/hazed.co.hr@gmail.com" method="POST" encType="multipart/form-data">
+              <input type="hidden" name="_subject" value="New Contact Request" />
+              <input type="hidden" name="_captcha" value="false" />
+              <input type="hidden" name="_template" value="table" />
+              <input type="hidden" name="_next" value="https://andrew20x.github.io/HazedStudios-Website/contact" />
               <div className="fg">
                 <label className="fl">Name</label>
                 <input type="text" name="Name" className="fi" placeholder="Your name" required />
@@ -111,7 +74,6 @@ const Contact: React.FC = () => {
                 {isSubmitting ? 'Sending...' : 'Send Message'}
               </button>
             </form>
-          )}
         </div>
 
         <div className="page-content" style={{ flex: '1 1 300px' }}>
