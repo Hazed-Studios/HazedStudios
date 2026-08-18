@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 const Contact: React.FC = () => {
-  const [status, setStatus] = useState<string>('');
   const [fileName, setFileName] = useState<string>('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,8 +69,8 @@ const Contact: React.FC = () => {
                   />
                 </div>
               </div>
-              <button type="submit" className="fsub" disabled={isSubmitting}>
-                {isSubmitting ? 'Sending...' : 'Send Message'}
+              <button type="submit" className="fsub">
+                Send Message
               </button>
             </form>
         </div>
