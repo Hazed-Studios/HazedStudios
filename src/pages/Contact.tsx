@@ -102,8 +102,7 @@ const Contact: React.FC = () => {
             >
               <input type="hidden" name="_subject" value="New Contact Request" />
               <input type="hidden" name="_captcha" value="false" />
-              <input type="hidden" name="_template" value="table" />
-              <div className="fg">
+              <input type="hidden" name="_template" value="box" />
                 <label className="fl">Name</label>
                 <input type="text" name="Name" className="fi" placeholder="Your name" required />
               </div>
