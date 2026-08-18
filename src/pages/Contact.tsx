@@ -13,10 +13,22 @@ const Contact: React.FC = () => {
     const form = e.currentTarget;
     const formData = new FormData(form);
     
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-    fetch(`${apiUrl}/api/contact`, {
+    // We construct a JSON object to send to FormSubmit via AJAX
+    const data = {
+      _subject: `New Contact Request from ${formData.get('Name')}`,
+      Name: formData.get('Name'),
+      Email: formData.get('Email'),
+      Message: formData.get('Message'),
+      _template: 'table'
+    };
+    
+    fetch('https://formsubmit.co/ajax/hazed.co.hr@gmail.com', {
       method: 'POST',
-      body: formData,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(data),
     })
     .then(response => {
       if (!response.ok) throw new Error('Failed');
