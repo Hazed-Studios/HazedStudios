@@ -3879,7 +3879,7 @@ footer {
         border-bottom: none !important;
     }
 
-    .adm-table td::before {
+    .adm-table td[data-label]::before {
         content: attr(data-label);
         text-transform: uppercase;
         font-size: 9px;
