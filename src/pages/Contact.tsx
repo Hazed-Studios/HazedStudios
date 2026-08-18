@@ -1,31 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 const Contact: React.FC = () => {
   const [fileNames, setFileNames] = useState<string[]>([]);
+  const filesRef = useRef<File[]>([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const names = Array.from(e.target.files).map(f => f.name);
-      setFileNames(names);
-    } else {
-      setFileNames([]);
+      const newFiles = Array.from(e.target.files);
+      filesRef.current = [...filesRef.current, ...newFiles];
+      
+      const dt = new DataTransfer();
+      filesRef.current.forEach(f => dt.items.add(f));
+      e.target.files = dt.files;
+      
+      setFileNames(filesRef.current.map(f => f.name));
     }
   };
 
   const handleRemoveFile = (indexToRemove: number) => {
-    const input = document.getElementById('file-upload') as HTMLInputElement;
-    if (!input || !input.files) return;
+    filesRef.current = filesRef.current.filter((_, i) => i !== indexToRemove);
     
-    const dt = new DataTransfer();
-    for (let i = 0; i < input.files.length; i++) {
-      if (i !== indexToRemove) {
-        dt.items.add(input.files[i]);
-      }
+    const input = document.getElementById('file-upload') as HTMLInputElement;
+    if (input) {
+      const dt = new DataTransfer();
+      filesRef.current.forEach(f => dt.items.add(f));
+      input.files = dt.files;
     }
     
-    input.files = dt.files;
-    const names = Array.from(dt.files).map(f => f.name);
-    setFileNames(names);
+    setFileNames(filesRef.current.map(f => f.name));
   };
 
   return (
