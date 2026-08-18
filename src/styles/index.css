@@ -2313,7 +2313,7 @@ nav {
     top: 0;
     right: -440px;
     width: 440px;
-    height: 100vh;
+    height: 100dvh;
     background: var(--bg);
     border-left: 1px solid var(--bd);
     z-index: 800;
