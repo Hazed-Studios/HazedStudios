@@ -343,26 +343,34 @@ const Checkout: React.FC = () => {
                   style={{
                     border: formData.paymentMethod === 'COD' ? '1px solid var(--cr)' : '1px solid var(--bd)',
                     background: formData.paymentMethod === 'COD' ? 'var(--cr)' : 'transparent',
-                    padding: '16px',
+                    padding: '12px 8px',
+                    borderRadius: '6px',
                     textAlign: 'center',
                     cursor: 'pointer',
-                    transition: 'all 0.3s'
+                    transition: 'all 0.3s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}
                 >
-                  <span style={{ fontSize: '12px', color: formData.paymentMethod === 'COD' ? 'var(--bg)' : 'var(--mu)', letterSpacing: '.1em', textTransform: 'uppercase', fontWeight: formData.paymentMethod === 'COD' ? 600 : 400 }}>Cash on Delivery</span>
+                  <span style={{ fontSize: '10.5px', color: formData.paymentMethod === 'COD' ? 'var(--bg)' : 'var(--mu)', letterSpacing: '.05em', textTransform: 'uppercase', fontWeight: formData.paymentMethod === 'COD' ? 600 : 400, whiteSpace: 'nowrap' }}>Cash on Delivery</span>
                 </div>
                 <div
                   onClick={() => setFormData({ ...formData, paymentMethod: 'InstaPay' })}
                   style={{
                     border: formData.paymentMethod === 'InstaPay' ? '1px solid var(--cr)' : '1px solid var(--bd)',
                     background: formData.paymentMethod === 'InstaPay' ? 'var(--cr)' : 'transparent',
-                    padding: '16px',
+                    padding: '12px 8px',
+                    borderRadius: '6px',
                     textAlign: 'center',
                     cursor: 'pointer',
-                    transition: 'all 0.3s'
+                    transition: 'all 0.3s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}
                 >
-                  <span style={{ fontSize: '12px', color: formData.paymentMethod === 'InstaPay' ? 'var(--bg)' : 'var(--mu)', letterSpacing: '.1em', textTransform: 'uppercase', fontWeight: formData.paymentMethod === 'InstaPay' ? 600 : 400 }}>InstaPay</span>
+                  <span style={{ fontSize: '10.5px', color: formData.paymentMethod === 'InstaPay' ? 'var(--bg)' : 'var(--mu)', letterSpacing: '.05em', textTransform: 'uppercase', fontWeight: formData.paymentMethod === 'InstaPay' ? 600 : 400, whiteSpace: 'nowrap' }}>InstaPay</span>
                 </div>
               </div>
 
