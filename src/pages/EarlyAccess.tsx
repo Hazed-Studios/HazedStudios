@@ -37,6 +37,23 @@ const EarlyAccess: React.FC = () => {
     }
   };
 
+  const handleUnlock = async () => {
+    try {
+      const msgBuffer = new TextEncoder().encode(adminPwd);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      
+      if (hashHex === '801927bb48a9081b3a28e1fc7c29aed5b4b561d9a4096adce5b077f7eaf40713') {
+        navigate('/home');
+      } else {
+        setAdminError('Incorrect password');
+      }
+    } catch (e) {
+      setAdminError('Error verifying password');
+    }
+  };
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -219,11 +236,11 @@ const EarlyAccess: React.FC = () => {
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(250, 246, 240, 0.8)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
           <div style={{ background: '#faf6f0', border: '1px solid rgba(192, 127, 69, 0.3)', padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', maxWidth: '320px', animation: 'fadeIn 0.3s ease-out' }}>
             <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', color: '#1a1208', fontWeight: 300 }}>Admin Access</h3>
-            <input type="password" placeholder="Enter password" value={adminPwd} onChange={(e) => { setAdminPwd(e.target.value); setAdminError(''); }} onKeyDown={(e) => { if (e.key === 'Enter') { if (adminPwd === 'Wikian@2026') navigate('/home'); else setAdminError('Incorrect password'); } }} autoFocus style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(154, 136, 120, 0.4)', padding: '12px 0', color: '#1a1208', fontSize: '14px', fontFamily: "'Montserrat', sans-serif", outline: 'none', transition: 'border-color 0.3s' }} onFocus={(e) => e.target.style.borderBottomColor = '#C07F45'} onBlur={(e) => e.target.style.borderBottomColor = 'rgba(154, 136, 120, 0.4)'} />
+            <input type="password" placeholder="Enter password" value={adminPwd} onChange={(e) => { setAdminPwd(e.target.value); setAdminError(''); }} onKeyDown={(e) => { if (e.key === 'Enter') { handleUnlock(); } }} autoFocus style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(154, 136, 120, 0.4)', padding: '12px 0', color: '#1a1208', fontSize: '14px', fontFamily: "'Montserrat', sans-serif", outline: 'none', transition: 'border-color 0.3s' }} onFocus={(e) => e.target.style.borderBottomColor = '#C07F45'} onBlur={(e) => e.target.style.borderBottomColor = 'rgba(154, 136, 120, 0.4)'} />
             {adminError && <div style={{ color: '#c0392b', fontSize: '12px', marginTop: '-8px' }}>{adminError}</div>}
             <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
               <button onClick={() => { setShowAdminModal(false); setAdminPwd(''); setAdminError(''); }} style={{ flex: 1, background: 'transparent', color: '#9a8878', border: '1px solid rgba(154, 136, 120, 0.4)', padding: '12px', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#1a1208'} onMouseOut={(e) => e.currentTarget.style.color = '#9a8878'}>Cancel</button>
-              <button onClick={() => { if (adminPwd === 'Wikian@2026') navigate('/home'); else setAdminError('Incorrect password'); }} style={{ flex: 1, background: '#C07F45', color: '#faf6f0', border: 'none', padding: '12px', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600, cursor: 'pointer', transition: 'background 0.3s' }} onMouseOver={(e) => e.currentTarget.style.background = '#1a1208'} onMouseOut={(e) => e.currentTarget.style.background = '#C07F45'}>Unlock</button>
+              <button onClick={() => { handleUnlock(); }} style={{ flex: 1, background: '#C07F45', color: '#faf6f0', border: 'none', padding: '12px', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600, cursor: 'pointer', transition: 'background 0.3s' }} onMouseOver={(e) => e.currentTarget.style.background = '#1a1208'} onMouseOut={(e) => e.currentTarget.style.background = '#C07F45'}>Unlock</button>
             </div>
           </div>
         </div>

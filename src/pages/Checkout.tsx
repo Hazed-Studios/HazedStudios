@@ -143,65 +143,33 @@ const Checkout: React.FC = () => {
       }
     }
 
+    // Construct the items array
+    const orderItems = cart.map(item => ({
+      id: item.id,
+      size: item.size,
+      color: item.color,
+      price: item.price,
+      qty: item.quantity || 1
+    }));
+
     setIsSubmitting(true);
     try {
-      let { data: existingCust } = await supabase
-        .from('customers')
-        .select('id')
-        .eq('phone', fp)
-        .maybeSingle();
+      const { data: response, error: rpcErr } = await supabase.rpc('process_secure_checkout', {
+        p_name: fn,
+        p_phone: fp,
+        p_email: fe,
+        p_gov: fgov,
+        p_address: fa,
+        p_items: orderItems
+      });
 
-      let customerId;
-      if (existingCust) {
-        customerId = existingCust.id;
-      } else {
-        const { data: newCust, error: cErr } = await supabase
-          .from('customers')
-          .insert({ name: fn, phone: fp, email: fe, governorate: fgov })
-          .select('id')
-          .single();
-        if (cErr) throw cErr;
-        customerId = newCust.id;
+      if (rpcErr) {
+        throw new Error(rpcErr.message.includes('Insufficient stock') 
+          ? 'One or more items are out of stock in the requested quantity.' 
+          : rpcErr.message);
       }
 
-      let firstOrderId = 0;
-
-      for (const item of cart) {
-        const qty = item.quantity || 1;
-        const sizeString = `${qty}x ${item.size} (${item.color})`;
-
-        const { data: newOrderId, error: oErr } = await supabase.rpc('create_order', {
-          p_customer_id: customerId,
-          p_product_id: item.id,
-          p_size: sizeString,
-          p_address: fa,
-          p_governorate: fgov,
-          p_total_price: item.price * qty,
-        });
-
-        if (oErr) throw oErr;
-        if (firstOrderId === 0 && newOrderId) firstOrderId = newOrderId;
-
-        // Update stock (optimistic)
-        const { data: stockData } = await supabase
-          .from('product_stock')
-          .select('quantity')
-          .eq('product_id', item.id)
-          .eq('size', item.size)
-          .single();
-
-        if (stockData && stockData.quantity >= qty) {
-          const { error: stockErr } = await supabase
-            .from('product_stock')
-            .update({ quantity: stockData.quantity - qty })
-            .eq('product_id', item.id)
-            .eq('size', item.size);
-
-          if (stockErr) {
-            console.error('Stock update failed for product', item.id, item.size, stockErr);
-          }
-        }
-      }
+      const firstOrderId = response?.first_order_id || 0;
 
       // Send email to Store Owner via FormSubmit
       if (fn) {
