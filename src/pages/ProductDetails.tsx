@@ -237,19 +237,6 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
                 {thePolo.story}
               </div>
 
-              <div style={{
-                background: 'var(--bg2)',
-                border: '1px solid var(--bd)',
-                padding: '16px',
-                marginBottom: '32px',
-                fontSize: '12px',
-                color: 'var(--dk)',
-                lineHeight: 1.6
-              }}>
-                <div><strong>First model:</strong> 179 cm, 70 kg, wearing size M in Natural Linen.</div>
-                <div style={{ marginTop: '8px' }}><strong>Second model:</strong> 170 cm, 60 kg, wearing size M in Baby Blue.</div>
-              </div>
-
               <div className="spc-section">
                 <div className="spc-label">
                   Color - <span style={{ color: 'var(--dk)', fontWeight: 500 }}>{selectedColor}</span>
@@ -258,7 +245,12 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
                   {['Natural Linen', 'Baby Blue'].map(c => (
                     <button
                       key={c}
-                      onClick={() => setSelectedColor(c)}
+                      onClick={() => {
+                        setSelectedColor(c);
+                        if (window.innerWidth <= 768) {
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                      }}
                       style={{
                         width: '32px',
                         height: '32px',
@@ -320,7 +312,7 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px', marginBottom: '40px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px', marginBottom: '24px' }}>
                 <button 
                   className="sp-atc" 
                   onClick={handleAddToCart}
@@ -337,6 +329,11 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
                 >
                   Buy Now
                 </button>
+              </div>
+
+              <div className="sp-model-info">
+                <div><strong>First model:</strong> 179 cm, 70 kg, wearing size M in Natural Linen.</div>
+                <div style={{ marginTop: '8px' }}><strong>Second model:</strong> 170 cm, 60 kg, wearing size M in Baby Blue.</div>
               </div>
 
               <div className="sp-details">
