@@ -9,6 +9,7 @@ import CookieBanner from './components/shared/CookieBanner';
 import SearchOverlay from './components/shared/SearchOverlay';
 import SplashScreen from './components/shared/SplashScreen';
 import { useAdminStore } from './context/store';
+import ErrorBoundary from './components/shared/ErrorBoundary';
 
 // Lazy loaded components (code-splitting)
 const AdminLogin = lazy(() => import('./components/admin/AdminLogin'));
@@ -42,10 +43,11 @@ const App: React.FC = () => {
 
   return (
     <Router basename={import.meta.env.BASE_URL}>
-      <SplashScreen />
-      <ScrollToTop />
-      <Notification />
-      <CookieBanner />
+      <ErrorBoundary>
+        <SplashScreen />
+        <ScrollToTop />
+        <Notification />
+        <CookieBanner />
 
       {/* Admin tools are completely excluded from the bundle for regular users */}
       <Suspense fallback={null}>
@@ -140,6 +142,7 @@ const App: React.FC = () => {
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      </ErrorBoundary>
     </Router>
   );
 };
