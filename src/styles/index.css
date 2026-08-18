@@ -3870,7 +3870,7 @@ footer {
         text-align: left !important;
         border-bottom: 1px solid var(--bd2) !important;
         white-space: normal !important;
-        gap: 16px !important;
+        gap: 8px !important;
     }
 
     .adm-table td:last-child {
@@ -3884,7 +3884,7 @@ footer {
         letter-spacing: 0.15em;
         color: var(--mu);
         text-align: left;
-        min-width: 100px;
+        width: 85px;
         flex-shrink: 0;
         margin-top: 2px;
     }
