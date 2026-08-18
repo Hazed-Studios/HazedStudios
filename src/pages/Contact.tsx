@@ -3,6 +3,8 @@ import React, { useState, useRef } from 'react';
 const Contact: React.FC = () => {
   const [fileNames, setFileNames] = useState<string[]>([]);
   const filesRef = useRef<File[]>([]);
+  const [status, setStatus] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -36,11 +38,34 @@ const Contact: React.FC = () => {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '60px' }}>
         <div style={{ flex: '1 1 400px', background: 'var(--bg2)', padding: '40px', borderRadius: '8px', border: '1px solid var(--bd)' }}>
           <h3 style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '26px', fontWeight: 300, fontStyle: 'italic', color: 'var(--dk)', margin: '0 0 24px 0' }}>Send us a message</h3>
-            <form action="https://formsubmit.co/hazed.co.hr@gmail.com" method="POST" encType="multipart/form-data">
+          
+          <iframe name="hidden_iframe" id="hidden_iframe" style={{ display: 'none' }} onLoad={() => {
+            if (isSubmitting) {
+              setStatus('Message sent successfully. We will get back to you shortly.');
+              setIsSubmitting(false);
+              setFileNames([]);
+              filesRef.current = [];
+              const form = document.getElementById('contact-form') as HTMLFormElement;
+              if (form) form.reset();
+            }
+          }}></iframe>
+
+          {status ? (
+            <div style={{ textAlign: 'center', padding: '40px 0' }}>
+              <p style={{ color: 'var(--cr)', fontStyle: 'italic', fontSize: '18px', lineHeight: '1.8' }}>{status}</p>
+              <button 
+                type="button"
+                onClick={() => setStatus('')}
+                style={{ marginTop: '20px', background: 'transparent', border: '1px solid var(--cr)', color: 'var(--cr)', padding: '10px 24px', fontSize: '11px', letterSpacing: '.2em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: '4px' }}
+              >
+                Send Another Message
+              </button>
+            </div>
+          ) : (
+            <form id="contact-form" action="https://formsubmit.co/hazed.co.hr@gmail.com" method="POST" encType="multipart/form-data" target="hidden_iframe" onSubmit={() => setIsSubmitting(true)}>
               <input type="hidden" name="_subject" value="New Contact Request" />
               <input type="hidden" name="_captcha" value="false" />
               <input type="hidden" name="_template" value="table" />
-              <input type="hidden" name="_next" value="https://andrew20x.github.io/HazedStudios-Website/contact" />
               <div className="fg">
                 <label className="fl">Name</label>
                 <input type="text" name="Name" className="fi" placeholder="Your name" required />
@@ -100,7 +125,7 @@ const Contact: React.FC = () => {
                   <input 
                     id="file-upload"
                     type="file" 
-                    name="Attachment[]"
+                    name="attachment"
                     onChange={handleFileChange}
                     style={{ display: 'none' }} 
                     multiple
@@ -110,10 +135,11 @@ const Contact: React.FC = () => {
                   Note: When making a return, you should send 2 clear photos of the product (front and back) showing the entire product in a formal way.
                 </div>
               </div>
-              <button type="submit" className="fsub">
-                Send Message
+              <button type="submit" className="fsub" disabled={isSubmitting}>
+                {isSubmitting ? 'Sending...' : 'Send Message'}
               </button>
             </form>
+          )}
         </div>
 
         <div className="page-content" style={{ flex: '1 1 300px' }}>
