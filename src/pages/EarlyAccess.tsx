@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Check, ArrowRight } from 'lucide-react';
+import { Check, ArrowRight, Lock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
 const EarlyAccess: React.FC = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [adminPwd, setAdminPwd] = useState('');
 
   useEffect(() => {
     setIsLoaded(true);
@@ -194,12 +198,34 @@ const EarlyAccess: React.FC = () => {
         opacity: isLoaded ? 1 : 0,
         transition: 'opacity 1s ease-out 0.4s'
       }}>
-        <div style={{ whiteSpace: 'nowrap' }}>&copy; {new Date().getFullYear()} Hazed Studios</div>
+        <div style={{ whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          &copy; {new Date().getFullYear()} Hazed Studios
+          <Lock 
+            size={12} 
+            style={{ cursor: 'pointer', opacity: 0.5, transition: 'opacity 0.3s' }} 
+            onMouseOver={(e) => e.currentTarget.style.opacity = '1'}
+            onMouseOut={(e) => e.currentTarget.style.opacity = '0.5'}
+            onClick={() => setShowAdminModal(true)}
+          />
+        </div>
         <div style={{ display: 'flex', gap: '24px' }}>
           <a href="#" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#faf6f0'} onMouseOut={(e) => e.currentTarget.style.color = 'inherit'}>Instagram</a>
           <a href="#" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#faf6f0'} onMouseOut={(e) => e.currentTarget.style.color = 'inherit'}>TikTok</a>
         </div>
       </footer>
+
+      {showAdminModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(13, 11, 6, 0.8)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
+          <div style={{ background: '#0d0b06', border: '1px solid rgba(192, 127, 69, 0.3)', padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', maxWidth: '320px', animation: 'fadeIn 0.3s ease-out' }}>
+            <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', color: '#faf6f0', fontWeight: 300 }}>Admin Access</h3>
+            <input type="password" placeholder="Enter password" value={adminPwd} onChange={(e) => setAdminPwd(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { if (adminPwd === 'Wikian@2026') navigate('/home'); else alert('Incorrect password'); } }} autoFocus style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(154, 136, 120, 0.4)', padding: '12px 0', color: '#faf6f0', fontSize: '14px', fontFamily: "'Montserrat', sans-serif", outline: 'none', transition: 'border-color 0.3s' }} onFocus={(e) => e.target.style.borderBottomColor = '#C07F45'} onBlur={(e) => e.target.style.borderBottomColor = 'rgba(154, 136, 120, 0.4)'} />
+            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+              <button onClick={() => setShowAdminModal(false)} style={{ flex: 1, background: 'transparent', color: '#9a8878', border: '1px solid rgba(154, 136, 120, 0.4)', padding: '12px', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#faf6f0'} onMouseOut={(e) => e.currentTarget.style.color = '#9a8878'}>Cancel</button>
+              <button onClick={() => { if (adminPwd === 'Wikian@2026') navigate('/home'); else alert('Incorrect password'); }} style={{ flex: 1, background: '#C07F45', color: '#0d0b06', border: 'none', padding: '12px', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600, cursor: 'pointer', transition: 'background 0.3s' }} onMouseOver={(e) => e.currentTarget.style.background = '#faf6f0'} onMouseOut={(e) => e.currentTarget.style.background = '#C07F45'}>Unlock</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         @keyframes fadeIn {
