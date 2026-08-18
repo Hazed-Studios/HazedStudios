@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 
 const Contact: React.FC = () => {
-  const [fileName, setFileName] = useState<string>('');
+  const [fileNames, setFileNames] = useState<string>('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFileName(e.target.files[0].name);
+      const names = Array.from(e.target.files).map(f => f.name).join(', ');
+      setFileNames(names);
     } else {
-      setFileName('');
+      setFileNames('');
     }
   };
 
@@ -57,16 +58,20 @@ const Contact: React.FC = () => {
                   >
                     Choose File
                   </label>
-                  <span style={{ fontSize: '13px', color: 'var(--mu)', fontStyle: fileName ? 'normal' : 'italic', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }}>
-                    {fileName || 'No file chosen'}
+                  <span style={{ fontSize: '13px', color: 'var(--mu)', fontStyle: fileNames ? 'normal' : 'italic', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }}>
+                    {fileNames || 'No files chosen'}
                   </span>
                   <input 
                     id="file-upload"
                     type="file" 
-                    name="Attachment"
+                    name="Attachment[]"
                     onChange={handleFileChange}
                     style={{ display: 'none' }} 
+                    multiple
                   />
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--mu)', marginTop: '12px', lineHeight: '1.5', fontStyle: 'italic' }}>
+                  Note: When making a return, you should send 2 clear photos of the product (front and back) showing the entire product in a formal way.
                 </div>
               </div>
               <button type="submit" className="fsub">
