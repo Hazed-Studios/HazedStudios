@@ -1,15 +1,31 @@
 import React, { useState } from 'react';
 
 const Contact: React.FC = () => {
-  const [fileNames, setFileNames] = useState<string>('');
+  const [fileNames, setFileNames] = useState<string[]>([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const names = Array.from(e.target.files).map(f => f.name).join(', ');
+      const names = Array.from(e.target.files).map(f => f.name);
       setFileNames(names);
     } else {
-      setFileNames('');
+      setFileNames([]);
     }
+  };
+
+  const handleRemoveFile = (indexToRemove: number) => {
+    const input = document.getElementById('file-upload') as HTMLInputElement;
+    if (!input || !input.files) return;
+    
+    const dt = new DataTransfer();
+    for (let i = 0; i < input.files.length; i++) {
+      if (i !== indexToRemove) {
+        dt.items.add(input.files[i]);
+      }
+    }
+    
+    input.files = dt.files;
+    const names = Array.from(dt.files).map(f => f.name);
+    setFileNames(names);
   };
 
   return (
@@ -37,11 +53,12 @@ const Contact: React.FC = () => {
               </div>
               <div className="fg">
                 <label className="fl">Attachment (Optional)</label>
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px' }}>
+                <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
                   <label 
                     htmlFor="file-upload" 
                     style={{ 
                       display: 'inline-block',
+                      width: 'fit-content',
                       padding: '10px 24px', 
                       background: 'transparent', 
                       border: '1px solid var(--cr)', 
@@ -56,11 +73,28 @@ const Contact: React.FC = () => {
                     onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--cr)'; e.currentTarget.style.color = 'var(--bg)'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--cr)'; }}
                   >
-                    Choose File
+                    Choose Files
                   </label>
-                  <span style={{ fontSize: '13px', color: 'var(--mu)', fontStyle: fileNames ? 'normal' : 'italic', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }}>
-                    {fileNames || 'No files chosen'}
-                  </span>
+                  
+                  {fileNames.length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+                      {fileNames.map((name, idx) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg)', padding: '8px 12px', borderRadius: '4px', border: '1px solid var(--bd)' }}>
+                          <span style={{ fontSize: '13px', color: 'var(--mu)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '250px' }}>
+                            {name}
+                          </span>
+                          <button 
+                            type="button" 
+                            onClick={() => handleRemoveFile(idx)}
+                            style={{ background: 'none', border: 'none', color: 'var(--cr)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '0 4px', margin: '-4px 0' }}
+                            title="Remove file"
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <input 
                     id="file-upload"
                     type="file" 
