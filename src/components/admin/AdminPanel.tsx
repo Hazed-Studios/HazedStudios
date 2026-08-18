@@ -8,11 +8,11 @@ import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useAdminStore } from '../../context/store';
 import { supabase } from '../../lib/supabase';
-import { useAdminService, useOrders, useCustomers, useProducts, useAnalytics, usePagination } from './useAdmin';
+import { useAdminService, useOrders, useCustomers, useProducts, useAnalytics, usePagination, useWaitlist } from './useAdmin';
 import { exporters, whatsapp } from './admin.utils';
 import { useNavigate } from 'react-router-dom';
 
-type TabType = 'overview' | 'orders' | 'customers' | 'stock' | 'finance';
+type TabType = 'overview' | 'orders' | 'customers' | 'stock' | 'finance' | 'early access';
 
 const STATUS_CLASS: Record<string, { bg: string; color: string; border: string }> = {
   Pending: { bg: 'rgba(214,137,16,.1)', color: 'var(--amber)', border: 'rgba(214,137,16,.2)' },
@@ -62,10 +62,66 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  const { orders, updateOrderStatus } = useOrders(service);
-  const { customers } = useCustomers(service);
-  const { products } = useProducts(service);
+  const { orders, updateOrderStatus, deleteOrder } = useOrders(service);
+  const { customers, deleteCustomer } = useCustomers(service);
+  const { products, updateStock } = useProducts(service);
   const { report } = useAnalytics(service);
+  const { waitlist, deleteWaitlistEntry } = useWaitlist(service);
+
+  const [selectedOrders, setSelectedOrders] = useState<Set<number>>(new Set());
+  const [selectedCustomers, setSelectedCustomers] = useState<Set<number>>(new Set());
+  const [selectedWaitlist, setSelectedWaitlist] = useState<Set<number>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [editingStock, setEditingStock] = useState<{ productId: number; sizes: Record<string, number> } | null>(null);
+  const [confirmConfig, setConfirmConfig] = useState<{ message: string; onConfirm: () => void } | null>(null);
+
+  const handleBulkDeleteWaitlist = async () => {
+    if (selectedWaitlist.size === 0) return;
+    setConfirmConfig({
+      message: `Are you sure you want to delete ${selectedWaitlist.size} email${selectedWaitlist.size > 1 ? 's' : ''}?`,
+      onConfirm: async () => {
+        setConfirmConfig(null);
+        setIsDeleting(true);
+        for (const id of Array.from(selectedWaitlist)) {
+          await deleteWaitlistEntry(id);
+        }
+        setSelectedWaitlist(new Set());
+        setIsDeleting(false);
+      }
+    });
+  };
+
+  const handleBulkDeleteOrders = async () => {
+    if (selectedOrders.size === 0) return;
+    setConfirmConfig({
+      message: `Are you sure you want to delete ${selectedOrders.size} order${selectedOrders.size > 1 ? 's' : ''}?`,
+      onConfirm: async () => {
+        setConfirmConfig(null);
+        setIsDeleting(true);
+        for (const id of Array.from(selectedOrders)) {
+          await deleteOrder(id);
+        }
+        setSelectedOrders(new Set());
+        setIsDeleting(false);
+      }
+    });
+  };
+
+  const handleBulkDeleteCustomers = async () => {
+    if (selectedCustomers.size === 0) return;
+    setConfirmConfig({
+      message: `Are you sure you want to delete ${selectedCustomers.size} customer${selectedCustomers.size > 1 ? 's' : ''}?`,
+      onConfirm: async () => {
+        setConfirmConfig(null);
+        setIsDeleting(true);
+        for (const id of Array.from(selectedCustomers)) {
+          await deleteCustomer(id);
+        }
+        setSelectedCustomers(new Set());
+        setIsDeleting(false);
+      }
+    });
+  };
 
   if (!isAdmin) return null;
 
@@ -76,8 +132,6 @@ const AdminPanel: React.FC = () => {
     const sizeStock = p.size_stock || {};
     return sum + (Object.values(sizeStock).reduce((s: number, q: any) => s + (Number(q) || 0), 0) as number);
   }, 0);
-
-  const recentOrders = orders.slice(0, 5);
 
   const topProducts = (() => {
     const counts: Record<string, number> = {};
@@ -120,8 +174,10 @@ const AdminPanel: React.FC = () => {
     return Object.entries(revs).sort((a, b) => b[1].rev - a[1].rev);
   })();
 
+  const overviewOrdersPagination = usePagination(orders, 10);
   const ordersPagination = usePagination(orders, 50);
   const customersPagination = usePagination(customersWithStats, 50);
+  const waitlistPagination = usePagination(waitlist, 50);
 
   const handleWhatsAppOrder = (o: any) => {
     const phone = o.customers?.phone || '';
@@ -202,6 +258,62 @@ const AdminPanel: React.FC = () => {
           .adm-panel-body { padding: 16px; }
           .adm-kpi-grid { grid-template-columns: 1fr; }
         }
+
+        .adm-checkbox {
+          appearance: none;
+          background-color: var(--bg);
+          margin: 0;
+          font: inherit;
+          color: currentColor;
+          width: 16px;
+          height: 16px;
+          border: 1px solid var(--bd);
+          border-radius: 2px;
+          display: grid;
+          place-content: center;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .adm-checkbox:hover {
+          border-color: var(--cr);
+        }
+        .adm-checkbox::before {
+          content: "";
+          width: 10px;
+          height: 10px;
+          transform: scale(0);
+          transition: 120ms transform ease-in-out;
+          background-color: var(--cr);
+          transform-origin: center;
+          clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+        .adm-checkbox:checked::before {
+          transform: scale(1);
+        }
+        .adm-checkbox:checked {
+          border-color: var(--cr);
+          background-color: var(--bg2);
+        }
+
+        @keyframes deletePulse {
+          0% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.4); }
+          70% { box-shadow: 0 0 0 6px rgba(192, 57, 43, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); }
+        }
+        .btn-delete-pulse {
+          animation: deletePulse 2s infinite;
+        }
+
+        @keyframes modalPop {
+          0% { transform: scale(0.85); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        .adm-modal-content {
+          animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .adm-panel button:active {
+          transform: scale(0.95) !important;
+        }
       `}</style>
       {/* Header */}
       <header className="adm-panel-nav">
@@ -218,7 +330,7 @@ const AdminPanel: React.FC = () => {
 
         <div className={`adm-nav-menu ${menuOpen ? 'open' : ''}`}>
           <div className="adm-panel-tabs">
-            {(['overview', 'orders', 'customers', 'stock', 'finance'] as TabType[]).map((tab) => (
+            {(['overview', 'orders', 'customers', 'stock', 'finance', 'early access'] as TabType[]).map((tab) => (
               <button
                 key={tab}
                 className={activeTab === tab ? 'active' : ''}
@@ -278,22 +390,48 @@ const AdminPanel: React.FC = () => {
               <div style={styles.admCard}>
                 <div style={styles.admCardHead}>
                   <div style={styles.admCardTtl}>Recent Orders</div>
+                  {selectedOrders.size > 0 && (
+                    <button onClick={handleBulkDeleteOrders} disabled={isDeleting} className="btn-delete-pulse" style={{ ...styles.exportBtn, color: 'var(--red)', borderColor: 'var(--red)' }}>
+                      Delete Selected ({selectedOrders.size})
+                    </button>
+                  )}
                 </div>
                 <div style={{ overflowX: 'auto' }}>
                   <table className="adm-table" style={styles.table}>
                     <thead>
                       <tr>
+                        <th style={{ ...styles.th, width: '30px', padding: '12px 10px' }}>
+                          <input type="checkbox" className="adm-checkbox" checked={overviewOrdersPagination.items.length > 0 && overviewOrdersPagination.items.every((o: any) => selectedOrders.has(o.id))} onChange={(e) => {
+                            if (e.target.checked) {
+                              const newSet = new Set(selectedOrders);
+                              overviewOrdersPagination.items.forEach((o: any) => newSet.add(o.id));
+                              setSelectedOrders(newSet);
+                            } else {
+                              const newSet = new Set(selectedOrders);
+                              overviewOrdersPagination.items.forEach((o: any) => newSet.delete(o.id));
+                              setSelectedOrders(newSet);
+                            }
+                          }} />
+                        </th>
                         {['#', 'Customer', 'Product', 'Size', 'Gov.', 'Total', 'Status', 'Date'].map((h) => (
                           <th key={h} style={styles.th}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {recentOrders.length === 0 ? (
+                      {overviewOrdersPagination.items.length === 0 ? (
                         <tr><td colSpan={8} style={styles.emptyCell}>No orders yet.</td></tr>
                       ) : (
-                        recentOrders.map((o: any) => (
+                        overviewOrdersPagination.items.map((o: any) => (
                           <tr key={o.id}>
+                            <td style={{ ...styles.td, padding: '12px 10px' }}>
+                              <input type="checkbox" className="adm-checkbox" checked={selectedOrders.has(o.id)} onChange={(e) => {
+                                const newSet = new Set(selectedOrders);
+                                if (e.target.checked) newSet.add(o.id);
+                                else newSet.delete(o.id);
+                                setSelectedOrders(newSet);
+                              }} />
+                            </td>
                             <td data-label="#" style={styles.td}>#{String(o.id).padStart(3, '0')}</td>
                             <td data-label="Customer" style={styles.td}>{o.customers?.name || '—'}</td>
                             <td data-label="Product" style={styles.td}>{o.products?.name || '—'}</td>
@@ -313,6 +451,7 @@ const AdminPanel: React.FC = () => {
                     </tbody>
                   </table>
                 </div>
+                <TablePagination pagination={overviewOrdersPagination} />
               </div>
 
               <div style={styles.admCard}>
@@ -344,9 +483,16 @@ const AdminPanel: React.FC = () => {
                 <div style={styles.pageTitle}>Orders</div>
                 <div style={styles.pageSub}>{orders.length} orders — Collection 01</div>
               </div>
-              <button style={styles.exportBtn} onClick={() => exporters.toCSV(orders, 'hazed_orders.csv')}>
-                Export CSV
-              </button>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                {selectedOrders.size > 0 && (
+                  <button onClick={handleBulkDeleteOrders} disabled={isDeleting} className="btn-delete-pulse" style={{ ...styles.exportBtn, color: 'var(--red)', borderColor: 'var(--red)' }}>
+                    Delete Selected ({selectedOrders.size})
+                  </button>
+                )}
+                <button style={styles.exportBtn} onClick={() => exporters.toCSV(orders, 'hazed_orders.csv')}>
+                  Export CSV
+                </button>
+              </div>
             </div>
 
             <div style={styles.admCard}>
@@ -354,6 +500,19 @@ const AdminPanel: React.FC = () => {
                 <table className="adm-table" style={styles.table}>
                   <thead>
                     <tr>
+                      <th style={{ ...styles.th, width: '30px', padding: '12px 10px' }}>
+                        <input type="checkbox" className="adm-checkbox" checked={ordersPagination.items.length > 0 && ordersPagination.items.every((o: any) => selectedOrders.has(o.id))} onChange={(e) => {
+                          if (e.target.checked) {
+                            const newSet = new Set(selectedOrders);
+                            ordersPagination.items.forEach((o: any) => newSet.add(o.id));
+                            setSelectedOrders(newSet);
+                          } else {
+                            const newSet = new Set(selectedOrders);
+                            ordersPagination.items.forEach((o: any) => newSet.delete(o.id));
+                            setSelectedOrders(newSet);
+                          }
+                        }} />
+                      </th>
                       {['#', 'Customer', 'Phone', 'Product', 'Size', 'Gov.', 'Address', 'Total', 'Status', 'WhatsApp', 'Date'].map((h) => (
                         <th key={h} style={styles.th}>{h}</th>
                       ))}
@@ -365,13 +524,21 @@ const AdminPanel: React.FC = () => {
                     ) : (
                       ordersPagination.items.map((o: any) => (
                         <tr key={o.id}>
+                          <td style={{ ...styles.td, padding: '12px 10px' }}>
+                            <input type="checkbox" className="adm-checkbox" checked={selectedOrders.has(o.id)} onChange={(e) => {
+                              const newSet = new Set(selectedOrders);
+                              if (e.target.checked) newSet.add(o.id);
+                              else newSet.delete(o.id);
+                              setSelectedOrders(newSet);
+                            }} />
+                          </td>
                           <td data-label="#" style={styles.td}>#{String(o.id).padStart(3, '0')}</td>
                           <td data-label="Customer" style={styles.td}>{o.customers?.name || '—'}</td>
                           <td data-label="Phone" style={styles.td}>{o.customers?.phone || ''}</td>
                           <td data-label="Product" style={{ ...styles.td, minWidth: '180px', whiteSpace: 'normal' }}>{o.products?.name || '—'}</td>
                           <td data-label="Size" style={styles.td}>{o.size}</td>
                           <td data-label="Gov." style={styles.td}>{o.governorate}</td>
-                          <td data-label="Address" style={{ ...styles.td, minWidth: '220px', whiteSpace: 'normal', fontSize: '10px', color: 'var(--mu)' }}>{o.address || '—'}</td>
+                          <td data-label="Address" style={{ ...styles.td, minWidth: '220px', whiteSpace: 'normal' }}>{o.address || '—'}</td>
                           <td data-label="Total" style={styles.tdPrice}>{(o.total_price || 0).toLocaleString()} EGP</td>
                           <td data-label="Status" style={styles.td}>
                             <select
@@ -412,9 +579,16 @@ const AdminPanel: React.FC = () => {
                 <div style={styles.pageTitle}>Customers</div>
                 <div style={styles.pageSub}>{customers.length} customers — Collection 01</div>
               </div>
-              <button style={styles.exportBtn} onClick={() => exporters.toCSV(customersWithStats, 'hazed_customers.csv')}>
-                Export CSV
-              </button>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                {selectedCustomers.size > 0 && (
+                  <button onClick={handleBulkDeleteCustomers} disabled={isDeleting} className="btn-delete-pulse" style={{ ...styles.exportBtn, color: 'var(--red)', borderColor: 'var(--red)' }}>
+                    Delete Selected ({selectedCustomers.size})
+                  </button>
+                )}
+                <button style={styles.exportBtn} onClick={() => exporters.toCSV(customersWithStats, 'hazed_customers.csv')}>
+                  Export CSV
+                </button>
+              </div>
             </div>
 
             <div style={styles.admCard}>
@@ -422,6 +596,19 @@ const AdminPanel: React.FC = () => {
                 <table className="adm-table" style={styles.table}>
                   <thead>
                     <tr>
+                      <th style={{ ...styles.th, width: '30px', padding: '12px 10px' }}>
+                        <input type="checkbox" className="adm-checkbox" checked={customersPagination.items.length > 0 && customersPagination.items.every((c: any) => selectedCustomers.has(c.id))} onChange={(e) => {
+                          if (e.target.checked) {
+                            const newSet = new Set(selectedCustomers);
+                            customersPagination.items.forEach((c: any) => newSet.add(c.id));
+                            setSelectedCustomers(newSet);
+                          } else {
+                            const newSet = new Set(selectedCustomers);
+                            customersPagination.items.forEach((c: any) => newSet.delete(c.id));
+                            setSelectedCustomers(newSet);
+                          }
+                        }} />
+                      </th>
                       {['Name', 'Phone', 'Governorate', 'Orders', 'Total Spent', 'Last Order', 'WhatsApp'].map((h) => (
                         <th key={h} style={styles.th}>{h}</th>
                       ))}
@@ -433,6 +620,14 @@ const AdminPanel: React.FC = () => {
                     ) : (
                       customersPagination.items.map((c: any) => (
                         <tr key={c.id}>
+                          <td style={{ ...styles.td, padding: '12px 10px' }}>
+                            <input type="checkbox" className="adm-checkbox" checked={selectedCustomers.has(c.id)} onChange={(e) => {
+                              const newSet = new Set(selectedCustomers);
+                              if (e.target.checked) newSet.add(c.id);
+                              else newSet.delete(c.id);
+                              setSelectedCustomers(newSet);
+                            }} />
+                          </td>
                           <td data-label="Name" style={styles.td}>{c.name}</td>
                           <td data-label="Phone" style={styles.td}>{c.phone}</td>
                           <td data-label="Gov." style={styles.td}>{c.governorate || '—'}</td>
@@ -471,27 +666,54 @@ const AdminPanel: React.FC = () => {
                     <div style={styles.stockBarWrap}>
                       <div style={{ ...styles.stockBar, width: `${pct}%`, ...(low ? { background: 'var(--red)' } : {}) }} />
                     </div>
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                      {Object.entries(p.size_stock || {}).map(([size, qty]: [string, any]) => {
-                        const q = Number(qty) || 0;
-                        const state = q > 2 ? 'ok' : q > 0 ? 'low' : 'none';
-                        return (
-                          <span
-                            key={size}
-                            style={{
-                              ...styles.sizeBadge,
-                              ...(state === 'ok'
-                                ? { borderColor: 'rgba(39,160,106,.3)', color: 'var(--green)' }
-                                : state === 'low'
-                                ? { borderColor: 'rgba(192,35,35,.3)', color: 'var(--red)' }
-                                : {}),
-                            }}
-                          >
-                            {size}:{q}
-                          </span>
-                        );
-                      })}
-                    </div>
+                    {editingStock?.productId === p.id ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: '8px' }}>
+                        {Object.keys(p.size_stock || {}).map(size => (
+                          <div key={size} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <span style={{ fontSize: '11px', color: 'var(--mu)', width: '30px' }}>{size}</span>
+                            <input 
+                              type="number" 
+                              value={editingStock.sizes[size] || 0}
+                              onChange={(e) => setEditingStock(prev => prev ? { ...prev, sizes: { ...prev.sizes, [size]: Number(e.target.value) } } : null)}
+                              style={{ width: '60px', padding: '4px 8px', border: '1px solid var(--bd)', background: 'var(--bg)', color: 'var(--dk)', fontSize: '12px', outline: 'none' }}
+                            />
+                          </div>
+                        ))}
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                          <button disabled={isDeleting} onClick={async () => {
+                            setIsDeleting(true);
+                            const totalQty = Object.values(editingStock.sizes).reduce((sum, q) => sum + q, 0);
+                            await updateStock(p.id, totalQty, editingStock.sizes);
+                            setEditingStock(null);
+                            setIsDeleting(false);
+                          }} style={{ ...styles.exportBtn, color: 'var(--green)', borderColor: 'var(--green)' }}>Save</button>
+                          <button onClick={() => setEditingStock(null)} style={{ ...styles.exportBtn, color: 'var(--mu)', borderColor: 'var(--mu)' }}>Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', width: '100%' }}>
+                        {Object.entries(p.size_stock || {}).map(([size, qty]: [string, any]) => {
+                          const q = Number(qty) || 0;
+                          const state = q > 2 ? 'ok' : q > 0 ? 'low' : 'none';
+                          return (
+                            <span
+                              key={size}
+                              style={{
+                                ...styles.sizeBadge,
+                                ...(state === 'ok'
+                                  ? { borderColor: 'rgba(39,160,106,.3)', color: 'var(--green)' }
+                                  : state === 'low'
+                                  ? { borderColor: 'rgba(192,35,35,.3)', color: 'var(--red)' }
+                                  : {}),
+                              }}
+                            >
+                              {size}:{q}
+                            </span>
+                          );
+                        })}
+                        <button onClick={() => setEditingStock({ productId: p.id, sizes: { ...p.size_stock } })} style={{ ...styles.exportBtn, padding: '2px 8px', fontSize: '10px', marginLeft: 'auto' }}>Edit</button>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -548,7 +770,98 @@ const AdminPanel: React.FC = () => {
             </div>
           </div>
         )}
+        {/* ===== EARLY ACCESS ===== */}
+        {activeTab === 'early access' && (
+          <div>
+            <div className="adm-page-header">
+              <div>
+                <div style={styles.pageTitle}>Early Access</div>
+                <div style={styles.pageSub}>{waitlist.length} subscribers on the waitlist</div>
+              </div>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                {selectedWaitlist.size > 0 && (
+                  <button onClick={handleBulkDeleteWaitlist} disabled={isDeleting} className="btn-delete-pulse" style={{ ...styles.exportBtn, color: 'var(--red)', borderColor: 'var(--red)' }}>
+                    Delete Selected ({selectedWaitlist.size})
+                  </button>
+                )}
+                <button style={styles.exportBtn} onClick={() => exporters.toCSV(waitlist, 'hazed_waitlist.csv')}>
+                  Export CSV
+                </button>
+              </div>
+            </div>
+
+            <div style={styles.admCard}>
+              <div style={{ overflowX: 'auto' }}>
+                <table className="adm-table" style={styles.table}>
+                  <thead>
+                    <tr>
+                      <th style={{ ...styles.th, width: '30px', padding: '12px 10px' }}>
+                        <input type="checkbox" className="adm-checkbox" checked={waitlistPagination.items.length > 0 && waitlistPagination.items.every((w: any) => selectedWaitlist.has(w.id))} onChange={(e) => {
+                          if (e.target.checked) {
+                            const newSet = new Set(selectedWaitlist);
+                            waitlistPagination.items.forEach((w: any) => newSet.add(w.id));
+                            setSelectedWaitlist(newSet);
+                          } else {
+                            const newSet = new Set(selectedWaitlist);
+                            waitlistPagination.items.forEach((w: any) => newSet.delete(w.id));
+                            setSelectedWaitlist(newSet);
+                          }
+                        }} />
+                      </th>
+                      {['ID', 'Email', 'Joined Date'].map((h) => (
+                        <th key={h} style={styles.th}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {waitlistPagination.items.length === 0 ? (
+                      <tr><td colSpan={3} style={styles.emptyCell}>No early access subscribers yet.</td></tr>
+                    ) : (
+                      waitlistPagination.items.map((w: any) => (
+                        <tr key={w.id}>
+                          <td style={{ ...styles.td, padding: '12px 10px' }}>
+                            <input type="checkbox" className="adm-checkbox" checked={selectedWaitlist.has(w.id)} onChange={(e) => {
+                              const newSet = new Set(selectedWaitlist);
+                              if (e.target.checked) newSet.add(w.id);
+                              else newSet.delete(w.id);
+                              setSelectedWaitlist(newSet);
+                            }} />
+                          </td>
+                          <td data-label="ID" style={styles.td}>#{String(w.id).padStart(3, '0')}</td>
+                          <td data-label="Email" style={{...styles.tdMuted, fontWeight: 'bold'}}>{w.email}</td>
+                          <td data-label="Joined Date" style={styles.tdMuted}>
+                            {new Date(w.created_at).toLocaleDateString('en-GB')} <br/>
+                            <span style={{ fontSize: '10px', opacity: 0.7 }}>
+                              {new Date(w.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <TablePagination pagination={waitlistPagination} />
+            </div>
+          </div>
+        )}
       </main>
+
+      {confirmConfig && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modalContent} className="adm-modal-content">
+            <div style={styles.modalMessage}>{confirmConfig.message}</div>
+            <div style={styles.modalActions}>
+              <button style={{ ...styles.exportBtn, color: 'var(--mu)', borderColor: 'var(--mu)' }} onClick={() => setConfirmConfig(null)}>
+                Cancel
+              </button>
+              <button style={{ ...styles.exportBtn, color: 'var(--bg)', background: 'var(--cr)', borderColor: 'var(--cr)' }} onClick={confirmConfig.onConfirm}>
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -621,7 +934,7 @@ const styles: Record<string, React.CSSProperties> = {
     border: '1px solid transparent', cursor: 'pointer', transition: 'all 0.3s', background: 'none', color: 'var(--mu)',
   },
   tabActive: { background: 'var(--cr)', color: 'var(--bg)', borderColor: 'var(--cr)' },
-  pageTitle: { fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: 300, marginBottom: '6px', color: 'var(--dk)' },
+  pageTitle: { fontSize: '11px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--mu)', marginBottom: '12px' },
   pageSub: { fontSize: '13px', letterSpacing: '0.15em', color: 'var(--mu)', marginBottom: '40px' },
   kpi: { background: 'var(--bg2)', padding: '28px' },
   kpiLbl: { fontSize: '11px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--mu)', marginBottom: '12px' },
@@ -629,10 +942,10 @@ const styles: Record<string, React.CSSProperties> = {
   kpiEm: { fontSize: '18px', color: 'var(--cr)', fontStyle: 'normal' },
   admCard: { background: 'var(--bg2)', border: '1px solid var(--bd)', marginBottom: '24px' },
   admCardHead: { padding: '20px 24px', borderBottom: '1px solid var(--bd)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  admCardTtl: { fontSize: '11px', letterSpacing: '0.35em', textTransform: 'uppercase', color: 'var(--cr)' },
+  admCardTtl: { fontSize: '11px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--mu)' },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: {
-    fontSize: '10px', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--mu)',
+    fontSize: '11px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--mu)',
     textAlign: 'left', padding: '12px 20px', borderBottom: '1px solid var(--bd)', whiteSpace: 'nowrap', background: 'var(--bg2)',
   },
   td: { fontSize: '13px', color: 'var(--dk)', padding: '12px 20px', borderBottom: '1px solid var(--bd2)', whiteSpace: 'nowrap' },
@@ -699,6 +1012,37 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: '0 4px',
+  },
+  modalOverlay: {
+    position: 'fixed',
+    inset: 0,
+    background: 'rgba(26, 18, 8, 0.4)',
+    backdropFilter: 'blur(8px)',
+    zIndex: 10005,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  modalContent: {
+    background: 'var(--bg2)',
+    padding: '40px',
+    border: '1px solid var(--cr)',
+    borderRadius: '4px',
+    maxWidth: '400px',
+    textAlign: 'center',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
+  },
+  modalMessage: {
+    fontSize: '15px',
+    letterSpacing: '0.1em',
+    color: 'var(--dk)',
+    marginBottom: '32px',
+    lineHeight: 1.6,
+  },
+  modalActions: {
+    display: 'flex',
+    gap: '16px',
+    justifyContent: 'center'
   },
 };
 

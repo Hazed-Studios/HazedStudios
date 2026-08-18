@@ -612,6 +612,38 @@ export class AdminService {
     }
   }
 
+  // ===== WAITLIST OPERATIONS =====
+
+  async getAllWaitlist(): Promise<any[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('waitlist')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (e) {
+      console.error('Error fetching waitlist:', e);
+      throw e;
+    }
+  }
+
+  async deleteWaitlistEntry(id: number): Promise<boolean> {
+    try {
+      const { error } = await this.supabase
+        .from('waitlist')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      return true;
+    } catch (e) {
+      console.error('Error deleting waitlist entry:', e);
+      throw e;
+    }
+  }
+
   // ===== VALIDATION =====
 
   validateProduct(product: Partial<Product>): ValidationError[] {

@@ -42,6 +42,7 @@ const Contact: React.FC = () => {
           <iframe name="hidden_iframe" id="hidden_iframe" style={{ display: 'none' }} onLoad={() => {
             if (isSubmitting) {
               setStatus('Message sent successfully. We will get back to you shortly.');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
               setIsSubmitting(false);
               setFileNames([]);
               filesRef.current = [];

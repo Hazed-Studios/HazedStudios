@@ -293,6 +293,46 @@ export function useProducts(service: AdminService | null) {
   };
 }
 
+// ===== USEWAITLIST =====
+export function useWaitlist(service: AdminService | null) {
+  const [waitlist, setWaitlist] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadWaitlist = useCallback(async () => {
+    if (!service) return;
+    setLoading(true);
+    try {
+      const data = await service.getAllWaitlist();
+      setWaitlist(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load waitlist');
+    } finally {
+      setLoading(false);
+    }
+  }, [service]);
+
+  useEffect(() => {
+    loadWaitlist();
+  }, [loadWaitlist]);
+
+  const deleteWaitlistEntry = useCallback(
+    async (id: number) => {
+      if (!service) return;
+      try {
+        await service.deleteWaitlistEntry(id);
+        await loadWaitlist();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to delete waitlist entry');
+      }
+    },
+    [service, loadWaitlist]
+  );
+
+  return { waitlist, loading, error, loadWaitlist, deleteWaitlistEntry };
+}
+
 // ===== USEANALYTICS =====
 export function useAnalytics(service: AdminService | null) {
   const [report, setReport] = useState<FinanceReport | null>(null);
