@@ -142,7 +142,7 @@ const Checkout: React.FC = () => {
 
       if (stockCheck.quantity < qty) {
         showNotif(
-          `Only ${stockCheck.quantity} left in stock for ${item.name} (${item.size}) — please lower the quantity`,
+          `Not enough in stock for ${item.name} (${item.size}) — please lower the quantity`,
           '#c0392b'
         );
         return;
