@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/HazedStudios-Website/',
+  base: '/',
   build: {
     rollupOptions: {
       output: {
