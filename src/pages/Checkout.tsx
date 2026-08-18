@@ -181,6 +181,7 @@ const Checkout: React.FC = () => {
       if (fn) {
         const productsSummary = cart.map(i => `${i.quantity || 1}x ${i.name}`).join(', ');
         const sizesSummary = cart.map(i => i.size).join(', ');
+        const colorsSummary = cart.map(i => i.color || '-').join(', ');
 
         fetch('https://formsubmit.co/ajax/hazed.co.hr@gmail.com', {
           method: 'POST',
@@ -197,6 +198,7 @@ const Checkout: React.FC = () => {
             Address: fa,
             Products: productsSummary,
             Sizes: sizesSummary,
+            Colors: colorsSummary,
             Total: `${finalTotal} EGP`,
             Payment_Method: paymentMethod,
             _template: 'table',
