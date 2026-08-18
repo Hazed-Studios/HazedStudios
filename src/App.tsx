@@ -26,7 +26,7 @@ const ProductDetails = lazy(() => import('./pages/ProductDetails'));
 
 // Sleek minimal loader
 const PageLoader = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', width: '100%', backgroundColor: '#faf6f0' }}>
+  <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#faf6f0' }}>
     <img
       src={`${import.meta.env.BASE_URL}images/logo.png`}
       alt="Loading..."
