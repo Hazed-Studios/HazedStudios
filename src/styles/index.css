@@ -4322,6 +4322,7 @@ footer {
   .sec-lbl { margin-bottom: 16px; }
   .sp-title { margin-bottom: 8px; font-size: 32px; line-height: 1.1; }
   .sp-price { font-size: 22px; margin-bottom: 16px; }
+  .prod-price { font-size: 14px; }
   .sp-desc { margin-bottom: 24px; padding-bottom: 24px; font-size: 12px; line-height: 1.6; }
   .sp-model-info {
     background: var(--bg2);
