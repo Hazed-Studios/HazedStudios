@@ -101,9 +101,23 @@ export const useNotificationStore = create<NotificationState>((set) => ({
 interface AppState {
   isLoaded: boolean;
   setLoaded: (loaded: boolean) => void;
+  isSiteUnlocked: boolean;
+  unlockSite: () => void;
+  lockSite: () => void;
 }
 
-export const useAppStore = create<AppState>((set) => ({
-  isLoaded: false,
-  setLoaded: (loaded) => set({ isLoaded: loaded }),
-}));
+export const useAppStore = create<AppState>()(
+  persist(
+    (set) => ({
+      isLoaded: false,
+      setLoaded: (loaded) => set({ isLoaded: loaded }),
+      isSiteUnlocked: false,
+      unlockSite: () => set({ isSiteUnlocked: true }),
+      lockSite: () => set({ isSiteUnlocked: false }),
+    }),
+    {
+      name: 'hz_app_state',
+      partialize: (state) => ({ isSiteUnlocked: state.isSiteUnlocked }),
+    }
+  )
+);

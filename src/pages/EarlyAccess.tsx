@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Check, ArrowRight, Lock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import { useAppStore } from '../context/store';
 
 const EarlyAccess: React.FC = () => {
   const navigate = useNavigate();
@@ -45,6 +46,7 @@ const EarlyAccess: React.FC = () => {
       const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
       
       if (hashHex === '801927bb48a9081b3a28e1fc7c29aed5b4b561d9a4096adce5b077f7eaf40713') {
+        useAppStore.getState().unlockSite();
         navigate('/home');
       } else {
         setAdminError('Incorrect password');
