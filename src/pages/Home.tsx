@@ -1,13 +1,32 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface HomeProps {
   onOpenCart: () => void;
 }
 
+const PageLoader = () => (
+  <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#faf6f0' }}>
+    <img
+      src={`${import.meta.env.BASE_URL}images/logo.png`}
+      alt="Loading..."
+      style={{ height: '100px', objectFit: 'contain', animation: 'pulse 1.5s ease-in-out infinite' }}
+    />
+    <style>{`@keyframes pulse { 0%, 100% { opacity: 0.5; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1); } }`}</style>
+  </div>
+);
+
 const Home: React.FC<HomeProps> = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const navigate = useNavigate();
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const heroImageUrl = `${import.meta.env.BASE_URL}images/IMG_9107.webp`;
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = heroImageUrl;
+    img.onload = () => setImgLoaded(true);
+  }, [heroImageUrl]);
 
   // Canvas particles
   useEffect(() => {
@@ -64,7 +83,8 @@ const Home: React.FC<HomeProps> = () => {
 
   return (
     <div className="home-wrapper">
-      <section className="hero" style={{ backgroundImage: `url('${import.meta.env.BASE_URL}images/IMG_9107.webp')` }}>
+      {!imgLoaded && <PageLoader />}
+      <section className="hero" style={{ backgroundImage: `url('${heroImageUrl}')`, opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.8s ease' }}>
         <div className="hero-content" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
           <button
             className="hero-btn"
