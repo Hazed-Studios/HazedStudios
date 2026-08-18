@@ -92,6 +92,10 @@ const Checkout: React.FC = () => {
 
   const handleApplyCoupon = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (!couponCode.trim()) {
+      showNotif('Please write a discount code', '#c0392b');
+      return;
+    }
     if (couponCode.trim().toUpperCase() === 'HS10') {
       setDiscountApplied(true);
       showNotif('10% Discount applied!', '#2ecc71');
@@ -387,7 +391,6 @@ const Checkout: React.FC = () => {
                   />
                   <button
                     onClick={discountApplied ? handleRemoveCoupon : handleApplyCoupon}
-                    disabled={!discountApplied && !couponCode}
                     style={{
                       padding: '0 20px',
                       background: discountApplied ? 'transparent' : 'var(--dk)',
