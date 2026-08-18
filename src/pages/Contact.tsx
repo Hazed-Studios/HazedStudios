@@ -13,23 +13,17 @@ const Contact: React.FC = () => {
     const form = e.currentTarget;
     const formData = new FormData(form);
     
-    // We construct a JSON object to send to FormSubmit via AJAX
-    const data = {
-      _subject: `New Contact Request from ${formData.get('Name')}`,
-      Name: formData.get('Name'),
-      Email: formData.get('Email'),
-      Message: formData.get('Message'),
-      _template: 'table',
-      _captcha: 'false'
-    };
+    // Add FormSubmit config fields directly to FormData to support file attachments
+    formData.append('_subject', `New Contact Request from ${formData.get('Name')}`);
+    formData.append('_template', 'table');
+    formData.append('_captcha', 'false');
     
     fetch('https://formsubmit.co/ajax/hazed.co.hr@gmail.com', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify(data),
+      body: formData,
     })
     .then(response => {
       if (!response.ok) throw new Error('Failed');
