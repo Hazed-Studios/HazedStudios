@@ -162,7 +162,7 @@ const EarlyAccess: React.FC = () => {
                   padding: '16px 0',
                   color: '#1a1208',
                   fontSize: '16px',
-                  fontFamily: "'Cormorant Garamond', serif",
+                  fontFamily: "'Montserrat', sans-serif",
                   outline: 'none',
                   transition: 'border-color 0.3s'
                 }}

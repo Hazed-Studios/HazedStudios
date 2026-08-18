@@ -54,13 +54,13 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                   <div className="ci-sz">
                     {item.size} • {item.color}
                   </div>
-                  <div className="ci-price" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+                  <div className="ci-price" style={{ fontFamily: '"Times New Roman", Times, serif', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                     {item.oldPrice ? (
                       <>
-                        <span style={{ textDecoration: 'line-through', color: 'var(--mu2)', marginRight: '8px', fontSize: '0.9em' }}>
+                        <span style={{ textDecoration: 'line-through', color: 'var(--mu2)', fontSize: '0.9em', whiteSpace: 'nowrap' }}>
                           {(item.oldPrice * (item.quantity || 1)).toLocaleString()} EGP
                         </span>
-                        <span style={{ color: 'var(--cr)', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ color: 'var(--cr)', display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
                           {(item.price * (item.quantity || 1)).toLocaleString()} EGP
                           <span style={{ 
                             fontFamily: 'system-ui, -apple-system, sans-serif',
