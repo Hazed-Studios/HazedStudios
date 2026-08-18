@@ -13,6 +13,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
   const { showNotif } = useNotificationStore();
   const [selectedSize, setSelectedSize] = useState<string>('M');
   const [quantity, setQuantity] = useState<number>(1);
+  const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
   const isWished = wishlist.includes(product.dbId);
@@ -65,7 +66,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
   };
 
   return (
-    <div className="prod-card rv" data-cat={product.cat} onClick={() => onClick(product)}>
+    <div
+      className="prod-card"
+      data-cat={product.cat}
+      onClick={() => onClick(product)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{ background: 'transparent', border: 'none' }}
+    >
       <button
         className={`prod-wish ${isWished ? 'wished' : ''}`}
         onClick={handleToggleWish}
@@ -73,64 +81,97 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
         {isWished ? '♥' : '♡'}
       </button>
 
-      <div className="prod-vis">
-        {product.visual.startsWith('/images/') ? (
-          <img src={product.visual} alt={product.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+      <div className="prod-vis" style={{ borderRadius: '8px', overflow: 'hidden', position: 'relative', background: 'transparent' }}>
+        {product.visual && (product.visual.includes('images/') || product.visual.startsWith('http')) ? (
+          <>
+            <img src={product.visual} alt={product.name} loading="lazy" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain', display: 'block', borderRadius: '8px', opacity: isHovered && product.gallery?.length ? 0 : 1, transition: 'opacity 0.4s ease' }} />
+            {product.gallery && product.gallery.length > 0 && (
+              <img src={product.gallery[0]} alt={product.name} loading="lazy" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: '8px', opacity: isHovered ? 1 : 0, transition: 'opacity 0.4s ease' }} />
+            )}
+          </>
         ) : (
           <div className="prod-sym">{product.visual || 'H.S'}</div>
         )}
-      </div>
 
-      <div className="prod-hover">
-        <div className="size-row">
-          {['S', 'M', 'L'].map((s) => {
-            const isOk = (product.sizeStock[s] || 0) > 0;
-            return (
-              <button
-                key={s}
-                className={`sz ${selectedSize === s ? 'on' : ''} ${!isOk ? 'out-of-stock' : ''}`}
-                style={{ opacity: isOk ? 1 : 0.4, cursor: isOk ? 'pointer' : 'not-allowed' }}
-                onClick={(e) => handleSizeSelect(e, s, isOk)}
-              >
-                {s}
-              </button>
-            );
-          })}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-          <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--mu)', letterSpacing: '.1em' }}>QTY</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <button style={{ background: 'none', border: '1px solid var(--bd)', color: 'var(--dk)', padding: '2px 8px', borderRadius: '4px' }} onClick={(e) => { e.stopPropagation(); setQuantity(Math.max(1, quantity - 1)); }}>-</button>
-            <span style={{ fontSize: '12px', color: 'var(--dk)' }}>{quantity}</span>
-            <button style={{ background: 'none', border: '1px solid var(--bd)', color: 'var(--dk)', padding: '2px 8px', borderRadius: '4px' }} onClick={(e) => { e.stopPropagation(); setQuantity(quantity + 1); }}>+</button>
+        <div className="prod-hover" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div className="size-row" style={{ margin: 0, padding: 0 }}>
+              {['S', 'M', 'L'].map((s) => {
+                const isOk = (product.sizeStock[s] || 0) > 0;
+                return (
+                  <button
+                    key={s}
+                    className={`sz ${selectedSize === s ? 'on' : ''} ${!isOk ? 'out-of-stock' : ''}`}
+                    style={{ opacity: isOk ? 1 : 0.4, cursor: isOk ? 'pointer' : 'not-allowed', width: '28px', height: '28px', minWidth: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                    onClick={(e) => handleSizeSelect(e, s, isOk)}
+                  >
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '10px', textTransform: 'uppercase', color: 'var(--bg)', letterSpacing: '.1em', opacity: 0.8, marginRight: '4px' }}>QTY</span>
+              <button style={{ background: 'none', border: '1px solid rgba(255,255,255,0.4)', color: '#fff', padding: '0px 6px', borderRadius: '4px', height: '24px' }} onClick={(e) => { e.stopPropagation(); setQuantity(Math.max(1, quantity - 1)); }}>-</button>
+              <span style={{ fontSize: '11px', color: '#fff', minWidth: '12px', textAlign: 'center' }}>{quantity}</span>
+              <button style={{ background: 'none', border: '1px solid rgba(255,255,255,0.4)', color: '#fff', padding: '0px 6px', borderRadius: '4px', height: '24px' }} onClick={(e) => { e.stopPropagation(); setQuantity(quantity + 1); }}>+</button>
+            </div>
           </div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <button
-            className="btn-atc"
-            onClick={handleAddToCart}
-            disabled={product.stock === 0}
-          >
-            {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
-          </button>
-          {product.stock > 0 && (
+          <div style={{ display: 'flex', gap: '8px' }}>
             <button
               className="btn-atc"
-              style={{ background: 'transparent', color: 'var(--dk)', border: '1px solid var(--dk)' }}
-              onClick={handleBuyNow}
+              style={{ flex: 1, padding: '8px 0', fontSize: '11px' }}
+              onClick={handleAddToCart}
+              disabled={product.stock === 0}
             >
-              Buy Now
+              {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
             </button>
-          )}
+            {product.stock > 0 && (
+              <button
+                className="btn-atc"
+                style={{ flex: 1, padding: '8px 0', fontSize: '11px', background: 'transparent', color: '#fff', border: '1px solid #fff' }}
+                onClick={handleBuyNow}
+              >
+                Buy Now
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       <div className="prod-info">
         <div>
-          <div className="prod-name">{product.name}</div>
+          <div className="prod-name">
+            {product.name.toUpperCase()}
+          </div>
           <div className="prod-cat">{product.cat}</div>
         </div>
-        <div className="prod-price">{product.price.toLocaleString()} EGP</div>
+        <div className="prod-price" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            {product.oldPrice && (
+              <span style={{ textDecoration: 'line-through', color: 'var(--mu)', opacity: 0.6 }}>
+                {product.oldPrice.toLocaleString()}
+              </span>
+            )}
+            <span>{product.price.toLocaleString()} EGP</span>
+          </div>
+          {product.oldPrice && (
+            <span style={{
+              fontFamily: 'system-ui, -apple-system, sans-serif',
+              fontSize: '9px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              color: 'var(--bg)',
+              background: 'var(--cr)',
+              padding: '3px 6px',
+              borderRadius: '3px',
+              fontWeight: 700,
+              whiteSpace: 'nowrap'
+            }}>
+              Limited Time
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

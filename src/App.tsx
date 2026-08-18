@@ -13,14 +13,15 @@ import { useAdminStore } from './context/store';
 // Lazy loaded components (code-splitting)
 const AdminLogin = lazy(() => import('./components/admin/AdminLogin'));
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel'));
-// const Home = lazy(() => import('./pages/Home'));
+const EarlyAccess = lazy(() => import('./pages/EarlyAccess'));
+const Home = lazy(() => import('./pages/Home'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const Shop = lazy(() => import('./pages/Shop'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Returns = lazy(() => import('./pages/Returns'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Lookbook = lazy(() => import('./pages/Lookbook'));
-const EarlyAccess = lazy(() => import('./pages/EarlyAccess'));
+const ProductDetails = lazy(() => import('./pages/ProductDetails'));
 
 // Sleek minimal loader
 const PageLoader = () => (
@@ -60,11 +61,31 @@ const App: React.FC = () => {
           }
         />
         <Route
+          path="/home"
+          element={
+            <>
+              <Navbar onOpenCart={() => setIsCartOpen(true)} onOpenSearch={() => setIsSearchOpen(true)} />
+              <Suspense fallback={<PageLoader />}><Home onOpenCart={() => setIsCartOpen(true)} /></Suspense>
+              <Footer />
+            </>
+          }
+        />
+        <Route
           path="/shop"
           element={
             <>
               <Navbar onOpenCart={() => setIsCartOpen(true)} onOpenSearch={() => setIsSearchOpen(true)} />
               <Suspense fallback={<PageLoader />}><Shop onOpenCart={() => setIsCartOpen(true)} /></Suspense>
+              <Footer />
+            </>
+          }
+        />
+        <Route
+          path="/product/:id"
+          element={
+            <>
+              <Navbar onOpenCart={() => setIsCartOpen(true)} onOpenSearch={() => setIsSearchOpen(true)} />
+              <Suspense fallback={<PageLoader />}><ProductDetails onOpenCart={() => setIsCartOpen(true)} /></Suspense>
               <Footer />
             </>
           }

@@ -121,7 +121,7 @@ const AdminPanel: React.FC = () => {
 
   const handleWhatsAppOrder = (o: any) => {
     const phone = o.customers?.phone || '';
-    const msg = `Hi ${o.customers?.name || ''}! Your HAZED.STUDIOS order (${o.products?.name || ''} Size ${o.size}) has been ${o.status} 🖤`;
+    const msg = `Hi ${o.customers?.name || ''}! Your HAZED.STUDIOS order (${o.products?.name || ''} Size ${o.size}) has been ${o.status}. Please reply with "Confirm" or "Decline" to confirm or ignore the order.`;
     whatsapp.sendMessage(phone, msg);
   };
 

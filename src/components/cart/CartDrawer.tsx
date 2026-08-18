@@ -44,7 +44,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
               <div className="cart-item" key={i}>
                 <div className="ci-img">
                   {item.visual ? (
-                    <img src={item.visual} alt={item.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    <img src={item.visual} alt={item.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: '4px' }} />
                   ) : (
                     'H.S'
                   )}
@@ -54,14 +54,27 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                   <div className="ci-sz">
                     {item.size} • {item.color}
                   </div>
-                  <div className="ci-price">
+                  <div className="ci-price" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
                     {item.oldPrice ? (
                       <>
                         <span style={{ textDecoration: 'line-through', color: 'var(--mu2)', marginRight: '8px', fontSize: '0.9em' }}>
                           {(item.oldPrice * (item.quantity || 1)).toLocaleString()} EGP
                         </span>
-                        <span style={{ color: 'var(--cr)' }}>
+                        <span style={{ color: 'var(--cr)', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
                           {(item.price * (item.quantity || 1)).toLocaleString()} EGP
+                          <span style={{ 
+                            fontFamily: 'system-ui, -apple-system, sans-serif',
+                            fontSize: '10px', 
+                            textTransform: 'uppercase', 
+                            letterSpacing: '0.05em', 
+                            color: 'var(--bg)', 
+                            background: 'var(--cr)', 
+                            padding: '3px 6px', 
+                            borderRadius: '3px',
+                            fontWeight: 700
+                          }}>
+                            Limited Time
+                          </span>
                         </span>
                       </>
                     ) : (
@@ -85,7 +98,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
           <div className="cart-foot">
             <div className="cart-total-row">
               <div className="cart-total-lbl">Total</div>
-              <div className="cart-total-val">{total.toLocaleString()} EGP</div>
+              <div className="cart-total-val" style={{ fontFamily: '"Times New Roman", Times, serif' }}>{total.toLocaleString()} EGP</div>
             </div>
             <button className="btn-checkout" onClick={handleCheckout}>
               Checkout →

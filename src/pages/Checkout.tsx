@@ -13,7 +13,7 @@ const EGYPTIAN_GOVERNORATES = [
 
 const CustomCombobox = ({ value, onChange, options, placeholder }: { value: string, onChange: (val: string) => void, options: string[], placeholder: string }) => {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   const filteredOptions = options.filter(o => o.toLowerCase().includes(value.toLowerCase()));
 
   return (
@@ -29,15 +29,15 @@ const CustomCombobox = ({ value, onChange, options, placeholder }: { value: stri
         placeholder={placeholder}
         required
       />
-      <div 
-        style={{ 
-          position: 'absolute', right: '0', top: '50%', transform: 'translateY(-50%)', 
+      <div
+        style={{
+          position: 'absolute', right: '0', top: '50%', transform: 'translateY(-50%)',
           cursor: 'pointer', color: 'var(--mu)', padding: '10px'
         }}
         onClick={() => setIsOpen(!isOpen)}
       >
         <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
       {isOpen && (
@@ -47,8 +47,8 @@ const CustomCombobox = ({ value, onChange, options, placeholder }: { value: stri
           boxShadow: '0 10px 30px rgba(26, 18, 8, .1)'
         }}>
           {filteredOptions.length > 0 ? filteredOptions.map(o => (
-            <div 
-              key={o} 
+            <div
+              key={o}
               style={{ padding: '10px 16px', cursor: 'pointer', fontSize: '13px', color: 'var(--dk)' }}
               onMouseDown={(e) => { e.preventDefault(); onChange(o); setIsOpen(false); }}
               onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg2)'}
@@ -207,7 +207,7 @@ const Checkout: React.FC = () => {
       if (fn) {
         const productsSummary = cart.map(i => `${i.quantity || 1}x ${i.name}`).join(', ');
         const sizesSummary = cart.map(i => i.size).join(', ');
-        
+
         fetch('https://formsubmit.co/ajax/hazed.co.hr@gmail.com', {
           method: 'POST',
           headers: {
@@ -361,9 +361,9 @@ const Checkout: React.FC = () => {
 
               <div className="form-title" style={{ marginTop: '24px' }}>Payment Method</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px' }}>
-                <div 
+                <div
                   onClick={() => setFormData({ ...formData, paymentMethod: 'COD' })}
-                  style={{ 
+                  style={{
                     border: formData.paymentMethod === 'COD' ? '1px solid var(--dk)' : '1px solid var(--bd)',
                     background: formData.paymentMethod === 'COD' ? 'var(--bg2)' : 'transparent',
                     padding: '16px',
@@ -374,9 +374,9 @@ const Checkout: React.FC = () => {
                 >
                   <span style={{ fontSize: '12px', color: formData.paymentMethod === 'COD' ? 'var(--dk)' : 'var(--mu)', letterSpacing: '.1em', textTransform: 'uppercase' }}>Cash on Delivery</span>
                 </div>
-                <div 
+                <div
                   onClick={() => setFormData({ ...formData, paymentMethod: 'InstaPay' })}
-                  style={{ 
+                  style={{
                     border: formData.paymentMethod === 'InstaPay' ? '1px solid var(--dk)' : '1px solid var(--bd)',
                     background: formData.paymentMethod === 'InstaPay' ? 'var(--bg2)' : 'transparent',
                     padding: '16px',
@@ -410,22 +410,22 @@ const Checkout: React.FC = () => {
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '11px', color: 'var(--mu)' }}>Subtotal</span>
-                  <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{total.toLocaleString()} EGP</span>
+                  <span style={{ fontSize: '15px', color: 'var(--mu)' }}>Subtotal</span>
+                  <span style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px', color: 'var(--dk)' }}>{total.toLocaleString()} EGP</span>
                 </div>
                 {discountApplied && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '11px', color: 'var(--cr)' }}>Discount (10%)</span>
-                    <span style={{ fontSize: '13px', color: 'var(--cr)' }}>-{discountAmount.toLocaleString()} EGP</span>
+                    <span style={{ fontSize: '15px', color: 'var(--cr)' }}>Discount (10%)</span>
+                    <span style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px', color: 'var(--cr)' }}>-{discountAmount.toLocaleString()} EGP</span>
                   </div>
                 )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                  <span style={{ fontSize: '11px', color: 'var(--mu)' }}>Shipping</span>
-                  <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{isFreeShipping ? 'Free' : `${shippingCost} EGP`}</span>
+                  <span style={{ fontSize: '15px', color: 'var(--mu)' }}>Shipping</span>
+                  <span style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px', color: 'var(--dk)' }}>{isFreeShipping ? 'Free' : `${shippingCost} EGP`}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--bd)', paddingTop: '16px' }}>
-                  <span style={{ fontSize: '10px', letterSpacing: '.15em', textTransform: 'uppercase', color: 'var(--cr)' }}>Total</span>
-                  <span style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '24px', color: 'var(--cr)' }}>{finalTotal.toLocaleString()} EGP</span>
+                  <span style={{ fontSize: '15px', letterSpacing: '.15em', textTransform: 'uppercase', color: 'var(--cr)' }}>Total</span>
+                  <span style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '24px', color: 'var(--cr)' }}>{finalTotal.toLocaleString()} EGP</span>
                 </div>
               </div>
 
@@ -444,16 +444,16 @@ const Checkout: React.FC = () => {
                 Thank you for choosing HAZED.STUDIOS. Your order has been placed successfully.
                 <br /><br />
                 {formData.paymentMethod === 'InstaPay' ? (
-                   <>
-                     Please transfer the total amount of <strong>{finalTotal.toLocaleString()} EGP</strong> to our InstaPay handle:
-                     <br />
-                     <strong style={{ fontSize: '20px', color: 'var(--cr)', display: 'block', margin: '16px 0' }}>your_instapay_handle</strong>
-                     Your order will be processed as soon as we receive the transfer.
-                   </>
+                  <>
+                    Please transfer the total amount of <strong>{finalTotal.toLocaleString()} EGP</strong> to our InstaPay handle:
+                    <br />
+                    <strong style={{ fontSize: '20px', color: 'var(--cr)', display: 'block', margin: '16px 0' }}>your_instapay_handle</strong>
+                    Your order will be processed as soon as we receive the transfer.
+                  </>
                 ) : (
-                   <>
-                     We will process your order soon. You will pay in cash upon delivery.
-                   </>
+                  <>
+                    We will process your order soon. You will pay in cash upon delivery.
+                  </>
                 )}
               </div>
             </div>

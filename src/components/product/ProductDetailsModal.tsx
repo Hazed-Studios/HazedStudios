@@ -118,8 +118,8 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
           <div className="pdp-sizes" style={{ marginBottom: '24px', display: 'flex', gap: '16px' }}>
             <button style={{ border: '1px solid var(--bd)', background: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }} onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
             <span style={{ fontSize: '16px', display: 'flex', alignItems: 'center' }}>{quantity}</span>
-            <button 
-              style={{ border: '1px solid var(--bd)', background: 'none', cursor: (quantity >= (product.sizeStock[selectedSize] || 0)) ? 'not-allowed' : 'pointer', opacity: (quantity >= (product.sizeStock[selectedSize] || 0)) ? 0.5 : 1, padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }} 
+            <button
+              style={{ border: '1px solid var(--bd)', background: 'none', cursor: (quantity >= (product.sizeStock[selectedSize] || 0)) ? 'not-allowed' : 'pointer', opacity: (quantity >= (product.sizeStock[selectedSize] || 0)) ? 0.5 : 1, padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }}
               onClick={() => setQuantity(quantity + 1)}
               disabled={quantity >= (product.sizeStock[selectedSize] || 0)}
             >+</button>
@@ -134,9 +134,9 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
             >
               {(product.sizeStock[selectedSize] || 0) === 0 ? 'Out of Stock' : 'Add to Cart'}
             </button>
-            <button 
-              className="pdp-atc" 
-              style={{ background: 'transparent', color: 'var(--dk)', border: '1px solid var(--dk)', opacity: (product.sizeStock[selectedSize] || 0) === 0 ? 0.5 : 1, cursor: (product.sizeStock[selectedSize] || 0) === 0 ? 'not-allowed' : 'pointer' }} 
+            <button
+              className="pdp-atc"
+              style={{ background: 'transparent', color: 'var(--dk)', border: '1px solid var(--dk)', opacity: (product.sizeStock[selectedSize] || 0) === 0 ? 0.5 : 1, cursor: (product.sizeStock[selectedSize] || 0) === 0 ? 'not-allowed' : 'pointer' }}
               onClick={handleBuyNow}
               disabled={(product.sizeStock[selectedSize] || 0) === 0}
             >

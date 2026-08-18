@@ -70,15 +70,15 @@ export const useProducts = () => {
 
           let visual = row.visual || row.image_url;
           let gallery = row.gallery || [];
-          
+
           if (row.name.includes('Natural Linen')) {
             // Front, Side, Back, Side
             gallery = ['images/IMG_9233.webp', 'images/IMG_9236.webp', 'images/IMG_9238.webp', 'images/IMG_9239.webp'];
-            visual = gallery[0];
+            visual = 'images/natural linen.webp';
           } else if (row.name.includes('Baby Blue')) {
             // Front, Side, Back, Side
             gallery = ['images/IMG_9247.webp', 'images/IMG_9248.webp', 'images/IMG_9251.webp', 'images/IMG_9252.webp'];
-            visual = gallery[0];
+            visual = 'images/baby blue.webp';
           }
 
           return {
