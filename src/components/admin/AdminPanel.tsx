@@ -673,7 +673,7 @@ const AdminPanel: React.FC = () => {
                             <span style={{ fontSize: '11px', color: 'var(--mu)', width: '30px' }}>{size}</span>
                             <input 
                               type="number" 
-                              value={editingStock.sizes[size] || 0}
+                              value={editingStock?.sizes[size] || 0}
                               onChange={(e) => setEditingStock(prev => prev ? { ...prev, sizes: { ...prev.sizes, [size]: Number(e.target.value) } } : null)}
                               style={{ width: '60px', padding: '4px 8px', border: '1px solid var(--bd)', background: 'var(--bg)', color: 'var(--dk)', fontSize: '12px', outline: 'none' }}
                             />
@@ -682,8 +682,8 @@ const AdminPanel: React.FC = () => {
                         <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                           <button disabled={isDeleting} onClick={async () => {
                             setIsDeleting(true);
-                            const totalQty = Object.values(editingStock.sizes).reduce((sum, q) => sum + q, 0);
-                            await updateStock(p.id, totalQty, editingStock.sizes);
+                            const totalQty = Object.values(editingStock!.sizes).reduce((sum, q) => sum + q, 0);
+                            await updateStock(p.id, totalQty, editingStock!.sizes);
                             setEditingStock(null);
                             setIsDeleting(false);
                           }} style={{ ...styles.exportBtn, color: 'var(--green)', borderColor: 'var(--green)' }}>Save</button>
