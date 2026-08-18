@@ -756,7 +756,16 @@ const AdminPanel: React.FC = () => {
                 ) : (
                   revenueByProduct.map(([name, d]) => (
                     <div key={name} style={styles.revRow}>
-                      <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{name}</span>
+                      <span style={{ fontSize: '13px', color: 'var(--dk)', lineHeight: '1.4' }}>
+                        {name.includes(' — ') ? (
+                          <>
+                            {name.split(' — ')[0]} —<br />
+                            <span style={{ color: 'var(--mu)', fontSize: '12px' }}>{name.split(' — ')[1]}</span>
+                          </>
+                        ) : (
+                          name
+                        )}
+                      </span>
                       <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                         <span style={{ fontSize: '12px', color: 'var(--mu)' }}>{d.count} units</span>
                         <span style={{ fontFamily: "'Times New Roman', Times, serif", fontSize: '18px', color: 'var(--cr)' }}>
