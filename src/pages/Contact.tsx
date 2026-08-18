@@ -46,7 +46,13 @@ const Contact: React.FC = () => {
               setFileNames([]);
               filesRef.current = [];
               const form = document.getElementById('contact-form') as HTMLFormElement;
-              if (form) form.reset();
+              if (form) {
+                form.reset();
+                const originalInput = document.getElementById('file-upload') as HTMLInputElement;
+                if (originalInput) originalInput.disabled = false;
+                const existingDynamicInputs = form.querySelectorAll('.dynamic-attachment');
+                existingDynamicInputs.forEach(input => input.remove());
+              }
             }
           }}></iframe>
 
@@ -62,7 +68,38 @@ const Contact: React.FC = () => {
               </button>
             </div>
           ) : (
-            <form id="contact-form" action="https://formsubmit.co/hazed.co.hr@gmail.com" method="POST" encType="multipart/form-data" target="hidden_iframe" onSubmit={() => setIsSubmitting(true)}>
+            <form 
+              id="contact-form" 
+              action="https://formsubmit.co/hazed.co.hr@gmail.com" 
+              method="POST" 
+              encType="multipart/form-data" 
+              target="hidden_iframe" 
+              onSubmit={(e) => {
+                setIsSubmitting(true);
+                const form = e.currentTarget;
+                
+                // Disable the original multi-file input so it doesn't get sent as a single field
+                const originalInput = document.getElementById('file-upload') as HTMLInputElement;
+                if (originalInput) originalInput.disabled = true;
+
+                // Remove any previously added dynamic inputs
+                const existingDynamicInputs = form.querySelectorAll('.dynamic-attachment');
+                existingDynamicInputs.forEach(input => input.remove());
+                
+                // Create individual file inputs for each file so FormSubmit processes them all
+                filesRef.current.forEach((file, index) => {
+                  const dt = new DataTransfer();
+                  dt.items.add(file);
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.name = `attachment${index + 1}`;
+                  input.files = dt.files;
+                  input.className = 'dynamic-attachment';
+                  input.style.display = 'none';
+                  form.appendChild(input);
+                });
+              }}
+            >
               <input type="hidden" name="_subject" value="New Contact Request" />
               <input type="hidden" name="_captcha" value="false" />
               <input type="hidden" name="_template" value="table" />
