@@ -170,8 +170,8 @@ const Checkout: React.FC = () => {
       });
 
       if (rpcErr) {
-        throw new Error(rpcErr.message.includes('Insufficient stock') 
-          ? 'One or more items are out of stock in the requested quantity.' 
+        throw new Error(rpcErr.message.includes('Insufficient stock')
+          ? 'One or more items are out of stock in the requested quantity.'
           : rpcErr.message);
       }
 
@@ -181,7 +181,6 @@ const Checkout: React.FC = () => {
       if (fn) {
         const productsSummary = cart.map(i => `${i.quantity || 1}x ${i.name}`).join(', ');
         const sizesSummary = cart.map(i => i.size).join(', ');
-        const colorsSummary = cart.map(i => i.color || '-').join(', ');
 
         fetch('https://formsubmit.co/ajax/hazed.co.hr@gmail.com', {
           method: 'POST',
@@ -190,7 +189,7 @@ const Checkout: React.FC = () => {
             'Accept': 'application/json'
           },
           body: JSON.stringify({
-            _subject: `New Order! from ${fn}`,
+            _subject: `New Purchase Order from ${fn}`,
             Customer_Name: fn,
             Customer_Email: fe,
             Phone: fp,
@@ -198,10 +197,9 @@ const Checkout: React.FC = () => {
             Address: fa,
             Products: productsSummary,
             Sizes: sizesSummary,
-            Colors: colorsSummary,
             Total: `${finalTotal} EGP`,
             Payment_Method: paymentMethod,
-            _template: 'box',
+            _template: 'table',
             _captcha: 'false'
           })
         }).catch((e) => console.log('Store email send failed:', e.message));
@@ -380,16 +378,16 @@ const Checkout: React.FC = () => {
                   <button
                     onClick={discountApplied ? handleRemoveCoupon : handleApplyCoupon}
                     disabled={!discountApplied && !couponCode}
-                    style={{ 
-                      padding: '0 20px', 
-                      background: discountApplied ? 'transparent' : 'var(--dk)', 
-                      color: discountApplied ? 'var(--mu)' : 'var(--bg)', 
-                      border: discountApplied ? '1px solid var(--mu)' : 'none', 
-                      cursor: 'pointer', 
-                      fontSize: '11px', 
-                      letterSpacing: '.1em', 
-                      textTransform: 'uppercase', 
-                      transition: 'all 0.3s' 
+                    style={{
+                      padding: '0 20px',
+                      background: discountApplied ? 'transparent' : 'var(--dk)',
+                      color: discountApplied ? 'var(--mu)' : 'var(--bg)',
+                      border: discountApplied ? '1px solid var(--mu)' : 'none',
+                      cursor: 'pointer',
+                      fontSize: '11px',
+                      letterSpacing: '.1em',
+                      textTransform: 'uppercase',
+                      transition: 'all 0.3s'
                     }}
                   >
                     {discountApplied ? 'Clear' : 'Apply'}
