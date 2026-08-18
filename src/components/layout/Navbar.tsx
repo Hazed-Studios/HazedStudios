@@ -61,6 +61,21 @@ const Navbar: React.FC<NavbarProps> = ({ onOpenCart, onOpenSearch }) => {
         </div>
       </div>
 
+      {/* Mobile Menu Backdrop */}
+      {mobileMenuOpen && (
+        <div 
+          onClick={() => setMobileMenuOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(2px)',
+            zIndex: 999,
+            animation: 'fadeIn 0.3s ease-out'
+          }}
+        />
+      )}
+
       <div className={`mob-menu-ov ${mobileMenuOpen ? 'open' : ''}`}>
         <div className="mob-menu-inner">
           <button className="mob-menu-close" onClick={() => setMobileMenuOpen(false)}>×</button>

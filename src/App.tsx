@@ -25,9 +25,9 @@ const ProductDetails = lazy(() => import('./pages/ProductDetails'));
 
 // Sleek minimal loader
 const PageLoader = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', width: '100%', backgroundColor: '#0d0b06' }}>
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', width: '100%', backgroundColor: '#faf6f0' }}>
     <img
-      src={`${import.meta.env.BASE_URL}images/HazedStudios White (NoBackground).png`}
+      src={`${import.meta.env.BASE_URL}images/logo.png`}
       alt="Loading..."
       style={{ height: '100px', objectFit: 'contain', animation: 'pulse 1.5s ease-in-out infinite' }}
     />

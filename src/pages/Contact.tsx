@@ -47,28 +47,6 @@ const Contact: React.FC = () => {
     <div className="page-container" style={{ maxWidth: '1000px' }}>
       <h1 className="page-title">Contact Us</h1>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '60px' }}>
-        <div className="page-content" style={{ flex: '1 1 300px' }}>
-          <p>
-            We are here to assist you with any inquiries regarding our collections, sizing, orders, or general questions.
-          </p>
-          
-          <h3>Email</h3>
-          <p>
-            For all customer service and press inquiries, please reach out to us at:<br/>
-            <a href="mailto:hazed.co.hr@gmail.com">hazed.co.hr@gmail.com</a>
-          </p>
-
-          <h3>Studio Hours</h3>
-          <p>
-            Our Cairo-based client services team is available:<br/>
-            Sunday - Thursday: 10:00 AM - 6:00 PM (EET)
-          </p>
-          
-          <p>
-            <em>Please allow 24-48 hours for a response during standard business days.</em>
-          </p>
-        </div>
-
         <div style={{ flex: '1 1 400px', background: 'var(--bg2)', padding: '40px', borderRadius: '8px', border: '1px solid var(--bd)' }}>
           <h3 style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '26px', fontWeight: 300, fontStyle: 'italic', color: 'var(--dk)', margin: '0 0 24px 0' }}>Send us a message</h3>
           {status ? (
@@ -127,6 +105,28 @@ const Contact: React.FC = () => {
               </button>
             </form>
           )}
+        </div>
+
+        <div className="page-content" style={{ flex: '1 1 300px' }}>
+          <p>
+            We are here to assist you with any inquiries regarding our collections, sizing, orders, or general questions.
+          </p>
+          
+          <h3>Email</h3>
+          <p>
+            For all customer service and press inquiries, please reach out to us at:<br/>
+            <a href="mailto:hazed.co.hr@gmail.com">hazed.co.hr@gmail.com</a>
+          </p>
+
+          <h3>Studio Hours</h3>
+          <p>
+            Our Cairo-based client services team is available:<br/>
+            Sunday - Thursday: 10:00 AM - 6:00 PM (EET)
+          </p>
+          
+          <p>
+            <em>Please allow 24-48 hours for a response during standard business days.</em>
+          </p>
         </div>
       </div>
     </div>

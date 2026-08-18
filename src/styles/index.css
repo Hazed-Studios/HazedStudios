@@ -4306,3 +4306,9 @@ footer {
     font-size: 11px;
     letter-spacing: 0.1em;
 }
+
+@media (max-width: 768px) {
+    .prod-hover {
+        display: none !important;
+    }
+}

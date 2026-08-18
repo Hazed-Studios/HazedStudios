@@ -70,8 +70,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
       className="prod-card"
       data-cat={product.cat}
       onClick={() => onClick(product)}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => window.innerWidth > 768 && setIsHovered(true)}
+      onMouseLeave={() => window.innerWidth > 768 && setIsHovered(false)}
       style={{ background: 'transparent', border: 'none' }}
     >
       <button

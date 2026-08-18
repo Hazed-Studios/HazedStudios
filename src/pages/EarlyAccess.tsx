@@ -11,6 +11,7 @@ const EarlyAccess: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [adminPwd, setAdminPwd] = useState('');
+  const [adminError, setAdminError] = useState('');
 
   useEffect(() => {
     setIsLoaded(true);
@@ -39,8 +40,8 @@ const EarlyAccess: React.FC = () => {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#0d0b06', // matches var(--dk2)
-      color: '#faf6f0', // matches var(--bg)
+      backgroundColor: '#faf6f0', // matches var(--bg)
+      color: '#1a1208', // matches var(--dk)
       display: 'flex',
       flexDirection: 'column',
       fontFamily: "'Montserrat', sans-serif",
@@ -55,7 +56,7 @@ const EarlyAccess: React.FC = () => {
         transform: 'translate(-50%, -50%)',
         width: '100vw',
         height: '100vw',
-        background: 'radial-gradient(circle, rgba(192, 127, 69, 0.05) 0%, rgba(13, 11, 6, 0) 70%)',
+        background: 'radial-gradient(circle, rgba(192, 127, 69, 0.05) 0%, rgba(250, 246, 240, 0) 70%)',
         pointerEvents: 'none'
       }}></div>
 
@@ -69,7 +70,7 @@ const EarlyAccess: React.FC = () => {
         transition: 'all 1s ease-out'
       }}>
         <img
-          src={`${import.meta.env.BASE_URL}images/HazedStudios White (NoBackground).png`}
+          src={`${import.meta.env.BASE_URL}images/logo.png`}
           alt="Hazed Studios"
           style={{ height: '150px', objectFit: 'contain' }}
         />
@@ -95,7 +96,7 @@ const EarlyAccess: React.FC = () => {
           fontWeight: 300,
           lineHeight: 1.1,
           marginBottom: '24px',
-          color: '#faf6f0'
+          color: '#1a1208'
         }}>
           Redefining the Standard.<br />
           <em style={{ color: '#C07F45', fontStyle: 'italic' }}>Coming Soon.</em>
@@ -125,7 +126,7 @@ const EarlyAccess: React.FC = () => {
               animation: 'fadeIn 0.5s ease-out'
             }}>
               <Check size={28} color="#C07F45" />
-              <p style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '20px', fontStyle: 'italic', color: '#faf6f0' }}>Welcome to our community.</p>
+              <p style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '20px', fontStyle: 'italic', color: '#1a1208' }}>Welcome to our community.</p>
               <p style={{ margin: 0, fontSize: '12px', color: '#9a8878', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Keep an eye on your inbox.</p>
             </div>
           ) : (
@@ -142,7 +143,7 @@ const EarlyAccess: React.FC = () => {
                   border: 'none',
                   borderBottom: '1px solid rgba(154, 136, 120, 0.4)',
                   padding: '16px 0',
-                  color: '#faf6f0',
+                  color: '#1a1208',
                   fontSize: '16px',
                   fontFamily: "'Cormorant Garamond', serif",
                   outline: 'none',
@@ -158,7 +159,7 @@ const EarlyAccess: React.FC = () => {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   background: '#C07F45',
-                  color: '#0d0b06',
+                  color: '#faf6f0',
                   border: 'none',
                   padding: '16px 24px',
                   fontSize: '12px',
@@ -169,7 +170,7 @@ const EarlyAccess: React.FC = () => {
                   marginTop: '16px',
                   transition: 'background 0.3s, transform 0.2s',
                 }}
-                onMouseOver={(e) => e.currentTarget.style.background = '#faf6f0'}
+                onMouseOver={(e) => e.currentTarget.style.background = '#1a1208'}
                 onMouseOut={(e) => e.currentTarget.style.background = '#C07F45'}
                 onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
                 onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
@@ -209,19 +210,20 @@ const EarlyAccess: React.FC = () => {
           />
         </div>
         <div style={{ display: 'flex', gap: '24px' }}>
-          <a href="#" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#faf6f0'} onMouseOut={(e) => e.currentTarget.style.color = 'inherit'}>Instagram</a>
-          <a href="#" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#faf6f0'} onMouseOut={(e) => e.currentTarget.style.color = 'inherit'}>TikTok</a>
+          <a href="#" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#1a1208'} onMouseOut={(e) => e.currentTarget.style.color = 'inherit'}>Instagram</a>
+          <a href="#" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#1a1208'} onMouseOut={(e) => e.currentTarget.style.color = 'inherit'}>TikTok</a>
         </div>
       </footer>
 
       {showAdminModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(13, 11, 6, 0.8)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
-          <div style={{ background: '#0d0b06', border: '1px solid rgba(192, 127, 69, 0.3)', padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', maxWidth: '320px', animation: 'fadeIn 0.3s ease-out' }}>
-            <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', color: '#faf6f0', fontWeight: 300 }}>Admin Access</h3>
-            <input type="password" placeholder="Enter password" value={adminPwd} onChange={(e) => setAdminPwd(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { if (adminPwd === 'Wikian@2026') navigate('/home'); else alert('Incorrect password'); } }} autoFocus style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(154, 136, 120, 0.4)', padding: '12px 0', color: '#faf6f0', fontSize: '14px', fontFamily: "'Montserrat', sans-serif", outline: 'none', transition: 'border-color 0.3s' }} onFocus={(e) => e.target.style.borderBottomColor = '#C07F45'} onBlur={(e) => e.target.style.borderBottomColor = 'rgba(154, 136, 120, 0.4)'} />
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(250, 246, 240, 0.8)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
+          <div style={{ background: '#faf6f0', border: '1px solid rgba(192, 127, 69, 0.3)', padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', maxWidth: '320px', animation: 'fadeIn 0.3s ease-out' }}>
+            <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', color: '#1a1208', fontWeight: 300 }}>Admin Access</h3>
+            <input type="password" placeholder="Enter password" value={adminPwd} onChange={(e) => { setAdminPwd(e.target.value); setAdminError(''); }} onKeyDown={(e) => { if (e.key === 'Enter') { if (adminPwd === 'Wikian@2026') navigate('/home'); else setAdminError('Incorrect password'); } }} autoFocus style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(154, 136, 120, 0.4)', padding: '12px 0', color: '#1a1208', fontSize: '14px', fontFamily: "'Montserrat', sans-serif", outline: 'none', transition: 'border-color 0.3s' }} onFocus={(e) => e.target.style.borderBottomColor = '#C07F45'} onBlur={(e) => e.target.style.borderBottomColor = 'rgba(154, 136, 120, 0.4)'} />
+            {adminError && <div style={{ color: '#c0392b', fontSize: '12px', marginTop: '-8px' }}>{adminError}</div>}
             <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-              <button onClick={() => setShowAdminModal(false)} style={{ flex: 1, background: 'transparent', color: '#9a8878', border: '1px solid rgba(154, 136, 120, 0.4)', padding: '12px', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#faf6f0'} onMouseOut={(e) => e.currentTarget.style.color = '#9a8878'}>Cancel</button>
-              <button onClick={() => { if (adminPwd === 'Wikian@2026') navigate('/home'); else alert('Incorrect password'); }} style={{ flex: 1, background: '#C07F45', color: '#0d0b06', border: 'none', padding: '12px', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600, cursor: 'pointer', transition: 'background 0.3s' }} onMouseOver={(e) => e.currentTarget.style.background = '#faf6f0'} onMouseOut={(e) => e.currentTarget.style.background = '#C07F45'}>Unlock</button>
+              <button onClick={() => { setShowAdminModal(false); setAdminPwd(''); setAdminError(''); }} style={{ flex: 1, background: 'transparent', color: '#9a8878', border: '1px solid rgba(154, 136, 120, 0.4)', padding: '12px', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#1a1208'} onMouseOut={(e) => e.currentTarget.style.color = '#9a8878'}>Cancel</button>
+              <button onClick={() => { if (adminPwd === 'Wikian@2026') navigate('/home'); else setAdminError('Incorrect password'); }} style={{ flex: 1, background: '#C07F45', color: '#faf6f0', border: 'none', padding: '12px', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600, cursor: 'pointer', transition: 'background 0.3s' }} onMouseOver={(e) => e.currentTarget.style.background = '#1a1208'} onMouseOut={(e) => e.currentTarget.style.background = '#C07F45'}>Unlock</button>
             </div>
           </div>
         </div>
