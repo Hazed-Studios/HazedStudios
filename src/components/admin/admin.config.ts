@@ -79,6 +79,7 @@ export interface Product {
   price: number;
   stock: number;
   size_stock?: Record<string, number>;
+  size_capacity?: Record<string, number>;
   collection?: string;
   description?: string;
   image_url?: string;

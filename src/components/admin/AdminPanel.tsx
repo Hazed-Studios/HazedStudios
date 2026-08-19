@@ -134,6 +134,10 @@ const AdminPanel: React.FC = () => {
     const sizeStock = p.size_stock || {};
     return sum + (Object.values(sizeStock).reduce((s: number, q: any) => s + (Number(q) || 0), 0) as number);
   }, 0);
+  const stockCapacity = products.reduce((sum, p: any) => {
+    const sizeCapacity = p.size_capacity || {};
+    return sum + (Object.values(sizeCapacity).reduce((s: number, q: any) => s + (Number(q) || 0), 0) as number);
+  }, 0);
 
   const topProducts = (() => {
     const counts: Record<string, number> = {};
@@ -420,7 +424,7 @@ const AdminPanel: React.FC = () => {
                 <div style={styles.kpiLbl}>Pieces Remaining</div>
                 <div style={styles.kpiVal}>
                   {stockRemaining}
-                  <em style={styles.kpiEm}>/{stockRemaining}</em>
+                  <em style={styles.kpiEm}>/{stockCapacity}</em>
                 </div>
               </div>
               <div style={styles.kpi}>

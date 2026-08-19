@@ -332,7 +332,7 @@ export class AdminService {
     try {
       let query = this.supabase
         .from(TABLES.PRODUCTS)
-        .select('*, product_stock(size, quantity)')
+        .select('*, product_stock(size, quantity, initial_quantity)')
         .order('created_at', { ascending: false });
 
       if (limit) {
@@ -352,7 +352,7 @@ export class AdminService {
     try {
       const { data, error } = await this.supabase
         .from(TABLES.PRODUCTS)
-        .select('*, product_stock(size, quantity)')
+        .select('*, product_stock(size, quantity, initial_quantity)')
         .eq('id', productId)
         .single();
 
@@ -369,13 +369,16 @@ export class AdminService {
   // the admin dashboard always reflects what the storefront actually sees.
   private mergeStock(row: any): Product {
     const size_stock: Record<string, number> = {};
-    (row.product_stock || []).forEach((s: { size: string; quantity: number }) => {
+    const size_capacity: Record<string, number> = {};
+    (row.product_stock || []).forEach((s: { size: string; quantity: number; initial_quantity: number }) => {
       size_stock[s.size] = s.quantity;
+      size_capacity[s.size] = s.initial_quantity;
     });
     const { product_stock, ...product } = row;
     return {
       ...product,
       size_stock: Object.keys(size_stock).length ? size_stock : product.size_stock,
+      size_capacity,
     };
   }
 
@@ -401,6 +404,7 @@ export class AdminService {
               product_id: created.id,
               size,
               quantity,
+              initial_quantity: quantity,
             }))
           );
       }
@@ -431,6 +435,7 @@ export class AdminService {
               product_id: productId,
               size,
               quantity,
+              initial_quantity: quantity,
             })),
             { onConflict: 'product_id,size' }
           );
