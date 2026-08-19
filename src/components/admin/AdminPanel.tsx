@@ -420,6 +420,7 @@ const AdminPanel: React.FC = () => {
                 <div style={styles.kpiLbl}>Pieces Remaining</div>
                 <div style={styles.kpiVal}>
                   {stockRemaining}
+                  <em style={styles.kpiEm}>/{stockRemaining}</em>
                 </div>
               </div>
               <div style={styles.kpi}>
