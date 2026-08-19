@@ -87,6 +87,7 @@ export const useProducts = () => {
             name: row.name,
             cat: row.cat || row.collection || '',
             price: Number(row.price) || 0,
+            oldPrice: row.old_price ? Number(row.old_price) : undefined,
             stock: totalStock,
             sizeStock,
             story: row.story || row.description || '',
