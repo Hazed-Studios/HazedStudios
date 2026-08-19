@@ -229,8 +229,8 @@ const EarlyAccess: React.FC = () => {
           />
         </div>
         <div style={{ display: 'flex', gap: '24px' }}>
-          <a href="#" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#1a1208'} onMouseOut={(e) => e.currentTarget.style.color = 'inherit'}>Instagram</a>
-          <a href="#" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#1a1208'} onMouseOut={(e) => e.currentTarget.style.color = 'inherit'}>TikTok</a>
+          <a href="https://www.instagram.com/hazed.studios/" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#1a1208'} onMouseOut={(e) => e.currentTarget.style.color = 'inherit'}>Instagram</a>
+          <a href="https://www.tiktok.com/@hazed.studios?lang=en" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#1a1208'} onMouseOut={(e) => e.currentTarget.style.color = 'inherit'}>TikTok</a>
         </div>
       </footer>
 
