@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Trash2 } from 'lucide-react';
 import { useAdminStore } from '../../context/store';
 import { supabase } from '../../lib/supabase';
 import { useAdminService, useOrders, useCustomers, useProducts, useAnalytics, usePagination, useWaitlist } from './useAdmin';
@@ -295,13 +295,57 @@ const AdminPanel: React.FC = () => {
           background-color: var(--bg2);
         }
 
-        @keyframes deletePulse {
-          0% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.4); }
-          70% { box-shadow: 0 0 0 6px rgba(192, 57, 43, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); }
+        @keyframes slideInUp {
+          0% { opacity: 0; transform: translateY(10px); }
+          100% { opacity: 1; transform: translateY(0); }
         }
-        .btn-delete-pulse {
-          animation: deletePulse 2s infinite;
+        .btn-delete-premium {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(192, 57, 43, 0.05);
+          border: 1px solid rgba(192, 57, 43, 0.3);
+          color: #c0392b;
+          font-size: 10px;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          padding: 6px 14px;
+          border-radius: 2px;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          animation: slideInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+          position: relative;
+          overflow: hidden;
+          z-index: 1;
+        }
+        .btn-delete-premium::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: rgba(192, 57, 43, 0.9);
+          transform: scaleX(0);
+          transform-origin: right;
+          transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          z-index: -1;
+        }
+        .btn-delete-premium:hover {
+          color: var(--bg);
+          border-color: rgba(192, 57, 43, 0.9);
+          box-shadow: 0 4px 12px rgba(192, 57, 43, 0.15);
+        }
+        .btn-delete-premium:hover::before {
+          transform: scaleX(1);
+          transform-origin: left;
+        }
+        .btn-delete-premium:disabled {
+          opacity: 0.5;
+          pointer-events: none;
+        }
+        .btn-delete-icon {
+          transition: transform 0.3s;
+        }
+        .btn-delete-premium:hover .btn-delete-icon {
+          transform: scale(1.1) rotate(-10deg);
         }
 
         @keyframes modalPop {
@@ -391,8 +435,9 @@ const AdminPanel: React.FC = () => {
                 <div style={styles.admCardHead}>
                   <div style={styles.admCardTtl}>Recent Orders</div>
                   {selectedOrders.size > 0 && (
-                    <button onClick={handleBulkDeleteOrders} disabled={isDeleting} className="btn-delete-pulse" style={{ ...styles.exportBtn, color: 'var(--red)', borderColor: 'var(--red)' }}>
-                      Delete Selected ({selectedOrders.size})
+                    <button onClick={handleBulkDeleteOrders} disabled={isDeleting} className="btn-delete-premium">
+                      <Trash2 size={14} className="btn-delete-icon" />
+                      <span>Delete Selected ({selectedOrders.size})</span>
                     </button>
                   )}
                 </div>
@@ -485,8 +530,9 @@ const AdminPanel: React.FC = () => {
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
                 {selectedOrders.size > 0 && (
-                  <button onClick={handleBulkDeleteOrders} disabled={isDeleting} className="btn-delete-pulse" style={{ ...styles.exportBtn, color: 'var(--red)', borderColor: 'var(--red)' }}>
-                    Delete Selected ({selectedOrders.size})
+                  <button onClick={handleBulkDeleteOrders} disabled={isDeleting} className="btn-delete-premium">
+                    <Trash2 size={14} className="btn-delete-icon" />
+                    <span>Delete Selected ({selectedOrders.size})</span>
                   </button>
                 )}
                 <button style={styles.exportBtn} onClick={() => exporters.toCSV(orders, 'hazed_orders.csv')}>
@@ -581,8 +627,9 @@ const AdminPanel: React.FC = () => {
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
                 {selectedCustomers.size > 0 && (
-                  <button onClick={handleBulkDeleteCustomers} disabled={isDeleting} className="btn-delete-pulse" style={{ ...styles.exportBtn, color: 'var(--red)', borderColor: 'var(--red)' }}>
-                    Delete Selected ({selectedCustomers.size})
+                  <button onClick={handleBulkDeleteCustomers} disabled={isDeleting} className="btn-delete-premium">
+                    <Trash2 size={14} className="btn-delete-icon" />
+                    <span>Delete Selected ({selectedCustomers.size})</span>
                   </button>
                 )}
                 <button style={styles.exportBtn} onClick={() => exporters.toCSV(customersWithStats, 'hazed_customers.csv')}>
@@ -789,8 +836,9 @@ const AdminPanel: React.FC = () => {
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
                 {selectedWaitlist.size > 0 && (
-                  <button onClick={handleBulkDeleteWaitlist} disabled={isDeleting} className="btn-delete-pulse" style={{ ...styles.exportBtn, color: 'var(--red)', borderColor: 'var(--red)' }}>
-                    Delete Selected ({selectedWaitlist.size})
+                  <button onClick={handleBulkDeleteWaitlist} disabled={isDeleting} className="btn-delete-premium">
+                    <Trash2 size={14} className="btn-delete-icon" />
+                    <span>Delete Selected ({selectedWaitlist.size})</span>
                   </button>
                 )}
                 <button style={styles.exportBtn} onClick={() => exporters.toCSV(waitlist, 'hazed_waitlist.csv')}>
