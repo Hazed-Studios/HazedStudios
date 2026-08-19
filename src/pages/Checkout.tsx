@@ -188,30 +188,34 @@ const Checkout: React.FC = () => {
         const colorsSummary = cart.map(i => i.color || '-').join(', ');
 
         try {
-          await fetch('https://formsubmit.co/ajax/hazed.co.hr@gmail.com', {
+          const formData = new URLSearchParams();
+          formData.append('_subject', `New Purchase Order from ${fn}`);
+          formData.append('Customer_Name', fn);
+          formData.append('Customer_Email', fe);
+          formData.append('Phone', fp);
+          formData.append('Governorate', fgov);
+          formData.append('Address', fa);
+          formData.append('Products', productsSummary);
+          formData.append('Sizes', sizesSummary);
+          formData.append('Colors', colorsSummary);
+          formData.append('Total', `${finalTotal} EGP`);
+          formData.append('Payment_Method', paymentMethod);
+          formData.append('_template', 'table');
+          formData.append('_captcha', 'false');
+
+          const response = await fetch('https://formsubmit.co/ajax/hazed.co.hr@gmail.com', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
               'Accept': 'application/json'
             },
-            body: JSON.stringify({
-              _subject: `New Purchase Order from ${fn}`,
-              Customer_Name: fn,
-              Customer_Email: fe,
-              Phone: fp,
-              Governorate: fgov,
-              Address: fa,
-              Products: productsSummary,
-              Sizes: sizesSummary,
-              Colors: colorsSummary,
-              Total: `${finalTotal} EGP`,
-              Payment_Method: paymentMethod,
-              _template: 'table',
-              _captcha: 'false'
-            })
+            body: formData
           });
+          if (!response.ok) {
+            const errText = await response.text();
+            console.error('Store email error response:', errText);
+          }
         } catch (e: any) {
-          console.log('Store email send failed:', e.message);
+          console.error('Store email send failed:', e.message);
         }
       }
 
@@ -220,7 +224,7 @@ const Checkout: React.FC = () => {
         const productsSummary = cart.map(i => `${i.quantity || 1}x ${i.name}`).join(', ');
         const sizesSummary = cart.map(i => i.size).join(', ');
         try {
-          await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-data`, {
+          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-data`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -242,8 +246,12 @@ const Checkout: React.FC = () => {
               },
             }),
           });
+          if (!response.ok) {
+            const errText = await response.text();
+            console.error('Customer email error response:', errText);
+          }
         } catch (e: any) {
-          console.log('Customer email send failed:', e.message);
+          console.error('Customer email send failed:', e.message);
         }
       }
 
