@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import JSZip from 'jszip';
 
 const Contact: React.FC = () => {
   const [fileNames, setFileNames] = useState<string[]>([]);
@@ -32,6 +33,56 @@ const Contact: React.FC = () => {
     setFileNames(filesRef.current.map(f => f.name));
   };
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setStatus('');
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      if (filesRef.current.length > 1) {
+        const zip = new JSZip();
+        filesRef.current.forEach(file => {
+          zip.file(file.name, file);
+        });
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        
+        formData.delete('attachment');
+        formData.append('attachment', zipBlob, 'attachments.zip');
+      } else if (filesRef.current.length === 1) {
+        formData.delete('attachment');
+        formData.append('attachment', filesRef.current[0]);
+      } else {
+        formData.delete('attachment');
+      }
+
+      const response = await fetch('https://formsubmit.co/ajax/hazed.co.hr@gmail.com', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        setStatus('Message sent successfully. We will get back to you shortly.');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setFileNames([]);
+        filesRef.current = [];
+        form.reset();
+      } else {
+        setStatus('Something went wrong. Please try again.');
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      setStatus('Something went wrong. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="page-container" style={{ maxWidth: '1000px' }}>
       <h1 className="page-title">Contact Us</h1>
@@ -39,19 +90,7 @@ const Contact: React.FC = () => {
         <div style={{ flex: '1 1 400px', background: 'var(--bg2)', padding: '40px', borderRadius: '8px', border: '1px solid var(--bd)' }}>
           <h3 style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '26px', fontWeight: 300, fontStyle: 'italic', color: 'var(--dk)', margin: '0 0 24px 0' }}>Send us a message</h3>
 
-          <iframe name="hidden_iframe" id="hidden_iframe" style={{ display: 'none' }} onLoad={() => {
-            if (isSubmitting) {
-              setStatus('Message sent successfully. We will get back to you shortly.');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-              setIsSubmitting(false);
-              setFileNames([]);
-              filesRef.current = [];
-              const form = document.getElementById('contact-form') as HTMLFormElement;
-              if (form) {
-                form.reset();
-              }
-            }
-          }}></iframe>
+
 
           {status ? (
             <div style={{ textAlign: 'center', padding: '40px 0' }}>
@@ -67,13 +106,7 @@ const Contact: React.FC = () => {
           ) : (
             <form
               id="contact-form"
-              action="https://formsubmit.co/hazed.co.hr@gmail.com"
-              method="POST"
-              encType="multipart/form-data"
-              target="hidden_iframe"
-              onSubmit={() => {
-                setIsSubmitting(true);
-              }}
+              onSubmit={handleSubmit}
             >
               <input type="hidden" name="_subject" value="New Contact Request" />
               <input type="hidden" name="_captcha" value="false" />
