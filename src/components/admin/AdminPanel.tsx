@@ -65,7 +65,7 @@ const AdminPanel: React.FC = () => {
   const { orders, updateOrderStatus, deleteOrder } = useOrders(service);
   const { customers, deleteCustomer } = useCustomers(service);
   const { products, updateStock } = useProducts(service);
-  const { report } = useAnalytics(service);
+  const { report, generateFinanceReport, getSalesByProduct } = useAnalytics(service);
   const { waitlist, deleteWaitlistEntry } = useWaitlist(service);
 
   const [selectedOrders, setSelectedOrders] = useState<Set<number>>(new Set());
@@ -103,6 +103,8 @@ const AdminPanel: React.FC = () => {
         }
         setSelectedOrders(new Set());
         setIsDeleting(false);
+        generateFinanceReport();
+        getSalesByProduct();
       }
     });
   };
@@ -589,7 +591,11 @@ const AdminPanel: React.FC = () => {
                           <td data-label="Status" style={styles.td}>
                             <select
                               value={o.status}
-                              onChange={(e) => updateOrderStatus(o.id, e.target.value)}
+                              onChange={async (e) => {
+                                await updateOrderStatus(o.id, e.target.value);
+                                generateFinanceReport();
+                                getSalesByProduct();
+                              }}
                               style={styles.statusSel}
                             >
                               {['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'].map((s) => (
