@@ -424,7 +424,7 @@ export class AdminService {
       if (error) throw error;
 
       if (size_stock && Object.keys(size_stock).length) {
-        await this.supabase
+        const { error: stockError } = await this.supabase
           .from('product_stock')
           .upsert(
             Object.entries(size_stock).map(([size, quantity]) => ({
@@ -434,6 +434,8 @@ export class AdminService {
             })),
             { onConflict: 'product_id,size' }
           );
+          
+        if (stockError) throw stockError;
       }
 
       this.clearCache('products');

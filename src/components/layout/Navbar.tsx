@@ -40,7 +40,7 @@ const Navbar: React.FC<NavbarProps> = ({ onOpenCart, onOpenSearch }) => {
       transition: 'background-color 0.3s ease, border-bottom 0.3s ease'
     }}>
       <div className="ann">
-        <span>Free Shipping over 2400 EGP</span>
+        <span>Free Shipping over 1998 EGP</span>
         <span className="ann-sep">|</span>
         <span>Exclusive Release</span>
       </div>

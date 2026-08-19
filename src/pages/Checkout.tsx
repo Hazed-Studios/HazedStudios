@@ -86,7 +86,7 @@ const Checkout: React.FC = () => {
   const discountAmount = discountApplied ? total * 0.10 : 0;
   const subtotalAfterDiscount = total - discountAmount;
 
-  const isFreeShipping = subtotalAfterDiscount >= 2400;
+  const isFreeShipping = subtotalAfterDiscount >= 1998;
   const shippingCost = isFreeShipping ? 0 : (['Cairo', 'Giza'].includes(formData.fgov) ? 80 : 100);
   const finalTotal = subtotalAfterDiscount + shippingCost;
 
@@ -187,56 +187,64 @@ const Checkout: React.FC = () => {
         const sizesSummary = cart.map(i => i.size).join(', ');
         const colorsSummary = cart.map(i => i.color || '-').join(', ');
 
-        fetch('https://formsubmit.co/ajax/hazed.co.hr@gmail.com', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            _subject: `New Purchase Order from ${fn}`,
-            Customer_Name: fn,
-            Customer_Email: fe,
-            Phone: fp,
-            Governorate: fgov,
-            Address: fa,
-            Products: productsSummary,
-            Sizes: sizesSummary,
-            Colors: colorsSummary,
-            Total: `${finalTotal} EGP`,
-            Payment_Method: paymentMethod,
-            _template: 'table',
-            _captcha: 'false'
-          })
-        }).catch((e) => console.log('Store email send failed:', e.message));
+        try {
+          await fetch('https://formsubmit.co/ajax/hazed.co.hr@gmail.com', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              _subject: `New Purchase Order from ${fn}`,
+              Customer_Name: fn,
+              Customer_Email: fe,
+              Phone: fp,
+              Governorate: fgov,
+              Address: fa,
+              Products: productsSummary,
+              Sizes: sizesSummary,
+              Colors: colorsSummary,
+              Total: `${finalTotal} EGP`,
+              Payment_Method: paymentMethod,
+              _template: 'table',
+              _captcha: 'false'
+            })
+          });
+        } catch (e: any) {
+          console.log('Store email send failed:', e.message);
+        }
       }
 
       // Send email to Customer via Edge Function (fire and forget)
       if (fe) {
         const productsSummary = cart.map(i => `${i.quantity || 1}x ${i.name}`).join(', ');
         const sizesSummary = cart.map(i => i.size).join(', ');
-        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-data`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({
-            action: 'sendConfirmation',
-            payload: {
-              customerEmail: fe,
-              customerName: fn,
-              product: productsSummary,
-              size: sizesSummary,
-              address: fa,
-              gov: fgov,
-              price: finalTotal,
-              shippingCost: shippingCost,
-              orderId: firstOrderId,
-              paymentMethod: paymentMethod,
+        try {
+          await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-data`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
             },
-          }),
-        }).catch((e) => console.log('Customer email send failed:', e.message));
+            body: JSON.stringify({
+              action: 'sendConfirmation',
+              payload: {
+                customerEmail: fe,
+                customerName: fn,
+                product: productsSummary,
+                size: sizesSummary,
+                address: fa,
+                gov: fgov,
+                price: finalTotal,
+                shippingCost: shippingCost,
+                orderId: firstOrderId,
+                paymentMethod: paymentMethod,
+              },
+            }),
+          });
+        } catch (e: any) {
+          console.log('Customer email send failed:', e.message);
+        }
       }
 
       setOrderSuccess(true);
@@ -267,7 +275,7 @@ const Checkout: React.FC = () => {
 
             <div className="ord-feats">
               <div className="ord-feat">Cash on Delivery & InstaPay Accepted</div>
-              <div className="ord-feat">Free standard shipping over 2400 EGP</div>
+              <div className="ord-feat">Free standard shipping over 1998 EGP</div>
               <div className="ord-feat">14-Day Returns & Exchanges</div>
             </div>
           </div>
