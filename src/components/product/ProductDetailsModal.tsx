@@ -45,7 +45,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
       price: product.price,
       oldPrice: product.oldPrice,
       size: selectedSize,
-      color: 'Baby Blue',
+      color: product.name.split('—').pop()?.trim() || product.name,
       visual: product.visual,
       quantity,
     });
@@ -61,7 +61,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
       price: product.price,
       oldPrice: product.oldPrice,
       size: selectedSize,
-      color: 'Baby Blue',
+      color: product.name.split('—').pop()?.trim() || product.name,
       visual: product.visual,
       quantity,
     });
