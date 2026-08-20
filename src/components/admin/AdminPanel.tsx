@@ -4,7 +4,7 @@
  * Overview, Orders, Customers, Stock, Finance
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, X, Trash2 } from 'lucide-react';
 import { useAdminStore } from '../../context/store';
 import { supabase } from '../../lib/supabase';
@@ -49,6 +49,26 @@ const AdminPanel: React.FC = () => {
   const navigate = useNavigate();
 
   const { service } = useAdminService(isAdmin ? supabase : null);
+
+  // The 'isAdmin' flag is just a local UI preference - it doesn't guarantee
+  // the actual Supabase session is still valid. If the session has expired
+  // (e.g. on a device that's been logged in a while), every data fetch gets
+  // silently blocked by RLS, showing an empty panel with no explanation.
+  // Verify the real session on mount and whenever the tab regains focus.
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const verifySession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        logout();
+      }
+    };
+
+    verifySession();
+    window.addEventListener('focus', verifySession);
+    return () => window.removeEventListener('focus', verifySession);
+  }, [isAdmin, logout]);
 
   const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault();
