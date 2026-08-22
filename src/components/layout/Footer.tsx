@@ -32,7 +32,7 @@ const Footer: React.FC = () => {
           <div className="f-col-lbl">Support</div>
           <ul className="f-links">
             <li><Link to="/contact">Contact Us</Link></li>
-            <li><Link to="/returns">Returns</Link></li>
+            <li><Link to="/returns">Returns & Exchanges</Link></li>
             <li><Link to="/terms">Terms</Link></li>
           </ul>
         </div>

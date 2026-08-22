@@ -494,7 +494,7 @@ export class AdminService {
 
   async getRevenue(startDate?: string, endDate?: string): Promise<number> {
     try {
-      let query = this.supabase.from(TABLES.ORDERS).select('total_price');
+      let query = this.supabase.from(TABLES.ORDERS).select('total_price, status').in('status', ['Confirmed', 'Shipped', 'Delivered']);
 
       if (startDate && endDate) {
         query = query.gte('created_at', startDate).lte('created_at', endDate);
@@ -524,8 +524,9 @@ export class AdminService {
     try {
       const { data, error } = await this.supabase
         .from(TABLES.ORDERS)
-        .select('total_price')
-        .eq('product_id', productId);
+        .select('total_price, status')
+        .eq('product_id', productId)
+        .in('status', ['Confirmed', 'Shipped', 'Delivered']);
 
       if (error) throw error;
       return data.reduce((sum, o) => sum + (o.total_price || 0), 0);
@@ -538,9 +539,10 @@ export class AdminService {
   async getSalesByProduct(): Promise<ProductStats[]> {
     try {
       const orders = await this.getAllOrders();
+      const validOrders = orders.filter((o) => ['Confirmed', 'Shipped', 'Delivered'].includes(o.status));
       const productSales: Record<string, ProductStats> = {};
 
-      orders.forEach((order) => {
+      validOrders.forEach((order) => {
         const productName = order.products?.name || 'Unknown';
         if (!productSales[productName]) {
           productSales[productName] = {
@@ -570,10 +572,11 @@ export class AdminService {
         startDate.toISOString(),
         new Date().toISOString()
       );
+      const validOrders = orders.filter((o) => ['Confirmed', 'Shipped', 'Delivered'].includes(o.status));
 
       const salesByDate: Record<string, { date: string; revenue: number; orders: number }> = {};
 
-      orders.forEach((order) => {
+      validOrders.forEach((order) => {
         const date = new Date(order.created_at).toLocaleDateString('en-GB');
         if (!salesByDate[date]) {
           salesByDate[date] = { date, revenue: 0, orders: 0 };
@@ -594,10 +597,11 @@ export class AdminService {
   async generateFinanceReport(): Promise<FinanceReport> {
     try {
       const allOrders = await this.getAllOrders();
-      const total = allOrders.reduce((sum, o) => sum + (o.total_price || 0), 0);
+      const validOrders = allOrders.filter((o) => ['Confirmed', 'Shipped', 'Delivered'].includes(o.status));
+      const total = validOrders.reduce((sum, o) => sum + (o.total_price || 0), 0);
 
       const today = new Date().toDateString();
-      const todayRev = allOrders
+      const todayRev = validOrders
         .filter((o) => new Date(o.created_at).toDateString() === today)
         .reduce((sum, o) => sum + (o.total_price || 0), 0);
 

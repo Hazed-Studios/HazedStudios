@@ -3,6 +3,7 @@ import { useProducts } from '../hooks/useProducts';
 import { useCartStore, useNotificationStore } from '../context/store';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { track } from '@vercel/analytics/react';
 
 interface ShopProps {
   onOpenCart: () => void;
@@ -97,6 +98,7 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
       quantity,
     });
     showNotif(`${thePolo.name} added to cart`);
+    track('Add to Cart');
     onOpenCart();
   };
 
@@ -366,7 +368,7 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
           <div style={{ position: 'relative', width: '90%', maxWidth: '600px', background: 'var(--bg)', padding: '16px', borderRadius: '8px' }} onClick={(e) => e.stopPropagation()}>
             <button style={{ position: 'absolute', top: '16px', right: '16px', background: 'var(--cr)', color: 'var(--bg)', border: 'none', width: '30px', height: '30px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }} onClick={() => setShowSizeChart(false)}>×</button>
             <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '18px', fontWeight: 600, color: 'var(--dk)' }}>Size Guide</h3>
-            <img src={`${import.meta.env.BASE_URL}images/size_chart.png`} alt="Size Chart" style={{ width: '100%', height: 'auto', display: 'block' }} />
+            <img src={`${import.meta.env.BASE_URL}images/sizechart.png`} alt="Size Chart" style={{ width: '100%', height: 'auto', display: 'block' }} />
           </div>
         </div>
       )}

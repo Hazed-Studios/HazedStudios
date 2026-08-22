@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import JSZip from 'jszip';
 
 const Contact: React.FC = () => {
@@ -6,6 +6,25 @@ const Contact: React.FC = () => {
   const filesRef = useRef<File[]>([]);
   const [status, setStatus] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [inquiryType, setInquiryType] = useState('general');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const inquiryOptions = [
+    { value: 'general', label: 'General Inquiry' },
+    { value: 'return', label: 'Return' },
+    { value: 'exchange', label: 'Exchange' },
+  ];
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -49,16 +68,17 @@ const Contact: React.FC = () => {
         });
         const zipBlob = await zip.generateAsync({ type: 'blob' });
         
-        formData.delete('attachment');
-        formData.append('attachment', zipBlob, 'attachments.zip');
+        formData.delete('Attachment');
+        formData.append('Attachment', zipBlob, 'attachments.zip');
       } else if (filesRef.current.length === 1) {
-        formData.delete('attachment');
-        formData.append('attachment', filesRef.current[0]);
+        formData.delete('Attachment');
+        formData.append('Attachment', filesRef.current[0]);
       } else {
-        formData.delete('attachment');
+        formData.delete('Attachment');
       }
 
-      const response = await fetch('https://formsubmit.co/ajax/hazed.co.hr@gmail.com', {
+      const backendUrl = import.meta.env.VITE_APP_URL || 'http://localhost:5000';
+      const response = await fetch(`${backendUrl}/api/contact`, {
         method: 'POST',
         body: formData,
         headers: {
@@ -104,13 +124,107 @@ const Contact: React.FC = () => {
               </button>
             </div>
           ) : (
-            <form
+              <form
               id="contact-form"
               onSubmit={handleSubmit}
             >
-              <input type="hidden" name="_subject" value="New Contact Request" />
+              <input type="hidden" name="_subject" value={`New ${inquiryType.charAt(0).toUpperCase() + inquiryType.slice(1)} Request`} />
               <input type="hidden" name="_captcha" value="false" />
               <input type="hidden" name="_template" value="table" />
+              <div className="fg">
+                <label className="fl">Inquiry Type</label>
+                <div className="custom-select-container" ref={dropdownRef} style={{ position: 'relative', width: '100%' }}>
+                  <div
+                    className="fi"
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    style={{ 
+                      cursor: 'pointer', 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      borderColor: isDropdownOpen ? 'var(--cr)' : undefined
+                    }}
+                  >
+                    <span style={{ color: inquiryType ? 'var(--dk)' : 'rgba(154, 136, 120, .5)' }}>
+                      {inquiryOptions.find(opt => opt.value === inquiryType)?.label || 'Select...'}
+                    </span>
+                    <svg 
+                      width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                      style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease', color: 'var(--mu)' }}
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                  
+                  {isDropdownOpen && (
+                    <div 
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        right: 0,
+                        background: 'var(--bg)',
+                        border: '1px solid rgba(192, 127, 69, .25)',
+                        borderTop: 'none',
+                        marginTop: '0px',
+                        zIndex: 10,
+                        boxShadow: '0 8px 16px rgba(26, 18, 8, 0.05)',
+                        overflow: 'hidden',
+                        borderRadius: '0 0 4px 4px'
+                      }}
+                    >
+                      {inquiryOptions.map((opt) => (
+                        <div
+                          key={opt.value}
+                          onClick={() => {
+                            setInquiryType(opt.value);
+                            setIsDropdownOpen(false);
+                          }}
+                          style={{
+                            padding: '12px 16px',
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            color: inquiryType === opt.value ? 'var(--cr)' : 'var(--dk)',
+                            background: inquiryType === opt.value ? 'var(--bg2)' : 'transparent',
+                            transition: 'background 0.2s, color 0.2s',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (inquiryType !== opt.value) {
+                              e.currentTarget.style.background = 'var(--bg2)';
+                              e.currentTarget.style.color = 'var(--cr)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (inquiryType !== opt.value) {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.color = 'var(--dk)';
+                            }
+                          }}
+                        >
+                          {opt.label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <input type="hidden" name="InquiryType" value={inquiryType} />
+              </div>
+              {(inquiryType === 'return' || inquiryType === 'exchange') && (
+                <div className="fg">
+                  <label className="fl">Order ID</label>
+                  <input 
+                    type="text" 
+                    name="OrderID" 
+                    className="fi" 
+                    placeholder="e.g. 12345" 
+                    required 
+                    pattern="\d+"
+                    onInput={(e) => {
+                      e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '');
+                    }}
+                  />
+                </div>
+              )}
               <div className="fg">
                 <label className="fl">Name</label>
                 <input type="text" name="Name" className="fi" placeholder="Your name" required />
@@ -170,7 +284,7 @@ const Contact: React.FC = () => {
                   <input
                     id="file-upload"
                     type="file"
-                    name="attachment"
+                    name="Attachment"
                     onChange={handleFileChange}
                     style={{ display: 'none' }}
                     multiple
@@ -201,7 +315,7 @@ const Contact: React.FC = () => {
           <h3>Studio Hours</h3>
           <p>
             Our Cairo-based client services team is available:<br />
-            Sunday - Thursday: 10:00 AM - 6:00 PM (EET)
+            Sunday - Thursday: 11:00 AM - 7:00 PM (EET)
           </p>
 
           <p>

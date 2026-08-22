@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Check, ArrowRight, Lock } from 'lucide-react';
+import { Check, ArrowRight, Lock, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../context/store';
+import { track } from '@vercel/analytics/react';
 
 const EarlyAccess: React.FC = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const EarlyAccess: React.FC = () => {
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [adminPwd, setAdminPwd] = useState('');
   const [adminError, setAdminError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -31,6 +33,7 @@ const EarlyAccess: React.FC = () => {
 
       if (!error) {
         setSubmitted(true);
+        track('Early Access Signup');
       } else {
         console.error('Error saving email:', error);
         alert('Something went wrong. Please try again.');
@@ -45,7 +48,7 @@ const EarlyAccess: React.FC = () => {
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
       
-      if (hashHex === '801927bb48a9081b3a28e1fc7c29aed5b4b561d9a4096adce5b077f7eaf40713') {
+      if (hashHex === 'd44c57fa2f48045be55cb2f7c22093b474dc553f9099672bec95d9b6a771281a') {
         useAppStore.getState().unlockSite();
         navigate('/home');
       } else {
@@ -235,14 +238,23 @@ const EarlyAccess: React.FC = () => {
       </footer>
 
       {showAdminModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(250, 246, 240, 0.8)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
-          <div style={{ background: '#faf6f0', border: '1px solid rgba(192, 127, 69, 0.3)', padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', maxWidth: '320px', animation: 'fadeIn 0.3s ease-out' }}>
-            <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', color: '#1a1208', fontWeight: 300 }}>Admin Access</h3>
-            <input type="password" placeholder="Enter password" value={adminPwd} onChange={(e) => { setAdminPwd(e.target.value); setAdminError(''); }} onKeyDown={(e) => { if (e.key === 'Enter') { handleUnlock(); } }} autoFocus style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(154, 136, 120, 0.4)', padding: '12px 0', color: '#1a1208', fontSize: '14px', fontFamily: "'Montserrat', sans-serif", outline: 'none', transition: 'border-color 0.3s' }} onFocus={(e) => e.target.style.borderBottomColor = '#C07F45'} onBlur={(e) => e.target.style.borderBottomColor = 'rgba(154, 136, 120, 0.4)'} />
-            {adminError && <div style={{ color: '#c0392b', fontSize: '12px', marginTop: '-8px' }}>{adminError}</div>}
-            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-              <button onClick={() => { setShowAdminModal(false); setAdminPwd(''); setAdminError(''); }} style={{ flex: 1, background: 'transparent', color: '#9a8878', border: '1px solid rgba(154, 136, 120, 0.4)', padding: '12px', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#1a1208'} onMouseOut={(e) => e.currentTarget.style.color = '#9a8878'}>Cancel</button>
-              <button onClick={() => { handleUnlock(); }} style={{ flex: 1, background: '#C07F45', color: '#faf6f0', border: 'none', padding: '12px', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600, cursor: 'pointer', transition: 'background 0.3s' }} onMouseOver={(e) => e.currentTarget.style.background = '#1a1208'} onMouseOut={(e) => e.currentTarget.style.background = '#C07F45'}>Unlock</button>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(26, 18, 8, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
+          <div style={{ background: '#faf6f0', border: '1px solid rgba(192, 127, 69, 0.2)', borderRadius: '24px', padding: '40px', display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', maxWidth: '360px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', animation: 'fadeIn 0.3s ease-out' }}>
+            <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', color: '#1a1208', fontWeight: 400, textAlign: 'center' }}>Early Access</h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input type={showPassword ? "text" : "password"} placeholder="Enter password" value={adminPwd} onChange={(e) => { setAdminPwd(e.target.value); setAdminError(''); }} onKeyDown={(e) => { if (e.key === 'Enter') { handleUnlock(); } }} autoFocus style={{ width: '100%', background: 'rgba(192, 127, 69, 0.05)', border: '1px solid rgba(154, 136, 120, 0.3)', borderRadius: '12px', padding: '14px 44px 14px 16px', color: '#1a1208', fontSize: '15px', fontFamily: "'Montserrat', sans-serif", outline: 'none', transition: 'all 0.3s' }} onFocus={(e) => { e.target.style.borderColor = '#C07F45'; e.target.style.background = 'transparent'; }} onBlur={(e) => { e.target.style.borderColor = 'rgba(154, 136, 120, 0.3)'; e.target.style.background = 'rgba(192, 127, 69, 0.05)'; }} />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', background: 'none', border: 'none', cursor: 'pointer', color: '#9a8878', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px' }}>
+                  {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                </button>
+              </div>
+              {adminError && <div style={{ color: '#c0392b', fontSize: '13px', paddingLeft: '4px' }}>{adminError}</div>}
+            </div>
+
+            <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
+              <button onClick={() => { setShowAdminModal(false); setAdminPwd(''); setAdminError(''); setShowPassword(false); }} style={{ flex: 1, background: 'transparent', color: '#9a8878', border: '1px solid rgba(154, 136, 120, 0.4)', padding: '14px', borderRadius: '12px', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.3s' }} onMouseOver={(e) => { e.currentTarget.style.color = '#1a1208'; e.currentTarget.style.borderColor = '#1a1208'; }} onMouseOut={(e) => { e.currentTarget.style.color = '#9a8878'; e.currentTarget.style.borderColor = 'rgba(154, 136, 120, 0.4)'; }}>Cancel</button>
+              <button onClick={() => { handleUnlock(); }} style={{ flex: 1, background: '#C07F45', color: '#faf6f0', border: 'none', padding: '14px', borderRadius: '12px', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600, cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 4px 14px rgba(192, 127, 69, 0.3)' }} onMouseOver={(e) => { e.currentTarget.style.background = '#1a1208'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(26, 18, 8, 0.4)'; }} onMouseOut={(e) => { e.currentTarget.style.background = '#C07F45'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(192, 127, 69, 0.3)'; }}>Unlock</button>
             </div>
           </div>
         </div>

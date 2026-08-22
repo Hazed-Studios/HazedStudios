@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAdminStore } from '../../context/store';
 import { supabase } from '../../lib/supabase';
+import { Eye, EyeOff } from 'lucide-react';
 
 const ADMIN_EMAIL = 'admin@hazedstudios.com';
 
@@ -16,6 +17,7 @@ const AdminLogin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   // Handle custom secure event from multi-tap
   useEffect(() => {
     const handleCustomOpen = () => setIsOpen(true);
@@ -59,8 +61,8 @@ const AdminLogin: React.FC = () => {
     }
   }, [isOpen]);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setLoading(true);
 
     try {
@@ -93,6 +95,7 @@ const AdminLogin: React.FC = () => {
     setIsOpen(false);
     setPassword('');
     setError(false);
+    setShowPassword(false);
   };
 
   // Only show when modal is open and user is not admin
@@ -100,191 +103,35 @@ const AdminLogin: React.FC = () => {
 
   return (
     <div className={`adm-login ${isOpen && !isAdmin ? 'open' : ''}`}>
-      {/* Backdrop */}
       {isOpen && !isAdmin && (
-        <div
-          className="adm-login-backdrop"
-          onClick={handleClose}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.8)',
-            zIndex: 9998,
-          }}
-        />
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(26, 18, 8, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
+          <div style={{ background: '#faf6f0', border: '1px solid rgba(192, 127, 69, 0.2)', borderRadius: '24px', padding: '40px', display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', maxWidth: '360px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', animation: 'fadeIn 0.3s ease-out' }}>
+            <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', color: '#1a1208', fontWeight: 400, textAlign: 'center' }}>Admin Access</h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input type={showPassword ? "text" : "password"} placeholder="Enter password" value={password} onChange={(e) => { setPassword(e.target.value); setError(false); }} onKeyDown={(e) => { if (e.key === 'Enter') { handleLogin(); } }} autoFocus style={{ width: '100%', background: 'rgba(192, 127, 69, 0.05)', border: '1px solid rgba(154, 136, 120, 0.3)', borderRadius: '12px', padding: '14px 44px 14px 16px', color: '#1a1208', fontSize: '15px', fontFamily: "'Montserrat', sans-serif", outline: 'none', transition: 'all 0.3s' }} onFocus={(e) => { e.target.style.borderColor = '#C07F45'; e.target.style.background = 'transparent'; }} onBlur={(e) => { e.target.style.borderColor = 'rgba(154, 136, 120, 0.3)'; e.target.style.background = 'rgba(192, 127, 69, 0.05)'; }} disabled={loading} />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', background: 'none', border: 'none', cursor: 'pointer', color: '#9a8878', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px' }}>
+                  {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                </button>
+              </div>
+              {error && <div style={{ color: '#c0392b', fontSize: '13px', paddingLeft: '4px' }}>Incorrect password</div>}
+            </div>
+
+            <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
+              <button type="button" onClick={handleClose} style={{ flex: 1, background: 'transparent', color: '#9a8878', border: '1px solid rgba(154, 136, 120, 0.4)', padding: '14px', borderRadius: '12px', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.3s' }} onMouseOver={(e) => { e.currentTarget.style.color = '#1a1208'; e.currentTarget.style.borderColor = '#1a1208'; }} onMouseOut={(e) => { e.currentTarget.style.color = '#9a8878'; e.currentTarget.style.borderColor = 'rgba(154, 136, 120, 0.4)'; }}>Cancel</button>
+              <button type="button" onClick={() => handleLogin()} disabled={loading || !password} style={{ flex: 1, background: '#C07F45', color: '#faf6f0', border: 'none', padding: '14px', borderRadius: '12px', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600, cursor: (loading || !password) ? 'not-allowed' : 'pointer', transition: 'all 0.3s', boxShadow: '0 4px 14px rgba(192, 127, 69, 0.3)', opacity: (loading || !password) ? 0.5 : 1 }} onMouseOver={(e) => { if(!loading && password) { e.currentTarget.style.background = '#1a1208'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(26, 18, 8, 0.4)'; } }} onMouseOut={(e) => { e.currentTarget.style.background = '#C07F45'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(192, 127, 69, 0.3)'; }}>{loading ? 'Verifying...' : 'Unlock'}</button>
+            </div>
+          </div>
+        </div>
       )}
 
-      {/* Modal */}
-      <div
-        className="adm-login-modal"
-        style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          zIndex: 9999,
-          background: 'var(--bg)',
-          padding: '48px 40px',
-          borderRadius: '4px',
-          border: '1px solid var(--bd)',
-          minWidth: '300px',
-          maxWidth: '400px',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-        }}
-      >
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <h2
-            style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              fontSize: '28px',
-              fontWeight: 300,
-              letterSpacing: '0.15em',
-              color: 'var(--dk)',
-              margin: 0,
-              marginBottom: '8px',
-            }}
-          >
-            ADMIN ACCESS
-          </h2>
-          <p
-            style={{
-              fontSize: '11px',
-              letterSpacing: '0.15em',
-              color: 'var(--mu)',
-              textTransform: 'uppercase',
-              margin: 0,
-            }}
-          >
-            Collection 01 Management
-          </p>
-        </div>
-
-        <form onSubmit={handleLogin}>
-          <input
-            id="admPassInp"
-            className="adm-pass-inp"
-            type="password"
-            placeholder="ENTER PASSPHRASE"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
-            autoFocus
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              border: '1px solid var(--bd)',
-              borderRadius: '2px',
-              fontSize: '12px',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              background: 'var(--bg2)',
-              color: 'var(--dk)',
-              marginBottom: '12px',
-              fontFamily: "'Montserrat', sans-serif",
-              boxSizing: 'border-box',
-              transition: 'all 0.3s',
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = 'var(--cr)';
-              e.target.style.background = 'var(--bg)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = 'var(--bd)';
-              e.target.style.background = 'var(--bg2)';
-            }}
-          />
-
-          {error && (
-            <div
-              className="adm-pass-err"
-              style={{
-                display: 'block',
-                fontSize: '10px',
-                letterSpacing: '0.15em',
-                color: 'var(--red)',
-                textTransform: 'uppercase',
-                marginBottom: '16px',
-                textAlign: 'center',
-                animation: 'shake 0.3s',
-              }}
-            >
-              ✕ INCORRECT PASSPHRASE
-            </div>
-          )}
-
-          <div
-            style={{
-              display: 'flex',
-              gap: '12px',
-              marginTop: '20px',
-            }}
-          >
-            <button
-              type="submit"
-              disabled={loading || !password}
-              style={{
-                flex: 1,
-                padding: '12px 16px',
-                background: 'var(--cr)',
-                color: 'var(--bg)',
-                border: 'none',
-                borderRadius: '2px',
-                fontSize: '10px',
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                cursor: loading || !password ? 'not-allowed' : 'pointer',
-                fontWeight: 500,
-                transition: 'all 0.3s',
-                opacity: loading || !password ? 0.5 : 1,
-              }}
-              onMouseEnter={(e) => {
-                if (!loading && password) e.currentTarget.style.background = 'var(--crd)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'var(--cr)';
-              }}
-            >
-              {loading ? 'VERIFYING...' : 'ENTER'}
-            </button>
-
-            <button
-              type="button"
-              onClick={handleClose}
-              style={{
-                flex: 1,
-                padding: '12px 16px',
-                background: 'transparent',
-                color: 'var(--mu)',
-                border: '1px solid var(--bd)',
-                borderRadius: '2px',
-                fontSize: '10px',
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = 'var(--dk)';
-                e.currentTarget.style.borderColor = 'var(--dk)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'var(--mu)';
-                e.currentTarget.style.borderColor = 'var(--bd)';
-              }}
-            >
-              CANCEL
-            </button>
-          </div>
-        </form>
-
-        <style>{`
-          @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-          }
-        `}</style>
-      </div>
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 };

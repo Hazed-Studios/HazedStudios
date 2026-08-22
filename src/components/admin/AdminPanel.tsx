@@ -4,7 +4,8 @@
  * Overview, Orders, Customers, Stock, Finance
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Menu, X, Trash2 } from 'lucide-react';
 import { useAdminStore } from '../../context/store';
 import { supabase } from '../../lib/supabase';
@@ -12,7 +13,7 @@ import { useAdminService, useOrders, useCustomers, useProducts, useAnalytics, us
 import { exporters, whatsapp } from './admin.utils';
 import { useNavigate } from 'react-router-dom';
 
-type TabType = 'overview' | 'orders' | 'customers' | 'stock' | 'finance' | 'early access';
+type TabType = 'overview' | 'orders' | 'customers' | 'stock' | 'finance' | 'early access' | 'analytics';
 
 const STATUS_CLASS: Record<string, { bg: string; color: string; border: string }> = {
   Pending: { bg: 'rgba(214,137,16,.1)', color: 'var(--amber)', border: 'rgba(214,137,16,.2)' },
@@ -42,9 +43,113 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   );
 };
 
+const CustomSelect: React.FC<{
+  value: string;
+  options: string[];
+  onChange: (val: string) => void;
+  style?: React.CSSProperties;
+}> = ({ value, options, onChange, style }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // If clicking inside the button, do nothing (handled by button onClick)
+      if (dropdownRef.current && dropdownRef.current.contains(event.target as Node)) {
+        return;
+      }
+      // If clicking inside the portal dropdown, do nothing (handled by item onClick)
+      const portal = document.getElementById('custom-select-portal');
+      if (portal && portal.contains(event.target as Node)) {
+        return;
+      }
+      setIsOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const toggleDropdown = () => {
+    if (!isOpen && dropdownRef.current) {
+      const rect = dropdownRef.current.getBoundingClientRect();
+      setCoords({
+        top: rect.bottom,
+        left: rect.left,
+        width: rect.width
+      });
+    }
+    setIsOpen(!isOpen);
+  };
+
+  useEffect(() => {
+    const handleScroll = (e: Event) => {
+      // Only close if scrolling an element other than the portal itself
+      const target = e.target as HTMLElement;
+      if (target.id !== 'custom-select-portal') {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('scroll', handleScroll, true);
+    }
+    return () => window.removeEventListener('scroll', handleScroll, true);
+  }, [isOpen]);
+
+  return (
+    <div ref={dropdownRef} style={{ display: 'inline-block' }}>
+      <button 
+        onClick={toggleDropdown}
+        style={{
+          background: 'var(--bg2)', border: '1px solid var(--bd)', color: 'var(--dk)',
+          fontSize: '12px', padding: '6px 12px 6px 10px', 
+          cursor: 'pointer', outline: 'none', display: 'flex', alignItems: 'center', 
+          gap: '12px', minWidth: '120px', justifyContent: 'space-between',
+          transition: 'border-color 0.2s',
+          ...style
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--cr)'}
+        onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--bd)'}
+      >
+        {value}
+        <span style={{ fontSize: '9px', opacity: 0.6, transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▼</span>
+      </button>
+      {isOpen && createPortal(
+        <div 
+          id="custom-select-portal"
+          style={{
+            position: 'fixed', top: coords.top + 4, left: coords.left, width: coords.width,
+            background: 'var(--bg2)', border: '1px solid var(--bd)',
+            zIndex: 999999, boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+            maxHeight: '200px', overflowY: 'auto'
+          }}
+        >
+          {options.map(opt => (
+            <div
+              key={opt}
+              onClick={(e) => { e.stopPropagation(); onChange(opt); setIsOpen(false); }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg)'; e.currentTarget.style.color = 'var(--cr)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--dk)'; }}
+              style={{
+                padding: '10px 12px', fontSize: '12px', color: 'var(--dk)', 
+                cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap'
+              }}
+            >
+              {opt}
+            </div>
+          ))}
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+};
+
 const AdminPanel: React.FC = () => {
   const { isAdmin, logout } = useAdminStore();
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    return (localStorage.getItem('adminActiveTab') as TabType) || 'overview';
+  });
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -85,7 +190,7 @@ const AdminPanel: React.FC = () => {
   const { orders, updateOrderStatus, deleteOrder } = useOrders(service);
   const { customers, deleteCustomer } = useCustomers(service);
   const { products, updateStock } = useProducts(service);
-  const { report, generateFinanceReport, getSalesByProduct } = useAnalytics(service);
+  const { report, webAnalytics, generateFinanceReport, getSalesByProduct } = useAnalytics(service);
   const { waitlist, deleteWaitlistEntry } = useWaitlist(service);
 
   const [selectedOrders, setSelectedOrders] = useState<Set<number>>(new Set());
@@ -159,9 +264,17 @@ const AdminPanel: React.FC = () => {
     return sum + (Object.values(sizeCapacity).reduce((s: number, q: any) => s + (Number(q) || 0), 0) as number);
   }, 0);
 
+  const totalPiecesSold = orders
+    .filter((o: any) => o.status !== 'Cancelled')
+    .reduce((sum, o: any) => sum + (o.quantity || 1), 0);
+  
+  const originalStock = stockRemaining + totalPiecesSold;
+
+  const validOrders = orders.filter((o: any) => ['Confirmed', 'Shipped', 'Delivered'].includes(o.status));
+
   const topProducts = (() => {
     const counts: Record<string, number> = {};
-    orders.forEach((o: any) => {
+    validOrders.forEach((o: any) => {
       const name = o.products?.name || 'Unknown';
       counts[name] = (counts[name] || 0) + 1;
     });
@@ -180,7 +293,7 @@ const AdminPanel: React.FC = () => {
   });
 
   const today = new Date().toDateString();
-  const todayRevenue = orders
+  const todayRevenue = validOrders
     .filter((o: any) => new Date(o.created_at).toDateString() === today)
     .reduce((s: number, o: any) => s + (o.total_price || 0), 0);
 
@@ -191,7 +304,7 @@ const AdminPanel: React.FC = () => {
 
   const revenueByProduct = (() => {
     const revs: Record<string, { count: number; rev: number }> = {};
-    orders.forEach((o: any) => {
+    validOrders.forEach((o: any) => {
       const name = o.products?.name || 'Unknown';
       if (!revs[name]) revs[name] = { count: 0, rev: 0 };
       revs[name].count += 1;
@@ -224,7 +337,7 @@ const AdminPanel: React.FC = () => {
         .adm-nav-menu { display: flex; align-items: center; gap: 24px; }
         .adm-panel-tabs { display: flex; gap: 4px; }
         .adm-panel-body { padding: 40px; overflow-y: auto; flex: 1; }
-        .adm-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; background: var(--bd); border: 1px solid var(--bd); margin-bottom: 40px; }
+        .adm-kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--bd); border: 1px solid var(--bd); margin-bottom: 40px; }
         .adm-row-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2px; margin-bottom: 24px; }
         .adm-stock-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--bd); border: 1px solid var(--bd); }
         .adm-fin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--bd); border: 1px solid var(--bd); margin-bottom: 32px; }
@@ -400,11 +513,15 @@ const AdminPanel: React.FC = () => {
 
         <div className={`adm-nav-menu ${menuOpen ? 'open' : ''}`}>
           <div className="adm-panel-tabs">
-            {(['overview', 'orders', 'customers', 'stock', 'finance', 'early access'] as TabType[]).map((tab) => (
+            {(['overview', 'analytics', 'orders', 'customers', 'stock', 'finance', 'early access'] as TabType[]).map((tab) => (
               <button
                 key={tab}
                 className={activeTab === tab ? 'active' : ''}
-                onClick={() => { setActiveTab(tab); setMenuOpen(false); }}
+                onClick={() => { 
+                  setActiveTab(tab); 
+                  localStorage.setItem('adminActiveTab', tab);
+                  setMenuOpen(false); 
+                }}
                 style={{ ...styles.tab, ...(activeTab === tab ? styles.tabActive : {}) }}
               >
                 {tab.toUpperCase()}
@@ -444,7 +561,7 @@ const AdminPanel: React.FC = () => {
                 <div style={styles.kpiLbl}>Pieces Remaining</div>
                 <div style={styles.kpiVal}>
                   {stockRemaining}
-                  <em style={styles.kpiEm}>/{stockCapacity}</em>
+                  <em style={styles.kpiEm}>/{originalStock}</em>
                 </div>
               </div>
               <div style={styles.kpi}>
@@ -453,6 +570,14 @@ const AdminPanel: React.FC = () => {
                   {avg.toLocaleString()}
                   <em style={styles.kpiEm}> EGP</em>
                 </div>
+              </div>
+              <div style={styles.kpi}>
+                <div style={styles.kpiLbl}>Total Visitors</div>
+                <div style={styles.kpiVal}>{webAnalytics?.count?.visitors || 0}</div>
+              </div>
+              <div style={styles.kpi}>
+                <div style={styles.kpiLbl}>Total Page Views</div>
+                <div style={styles.kpiVal}>{webAnalytics?.count?.pageviews || 0}</div>
               </div>
             </div>
 
@@ -613,19 +738,15 @@ const AdminPanel: React.FC = () => {
                           <td data-label="Address" style={{ ...styles.td, minWidth: '220px', whiteSpace: 'normal' }}>{o.address || '—'}</td>
                           <td data-label="Total" style={styles.tdPrice}>{(o.total_price || 0).toLocaleString()} EGP</td>
                           <td data-label="Status" style={styles.td}>
-                            <select
+                            <CustomSelect
                               value={o.status}
-                              onChange={async (e) => {
-                                await updateOrderStatus(o.id, e.target.value);
+                              onChange={async (val) => {
+                                await updateOrderStatus(o.id, val);
                                 generateFinanceReport();
                                 getSalesByProduct();
                               }}
-                              style={styles.statusSel}
-                            >
-                              {['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'].map((s) => (
-                                <option key={s} value={s}>{s}</option>
-                              ))}
-                            </select>
+                              options={['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled']}
+                            />
                           </td>
                           <td data-label="WhatsApp" style={styles.td}>
                             <button style={styles.waBtn} onClick={() => handleWhatsAppOrder(o)}>WhatsApp ↗</button>
@@ -932,6 +1053,166 @@ const AdminPanel: React.FC = () => {
             </div>
           </div>
         )}
+        {/* ===== ANALYTICS ===== */}
+        {activeTab === 'analytics' && (
+          <div>
+            <div className="adm-page-header">
+              <div>
+                <div style={styles.pageTitle}>Web Analytics</div>
+              </div>
+            </div>
+
+            {/* Top KPIs */}
+            <div className="adm-kpi-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)', marginBottom: '24px' }}>
+              <div style={styles.kpi}>
+                <div style={styles.kpiLbl}>Total Visitors</div>
+                <div style={styles.kpiVal}>{webAnalytics?.count?.visitors || 0}</div>
+              </div>
+              <div style={styles.kpi}>
+                <div style={styles.kpiLbl}>Total Page Views</div>
+                <div style={styles.kpiVal}>{webAnalytics?.count?.pageviews || 0}</div>
+              </div>
+            </div>
+
+            {/* Data Grids */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+              
+              {/* Top Countries */}
+              <div style={styles.admCard}>
+                <div style={styles.admCardHead}>
+                  <div style={styles.admCardTtl}>Top Countries</div>
+                </div>
+                <div style={{ padding: '20px' }}>
+                  {(!webAnalytics?.countries || webAnalytics.countries.length === 0) ? (
+                    <div style={{ color: 'var(--mu)', fontSize: '11px' }}>No data available.</div>
+                  ) : (
+                    webAnalytics.countries.map((c: any, i: number) => (
+                      <div key={i} style={styles.topProdRow}>
+                        <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{c.country || 'Unknown'}</span>
+                        <span style={{ fontSize: '13px', color: 'var(--cr)' }}>{c.visitors} visitors</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Top Referrers */}
+              <div style={styles.admCard}>
+                <div style={styles.admCardHead}>
+                  <div style={styles.admCardTtl}>Top Referrers</div>
+                </div>
+                <div style={{ padding: '20px' }}>
+                  {(!webAnalytics?.referrers || webAnalytics.referrers.length === 0) ? (
+                    <div style={{ color: 'var(--mu)', fontSize: '11px' }}>No data available.</div>
+                  ) : (
+                    webAnalytics.referrers.map((r: any, i: number) => (
+                      <div key={i} style={styles.topProdRow}>
+                        <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{r.referrerHostname || 'Direct / Unknown'}</span>
+                        <span style={{ fontSize: '13px', color: 'var(--cr)' }}>{r.visitors} visitors</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Top Pages */}
+              <div style={styles.admCard}>
+                <div style={styles.admCardHead}>
+                  <div style={styles.admCardTtl}>Top Pages</div>
+                </div>
+                <div style={{ padding: '20px' }}>
+                  {(!webAnalytics?.pages || webAnalytics.pages.length === 0) ? (
+                    <div style={{ color: 'var(--mu)', fontSize: '11px' }}>No data available.</div>
+                  ) : (
+                    webAnalytics.pages.map((p: any, i: number) => (
+                      <div key={i} style={styles.topProdRow}>
+                        <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{p.requestPath || '/'}</span>
+                        <span style={{ fontSize: '13px', color: 'var(--cr)' }}>{p.visitors} visitors</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Top Devices */}
+              <div style={styles.admCard}>
+                <div style={styles.admCardHead}>
+                  <div style={styles.admCardTtl}>Devices</div>
+                </div>
+                <div style={{ padding: '20px' }}>
+                  {(!webAnalytics?.devices || webAnalytics.devices.length === 0) ? (
+                    <div style={{ color: 'var(--mu)', fontSize: '11px' }}>No data available.</div>
+                  ) : (
+                    webAnalytics.devices.map((d: any, i: number) => (
+                      <div key={i} style={styles.topProdRow}>
+                        <span style={{ fontSize: '13px', color: 'var(--dk)', textTransform: 'capitalize' }}>{d.deviceType || 'Unknown'}</span>
+                        <span style={{ fontSize: '13px', color: 'var(--cr)' }}>{d.visitors} visitors</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Top Browsers */}
+              <div style={styles.admCard}>
+                <div style={styles.admCardHead}>
+                  <div style={styles.admCardTtl}>Browsers</div>
+                </div>
+                <div style={{ padding: '20px' }}>
+                  {(!webAnalytics?.browsers || webAnalytics.browsers.length === 0) ? (
+                    <div style={{ color: 'var(--mu)', fontSize: '11px' }}>No data available.</div>
+                  ) : (
+                    webAnalytics.browsers.map((b: any, i: number) => (
+                      <div key={i} style={styles.topProdRow}>
+                        <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{b.browserName || 'Unknown'}</span>
+                        <span style={{ fontSize: '13px', color: 'var(--cr)' }}>{b.visitors} visitors</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Top OS */}
+              <div style={styles.admCard}>
+                <div style={styles.admCardHead}>
+                  <div style={styles.admCardTtl}>Operating Systems</div>
+                </div>
+                <div style={{ padding: '20px' }}>
+                  {(!webAnalytics?.os || webAnalytics.os.length === 0) ? (
+                    <div style={{ color: 'var(--mu)', fontSize: '11px' }}>No data available.</div>
+                  ) : (
+                    webAnalytics.os.map((o: any, i: number) => (
+                      <div key={i} style={styles.topProdRow}>
+                        <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{o.osName || 'Unknown'}</span>
+                        <span style={{ fontSize: '13px', color: 'var(--cr)' }}>{o.visitors} visitors</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Top Events */}
+              <div style={styles.admCard}>
+                <div style={styles.admCardHead}>
+                  <div style={styles.admCardTtl}>Custom Events</div>
+                </div>
+                <div style={{ padding: '20px' }}>
+                  {(!webAnalytics?.events || webAnalytics.events.length === 0) ? (
+                    <div style={{ color: 'var(--mu)', fontSize: '11px' }}>No events tracked yet.</div>
+                  ) : (
+                    webAnalytics.events.map((e: any, i: number) => (
+                      <div key={i} style={styles.topProdRow}>
+                        <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{e.eventName || 'Unknown'}</span>
+                        <span style={{ fontSize: '13px', color: 'var(--cr)' }}>{e.total} occurrences</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        )}
       </main>
 
       {confirmConfig && (
@@ -965,19 +1246,15 @@ const TablePagination = ({ pagination }: { pagination: any }) => {
     <div style={styles.paginationContainer}>
       <div style={styles.paginationLeft}>
         Rows per page: 
-        <select 
-          value={itemsPerPage} 
-          onChange={(e) => {
-            setItemsPerPage(Number(e.target.value));
+        <CustomSelect 
+          value={String(itemsPerPage)} 
+          options={['10', '20', '50', '100']}
+          onChange={(val) => {
+            setItemsPerPage(Number(val));
             goToPage(1);
           }}
-          style={styles.paginationSelect}
-        >
-          <option value={10}>10</option>
-          <option value={20}>20</option>
-          <option value={50}>50</option>
-          <option value={100}>100</option>
-        </select>
+          style={{ minWidth: '70px', padding: '4px 8px', fontSize: '11px', background: 'transparent', border: 'none' }}
+        />
       </div>
       <div style={styles.paginationRight}>
         <span>{startIdx}–{endIdx} of {total.toLocaleString()}</span>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Returns: React.FC = () => {
   return (
@@ -16,8 +17,23 @@ const Returns: React.FC = () => {
 
         <h3>How to Initiate a Return</h3>
         <p>
-          To initiate a return or exchange, please email our client services team at <a href="mailto:hazed.co.hr@gmail.com">hazed.co.hr@gmail.com</a> with your order number and the reason for your return. Our team will provide you with a return authorization and shipping instructions.
+          To initiate a return or exchange, please fill out our contact form or email our client services team at <a href="mailto:hazed.co.hr@gmail.com">hazed.co.hr@gmail.com</a> with your order number and the reason for your return. Our team will provide you with a return authorization and shipping instructions.
         </p>
+        
+        <div style={{ margin: '20px 0 10px 0', padding: '16px 20px', background: 'rgba(0,0,0,0.03)', borderLeft: '3px solid var(--cr)', borderRadius: '0 4px 4px 0' }}>
+          <p style={{ margin: 0, fontSize: '14px', color: 'var(--cr)', fontWeight: 600, letterSpacing: '0.05em' }}>
+            Note: When making a return, you must send 2 clear photos of the product (front and back) showing the entire product in a formal way.
+          </p>
+        </div>
+
+        <Link 
+          to="/contact" 
+          style={{ display: 'inline-block', margin: '10px 0 20px', padding: '12px 24px', background: 'var(--cr)', color: 'var(--bg)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '12px', fontWeight: 600, borderRadius: '4px', transition: 'opacity 0.3s' }}
+          onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
+          onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+        >
+          Returns and Exchanges
+        </Link>
 
         <h3>Refund Process</h3>
         <p>

@@ -334,9 +334,21 @@ export function useWaitlist(service: AdminService | null) {
 }
 
 // ===== USEANALYTICS =====
+export interface DetailedWebAnalytics {
+  count: { pageviews: number; visitors: number };
+  countries: any[];
+  referrers: any[];
+  pages: any[];
+  devices: any[];
+  browsers: any[];
+  os: any[];
+  events: any[];
+}
+
 export function useAnalytics(service: AdminService | null) {
   const [report, setReport] = useState<FinanceReport | null>(null);
   const [productStats, setProductStats] = useState<ProductStats[]>([]);
+  const [webAnalytics, setWebAnalytics] = useState<DetailedWebAnalytics | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -391,20 +403,41 @@ export function useAnalytics(service: AdminService | null) {
     [service]
   );
 
+  const fetchWebAnalytics = useCallback(async () => {
+    try {
+      // Use the environment variable if available, otherwise default to localhost:5000
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const res = await fetch(`${apiUrl}/api/admin/analytics/detailed`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: localStorage.getItem('hazed_admin_pass') || '' })
+      });
+      const resData = await res.json();
+      if (resData.data) {
+        setWebAnalytics(resData.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch web analytics:', err);
+    }
+  }, []);
+
   useEffect(() => {
     generateFinanceReport();
     getSalesByProduct();
-  }, [generateFinanceReport, getSalesByProduct]);
+    fetchWebAnalytics();
+  }, [generateFinanceReport, getSalesByProduct, fetchWebAnalytics]);
 
   return {
     report,
     productStats,
+    webAnalytics,
     loading,
     error,
     generateFinanceReport,
     getSalesByProduct,
     getTodayRevenue,
     getSalesByDate,
+    fetchWebAnalytics,
   };
 }
 

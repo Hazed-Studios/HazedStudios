@@ -167,7 +167,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
           <div style={{ position: 'relative', width: '90%', maxWidth: '600px', background: 'var(--bg)', padding: '16px', borderRadius: '8px' }} onClick={(e) => e.stopPropagation()}>
             <button style={{ position: 'absolute', top: '16px', right: '16px', background: 'var(--cr)', color: 'var(--bg)', border: 'none', width: '30px', height: '30px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }} onClick={() => setShowSizeChart(false)}>×</button>
             <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '18px', fontWeight: 600, color: 'var(--dk)' }}>Size Guide</h3>
-            <img src={`${import.meta.env.BASE_URL}images/size_chart.png`} alt="Size Chart" style={{ width: '100%', height: 'auto', display: 'block' }} />
+            <img src={`${import.meta.env.BASE_URL}images/sizechart.png`} alt="Size Chart" style={{ width: '100%', height: 'auto', display: 'block' }} />
           </div>
         </div>
       )}

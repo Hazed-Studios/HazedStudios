@@ -2529,8 +2529,8 @@ nav {
 .adm-login {
     position: fixed;
     inset: 0;
-    background: var(--bg);
-    z-index: 900;
+    background: transparent;
+    z-index: 9999;
     display: none;
     flex-direction: column;
     align-items: center;

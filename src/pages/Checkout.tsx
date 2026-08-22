@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useCartStore, useNotificationStore } from '../context/store';
 import { supabase } from '../lib/supabase';
+import { track } from '@vercel/analytics/react';
 import { Link } from 'react-router-dom';
 
 const EGYPTIAN_GOVERNORATES = [
@@ -13,8 +14,11 @@ const EGYPTIAN_GOVERNORATES = [
 
 const CustomCombobox = ({ value, onChange, options, placeholder }: { value: string, onChange: (val: string) => void, options: string[], placeholder: string }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
-  const filteredOptions = options.filter(o => o.toLowerCase().includes(value.toLowerCase()));
+  const filteredOptions = showAll 
+    ? options 
+    : options.filter(o => o.toLowerCase().includes(value.toLowerCase()));
 
   return (
     <div style={{ position: 'relative' }}>
@@ -23,9 +27,10 @@ const CustomCombobox = ({ value, onChange, options, placeholder }: { value: stri
         className="fi"
         style={{ width: '100%', paddingRight: '30px' }}
         value={value}
-        onChange={(e) => { onChange(e.target.value); setIsOpen(true); }}
-        onFocus={() => setIsOpen(true)}
-        onBlur={() => setTimeout(() => setIsOpen(false), 200)}
+        onChange={(e) => { onChange(e.target.value); setIsOpen(true); setShowAll(false); }}
+        onFocus={() => { setIsOpen(true); setShowAll(true); }}
+        onClick={() => { setIsOpen(true); setShowAll(true); }}
+        onBlur={() => setTimeout(() => { setIsOpen(false); setShowAll(false); }, 200)}
         placeholder={placeholder}
         required
       />
@@ -34,7 +39,16 @@ const CustomCombobox = ({ value, onChange, options, placeholder }: { value: stri
           position: 'absolute', right: '0', top: '50%', transform: 'translateY(-50%)',
           cursor: 'pointer', color: 'var(--mu)', padding: '10px'
         }}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={(e) => {
+          e.preventDefault();
+          if (isOpen && showAll) {
+            setIsOpen(false);
+            setShowAll(false);
+          } else {
+            setIsOpen(true);
+            setShowAll(true);
+          }
+        }}
       >
         <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -79,15 +93,18 @@ const Checkout: React.FC = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [completedOrderId, setCompletedOrderId] = useState<number | null>(null);
+  const [completedOrderTotal, setCompletedOrderTotal] = useState<number | null>(null);
   const [couponCode, setCouponCode] = useState('');
   const [discountApplied, setDiscountApplied] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{ fp?: string; fe?: string }>({});
 
   const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
   const discountAmount = discountApplied ? total * 0.10 : 0;
   const subtotalAfterDiscount = total - discountAmount;
 
-  const isFreeShipping = subtotalAfterDiscount >= 1998;
-  const shippingCost = isFreeShipping ? 0 : (['Cairo', 'Giza'].includes(formData.fgov) ? 80 : 100);
+  const isFreeShipping = subtotalAfterDiscount >= 1990;
+  const shippingCost = isFreeShipping ? 0 : (['Cairo', 'Giza'].includes(formData.fgov) ? 85 : 100);
   const finalTotal = subtotalAfterDiscount + shippingCost;
 
   const handleApplyCoupon = (e: React.MouseEvent) => {
@@ -113,11 +130,35 @@ const Checkout: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
+    if (fieldErrors[e.target.id as keyof typeof fieldErrors]) {
+      setFieldErrors({ ...fieldErrors, [e.target.id]: undefined });
+    }
   };
 
   const submitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     const { fn, fe, fp, fgov, fa, paymentMethod } = formData;
+
+    setFieldErrors({});
+    let hasError = false;
+    const errors: { fp?: string; fe?: string } = {};
+
+    const phoneRegex = /^01[0125][0-9]{8}$/;
+    if (fp && !phoneRegex.test(fp.trim())) {
+      errors.fp = 'Invalid 11-digit Egyptian number';
+      hasError = true;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (fe && !emailRegex.test(fe.trim())) {
+      errors.fe = 'Invalid email address format';
+      hasError = true;
+    }
+
+    if (hasError) {
+      setFieldErrors(errors);
+      return;
+    }
 
     if (!fn || !fe || !fp || !fgov || !fa) {
       showNotif('Please fill all fields', '#c0392b');
@@ -188,30 +229,31 @@ const Checkout: React.FC = () => {
         const colorsSummary = cart.map(i => i.color || '-').join(', ');
 
         try {
-          const formData = new URLSearchParams();
-          formData.append('_subject', `New Purchase Order from ${fn}`);
-          formData.append('Customer_Name', fn);
-          formData.append('Customer_Email', fe);
-          formData.append('Phone', fp);
-          formData.append('Governorate', fgov);
-          formData.append('Address', fa);
-          formData.append('Products', productsSummary);
-          formData.append('Sizes', sizesSummary);
-          formData.append('Colors', colorsSummary);
-          formData.append('Total', `${finalTotal} EGP`);
-          formData.append('Payment_Method', paymentMethod);
-          formData.append('_template', 'table');
-          formData.append('_captcha', 'false');
+          const payload = {
+            Order_ID: firstOrderId,
+            Customer_Name: fn,
+            Customer_Email: fe,
+            Phone: fp,
+            Governorate: fgov,
+            Address: fa,
+            Products: productsSummary,
+            Sizes: sizesSummary,
+            Colors: colorsSummary,
+            Total: `${finalTotal} EGP`,
+            Payment_Method: paymentMethod
+          };
 
-          const response = await fetch('https://formsubmit.co/ajax/hazed.co.hr@gmail.com', {
+          const backendUrl = import.meta.env.VITE_APP_URL || 'http://localhost:5000';
+          const emailRes = await fetch(`${backendUrl}/api/purchase-email`, {
             method: 'POST',
             headers: {
-              'Accept': 'application/json'
+              'Content-Type': 'application/json'
             },
-            body: formData
+            body: JSON.stringify(payload)
           });
-          if (!response.ok) {
-            const errText = await response.text();
+          
+          if (!emailRes.ok) {
+            const errText = await emailRes.text();
             console.error('Store email error response:', errText);
           }
         } catch (e: any) {
@@ -224,7 +266,7 @@ const Checkout: React.FC = () => {
         const productsSummary = cart.map(i => `${i.quantity || 1}x ${i.name}`).join(', ');
         const sizesSummary = cart.map(i => i.size).join(', ');
         try {
-          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-data`, {
+          const customerEmailRes = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-data`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -246,8 +288,8 @@ const Checkout: React.FC = () => {
               },
             }),
           });
-          if (!response.ok) {
-            const errText = await response.text();
+          if (!customerEmailRes.ok) {
+            const errText = await customerEmailRes.text();
             console.error('Customer email error response:', errText);
           }
         } catch (e: any) {
@@ -255,7 +297,38 @@ const Checkout: React.FC = () => {
         }
       }
 
+      // Send Shipping Order to Flottex (via local backend)
+      try {
+        const productsSummary = cart.map(i => `${i.quantity || 1}x ${i.name} (${i.size})`).join(', ');
+        const backendUrl = import.meta.env.VITE_APP_URL || 'http://localhost:5000';
+        const shippingRes = await fetch(`${backendUrl}/api/shipping/flottex`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            customerName: fn,
+            phone: fp,
+            address: fa,
+            governorate: fgov,
+            products: productsSummary,
+            orderId: firstOrderId,
+            price: finalTotal,
+            paymentMethod: formData.paymentMethod
+          }),
+        });
+
+        if (!shippingRes.ok) {
+          console.error('Failed to create Flottex shipment:', await shippingRes.text());
+        }
+      } catch (err: any) {
+        console.error('Flottex API integration error:', err.message);
+      }
+
+      setCompletedOrderId(firstOrderId);
+      setCompletedOrderTotal(finalTotal);
       setOrderSuccess(true);
+      track('Purchase');
       clearCart();
     } catch (err: any) {
       showNotif(`Order failed: ${err.message || 'please try again'}`, '#c0392b');
@@ -283,7 +356,7 @@ const Checkout: React.FC = () => {
 
             <div className="ord-feats">
               <div className="ord-feat">Cash on Delivery & InstaPay Accepted</div>
-              <div className="ord-feat">Free standard shipping over 1998 EGP</div>
+              <div className="ord-feat">Free standard shipping over 1990 EGP</div>
               <div className="ord-feat">14-Day Returns & Exchanges</div>
             </div>
           </div>
@@ -306,7 +379,10 @@ const Checkout: React.FC = () => {
                   />
                 </div>
                 <div className="fg">
-                  <label className="fl">Phone Number</label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <label className="fl" style={{ marginBottom: 0 }}>Phone Number</label>
+                    {fieldErrors.fp && <span style={{ color: '#c0392b', fontSize: '11px' }}>{fieldErrors.fp}</span>}
+                  </div>
                   <input
                     type="tel"
                     className="fi"
@@ -320,7 +396,10 @@ const Checkout: React.FC = () => {
               </div>
 
               <div className="fg">
-                <label className="fl">Email Address</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label className="fl" style={{ marginBottom: 0 }}>Email Address</label>
+                  {fieldErrors.fe && <span style={{ color: '#c0392b', fontSize: '11px' }}>{fieldErrors.fe}</span>}
+                </div>
                 <input
                   type="email"
                   className="fi"
@@ -462,14 +541,45 @@ const Checkout: React.FC = () => {
               <br /><br />
               {formData.paymentMethod === 'InstaPay' ? (
                 <>
-                  Please transfer the total amount of <strong>{finalTotal.toLocaleString()} EGP</strong> to our InstaPay handle:
-                  <br />
-                  <strong style={{ fontSize: '20px', color: 'var(--cr)', display: 'block', margin: '16px 0' }}>your_instapay_handle</strong>
-                  Your order will be processed as soon as we receive the transfer.
+                  <div style={{ marginBottom: '24px' }}>
+                    <p style={{ fontSize: '15px', color: 'var(--cr)', fontWeight: 600, marginBottom: '16px' }}>
+                      Please complete your payment to confirm the order
+                    </p>
+                    <p style={{ fontSize: '14px', color: 'var(--mu)', marginBottom: '8px' }}>
+                      Transfer the amount of <strong>{(completedOrderTotal || finalTotal).toLocaleString()} EGP</strong> via InstaPay.
+                    </p>
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '300px', margin: '0 auto' }}>
+                    <a 
+                      href="https://ipn.eg/S/kerolosayman22/instapay/84qWvF" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ padding: '14px 20px', background: '#2ecc71', color: 'white', textDecoration: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}
+                    >
+                      Pay Now via InstaPay
+                    </a>
+                    
+                    <a 
+                      href={`https://wa.me/201226292572?text=${encodeURIComponent(`Hello, I have paid for order #${completedOrderId} via InstaPay. Here is my payment screenshot:`)}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ padding: '14px 20px', background: '#25D366', color: 'white', textDecoration: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}
+                    >
+                      Confirm Payment on WhatsApp
+                    </a>
+                  </div>
+
+                  <p style={{ marginTop: '24px', fontSize: '12px', color: 'var(--mu)' }}>
+                    Delivery within 1-3 days in Cairo and Giza
+                  </p>
                 </>
               ) : (
                 <>
-                  We will process your order soon. You will pay in cash upon delivery.
+                  <p>We will process your order soon. You will pay in cash upon delivery.</p>
+                  <p style={{ marginTop: '24px', fontSize: '12px', color: 'var(--mu)' }}>
+                    Delivery within 1-3 days in Cairo and Giza
+                  </p>
                 </>
               )}
             </div>

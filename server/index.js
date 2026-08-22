@@ -212,7 +212,7 @@ app.post('/api/admin/data', async (req, res) => {
 
 // Route: Contact Form with Attachment
 app.post('/api/contact', strictLimiter, upload.single('Attachment'), async (req, res) => {
-  const { Name, Email, Message } = req.body || {};
+  const { Name, Email, Message, InquiryType, OrderID } = req.body || {};
   const file = req.file;
 
   if (!Name || !Email || !Message) {
@@ -228,11 +228,30 @@ app.post('/api/contact', strictLimiter, upload.single('Attachment'), async (req,
       }
     });
 
+    const inquiryLabel = InquiryType ? InquiryType.charAt(0).toUpperCase() + InquiryType.slice(1) : 'General';
+    const orderIdHtml = OrderID ? `<p style="margin: 8px 0; font-size: 14px;"><strong style="color: #9a8878; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">Order ID:</strong> <br/>${OrderID}</p>` : '';
+
     const mailOptions = {
-      from: 'hazed.co.hr@gmail.com',
+      from: `"${Name}" <hazed.co.hr@gmail.com>`,
       to: 'hazed.co.hr@gmail.com',
-      subject: `New Contact Inquiry from ${Name}`,
-      text: `Name: ${Name}\nEmail: ${Email}\n\nMessage:\n${Message}`,
+      subject: `New ${inquiryLabel} Inquiry from ${Name}`,
+      html: `
+        <div style="font-family: 'Montserrat', sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid rgba(192, 127, 69, 0.2); border-radius: 8px; background-color: #faf6f0; color: #1a1208;">
+          <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; margin-top: 0; margin-bottom: 24px; color: #1a1208; border-bottom: 1px solid rgba(192, 127, 69, 0.2); padding-bottom: 12px;">
+            New ${inquiryLabel} Inquiry
+          </h2>
+          <div style="margin-bottom: 24px;">
+            <p style="margin: 8px 0; font-size: 14px;"><strong style="color: #9a8878; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">Inquiry Type:</strong> <br/>${inquiryLabel}</p>
+            ${orderIdHtml}
+            <p style="margin: 8px 0; font-size: 14px;"><strong style="color: #9a8878; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">Name:</strong> <br/>${Name}</p>
+            <p style="margin: 8px 0; font-size: 14px;"><strong style="color: #9a8878; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">Email:</strong> <br/><a href="mailto:${Email}" style="color: #C07F45; text-decoration: none;">${Email}</a></p>
+          </div>
+          <div style="background-color: #f2ebe0; border-left: 3px solid #C07F45; padding: 16px; border-radius: 4px;">
+            <strong style="color: #9a8878; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; display: block; margin-bottom: 8px;">Message:</strong>
+            <p style="margin: 0; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${Message}</p>
+          </div>
+        </div>
+      `,
       replyTo: Email
     };
 
@@ -248,8 +267,244 @@ app.post('/api/contact', strictLimiter, upload.single('Attachment'), async (req,
     await transporter.sendMail(mailOptions);
     res.json({ success: true, message: 'Message sent successfully.' });
   } catch (err) {
-    console.error('Email error:', err);
+    console.error('Contact email error:', err);
     res.status(500).json({ error: 'Failed to send message.' });
+  }
+});
+
+// Route: Purchase Order Email
+app.post('/api/purchase-email', async (req, res) => {
+  console.log('--- Received Purchase Email Request ---');
+  console.log(req.body);
+  const { Order_ID, Customer_Name, Customer_Email, Phone, Governorate, Address, Products, Sizes, Colors, Total, Payment_Method } = req.body;
+
+  if (!Customer_Name || !Products) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'hazed.co.hr@gmail.com',
+        pass: process.env.EMAIL_APP_PASSWORD
+      }
+    });
+
+    const mailOptions = {
+      from: `"${Customer_Name}" <hazed.co.hr@gmail.com>`,
+      to: 'hazed.co.hr@gmail.com',
+      subject: `New Purchase Order #${Order_ID || 'New'} from ${Customer_Name}`,
+      html: `
+        <div style="font-family: 'Montserrat', sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid rgba(192, 127, 69, 0.2); border-radius: 8px; background-color: #faf6f0; color: #1a1208;">
+          <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; margin-top: 0; margin-bottom: 24px; color: #1a1208; border-bottom: 1px solid rgba(192, 127, 69, 0.2); padding-bottom: 12px;">
+            New Purchase Order #${Order_ID || ''}
+          </h2>
+          <div style="background-color: #f2ebe0; padding: 16px; border-radius: 4px; margin-bottom: 20px;">
+            <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #9a8878; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">Customer Name:</strong> ${Customer_Name}</p>
+            <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #9a8878; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">Email:</strong> ${Customer_Email || '-'}</p>
+            <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #9a8878; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">Phone:</strong> ${Phone}</p>
+            <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #9a8878; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">Governorate:</strong> ${Governorate}</p>
+            <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #9a8878; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">Address:</strong> ${Address}</p>
+          </div>
+          <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; color: #C07F45; margin-bottom: 12px;">Order Details</h3>
+          <div style="border-left: 3px solid #C07F45; padding-left: 12px; margin-bottom: 24px;">
+            <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #9a8878; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">Products:</strong> ${Products}</p>
+            <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #9a8878; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">Sizes:</strong> ${Sizes}</p>
+            <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #9a8878; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">Colors:</strong> ${Colors}</p>
+          </div>
+          <div style="border-top: 1px solid rgba(192, 127, 69, 0.2); padding-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="color: #9a8878; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; display: block;">Payment Method:</strong>
+              <span style="font-size: 14px; font-weight: 600;">${Payment_Method}</span>
+            </div>
+            <div style="text-align: right;">
+              <strong style="color: #C07F45; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; display: block;">Total Amount:</strong>
+              <span style="font-family: 'Times New Roman', Times, serif; font-size: 24px; color: #1a1208; font-weight: bold;">${Total}</span>
+            </div>
+          </div>
+        </div>
+      `,
+      replyTo: Customer_Email
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.json({ success: true, message: 'Purchase email sent successfully.' });
+  } catch (err) {
+    console.error('Purchase email error:', err);
+    res.status(500).json({ error: 'Failed to send purchase email.' });
+  }
+});
+
+// Route: Flottex Shipping API Integration
+app.post('/api/shipping/flottex', async (req, res) => {
+  console.log('--- Received Flottex API Request ---');
+  console.log(req.body);
+
+  const { customerName, phone, address, governorate, products, orderId, price, paymentMethod } = req.body;
+
+  if (!customerName || !phone || !address || !governorate) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // If the customer pays with InstaPay, the shipping company should collect 0 EGP (Prepaid)
+  const isPrepaid = paymentMethod === 'InstaPay';
+  const finalCodAmount = isPrepaid ? 0 : price;
+  const flottexPaymentTypeCode = isPrepaid ? "CASH" : "COLC";
+
+  try {
+    // Check for flottex credentials in env
+    if (!process.env.FLOTTEX_USERNAME || !process.env.FLOTTEX_PASSWORD) {
+      throw new Error('Flottex API credentials missing from environment variables');
+    }
+
+    const flottexApiUrl = 'https://flottex.lg.accuratess.com:8443/graphql';
+    
+    // 1. Authenticate with Flottex
+    const loginQuery = `
+      mutation Login($input: LoginInput!) {
+        login(input: $input) {
+          token
+        }
+      }
+    `;
+
+    const loginVariables = {
+      input: {
+        username: process.env.FLOTTEX_USERNAME,
+        password: process.env.FLOTTEX_PASSWORD
+      }
+    };
+
+    const loginRes = await fetch(flottexApiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: loginQuery, variables: loginVariables }),
+    });
+
+    const loginData = await loginRes.json();
+    if (loginData.errors || !loginData.data?.login?.token) {
+      console.error('Flottex authentication failed:', loginData.errors || loginData);
+      return res.status(401).json({ error: 'Flottex authentication failed' });
+    }
+
+    const token = loginData.data.login.token;
+
+    // 2. Create Shipment
+    const createShipmentMutation = `
+      mutation CreateShipment($input: ShipmentInput!) {
+        saveShipment(input: $input) {
+          id
+          trackingUrl
+        }
+      }
+    `;
+
+    const variables = {
+      input: {
+        recipientName: customerName,
+        recipientMobile: phone,
+        recipientAddress: address,
+        // TODO: Map string governorate to correct Flottex Zone and Subzone IDs
+        recipientZoneId: 1, 
+        recipientSubzoneId: 1,
+        description: products,
+        price: finalCodAmount, // 0 if InstaPay, full price if COD
+        refNumber: `ORDER-${orderId}`,
+        serviceId: 1, // Default service ID (e.g. Next Day Delivery)
+        weight: 1.0,
+        piecesCount: 1,
+        typeCode: "FDP",
+        priceTypeCode: "INCLD",
+        paymentTypeCode: flottexPaymentTypeCode,
+        openableCode: "N"
+      }
+    };
+
+    const shipmentRes = await fetch(flottexApiUrl, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      },
+      body: JSON.stringify({ 
+        query: createShipmentMutation,
+        variables 
+      })
+    });
+
+    const shipmentData = await shipmentRes.json();
+
+    if (shipmentData.errors) {
+      console.error('Flottex create shipment error:', JSON.stringify(shipmentData.errors, null, 2));
+      return res.status(500).json({ error: 'Failed to create Flottex shipment', details: shipmentData.errors });
+    }
+
+    res.json({ success: true, shipment: shipmentData.data.saveShipment });
+
+  } catch (err) {
+    console.error('Flottex API error:', err);
+    res.status(500).json({ error: 'Internal server error while calling Flottex' });
+  }
+});
+
+// Route: Vercel Web Analytics Fetch Detailed
+app.post('/api/admin/analytics/detailed', async (req, res) => {
+  const { password } = req.body;
+  if (password !== process.env.VITE_ADMIN_PASS) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  if (!process.env.VERCEL_TOKEN || !process.env.VERCEL_PROJECT_ID) {
+    return res.status(400).json({ error: 'Vercel Analytics not configured' });
+  }
+
+  try {
+    const fetchVercel = async (endpoint, query = '', type = 'visits') => {
+      const q = query ? `&${query}` : '';
+      const response = await fetch(`https://api.vercel.com/v1/query/web-analytics/${type}/${endpoint}?projectId=${process.env.VERCEL_PROJECT_ID}${q}`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.VERCEL_TOKEN}`
+        }
+      });
+      return await response.json();
+    };
+
+    const [
+      countData,
+      countryData,
+      referrerData,
+      pageData,
+      deviceData,
+      browserData,
+      osData,
+      eventsData
+    ] = await Promise.all([
+      fetchVercel('count'),
+      fetchVercel('aggregate', 'by=country'),
+      fetchVercel('aggregate', 'by=referrerHostname'),
+      fetchVercel('aggregate', 'by=requestPath'),
+      fetchVercel('aggregate', 'by=deviceType'),
+      fetchVercel('aggregate', 'by=browserName'),
+      fetchVercel('aggregate', 'by=osName'),
+      fetchVercel('aggregate', 'by=eventName', 'events')
+    ]);
+
+    res.json({
+      data: {
+        count: countData,
+        countries: countryData,
+        referrers: referrerData,
+        pages: pageData,
+        devices: deviceData,
+        browsers: browserData,
+        os: osData,
+        events: eventsData
+      }
+    });
+  } catch (err) {
+    console.error('Vercel API error:', err);
+    res.status(500).json({ error: 'Failed to fetch detailed analytics' });
   }
 });
 
