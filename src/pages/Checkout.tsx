@@ -300,8 +300,13 @@ const Checkout: React.FC = () => {
       // Send Shipping Order to Flottex (via local backend)
       try {
         const productsSummary = cart.map(i => `${i.quantity || 1}x ${i.name} (${i.size})`).join(', ');
-        const backendUrl = import.meta.env.VITE_APP_URL || 'http://localhost:5000';
-        const shippingRes = await fetch(`${backendUrl}/api/shipping/flottex`, {
+        // Use relative path '/api/...' in production for Vercel Serverless Functions, 
+        // fallback to local Express server for local development testing.
+        const flottexUrl = import.meta.env.PROD 
+          ? '/api/shipping/flottex' 
+          : `${import.meta.env.VITE_APP_URL || 'http://localhost:5000'}/api/shipping/flottex`;
+          
+        const shippingRes = await fetch(flottexUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
