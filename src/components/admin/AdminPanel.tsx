@@ -259,10 +259,6 @@ const AdminPanel: React.FC = () => {
     const sizeStock = p.size_stock || {};
     return sum + (Object.values(sizeStock).reduce((s: number, q: any) => s + (Number(q) || 0), 0) as number);
   }, 0);
-  const stockCapacity = products.reduce((sum, p: any) => {
-    const sizeCapacity = p.size_capacity || {};
-    return sum + (Object.values(sizeCapacity).reduce((s: number, q: any) => s + (Number(q) || 0), 0) as number);
-  }, 0);
 
   const totalPiecesSold = orders
     .filter((o: any) => o.status !== 'Cancelled')
