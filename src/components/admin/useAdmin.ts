@@ -406,8 +406,10 @@ export function useAnalytics(service: AdminService | null) {
   const fetchWebAnalytics = useCallback(async () => {
     try {
       // Use the environment variable if available, otherwise default to localhost:5000
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      const res = await fetch(`${apiUrl}/api/admin/analytics/detailed`, {
+      const apiUrl = import.meta.env.PROD
+        ? '/api/admin/analytics/detailed'
+        : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/analytics/detailed`;
+      const res = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: localStorage.getItem('hazed_admin_pass') || '' })

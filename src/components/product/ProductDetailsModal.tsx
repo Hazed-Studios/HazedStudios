@@ -69,9 +69,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
     navigate('/checkout');
   };
 
-  const handleWishlist = () => {
-    showNotif(`${product.name} saved ♥`);
-  };
+
 
   return (
     <div className={`pdp-ov ${isOpen ? 'open' : ''}`}>
@@ -141,9 +139,6 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
               disabled={(product.sizeStock[selectedSize] || 0) === 0}
             >
               Buy Now
-            </button>
-            <button className="pdp-wb" onClick={handleWishlist}>
-              Wishlist
             </button>
           </div>
 

@@ -605,14 +605,14 @@ const AdminPanel: React.FC = () => {
                             }
                           }} />
                         </th>
-                        {['#', 'Customer', 'Product', 'Size', 'Gov.', 'Total', 'Status', 'Date'].map((h) => (
+                        {['#', 'Customer', 'Email', 'Product', 'Size', 'Gov.', 'Total', 'Status', 'Date'].map((h) => (
                           <th key={h} style={styles.th}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {overviewOrdersPagination.items.length === 0 ? (
-                        <tr><td colSpan={8} style={styles.emptyCell}>No orders yet.</td></tr>
+                        <tr><td colSpan={9} style={styles.emptyCell}>No orders yet.</td></tr>
                       ) : (
                         overviewOrdersPagination.items.map((o: any) => (
                           <tr key={o.id}>
@@ -626,6 +626,7 @@ const AdminPanel: React.FC = () => {
                             </td>
                             <td data-label="#" style={styles.td}>#{String(o.id).padStart(3, '0')}</td>
                             <td data-label="Customer" style={styles.td}>{o.customers?.name || '—'}</td>
+                            <td data-label="Email" style={styles.td}>{o.customers?.email || '—'}</td>
                             <td data-label="Product" style={styles.td}>{o.products?.name || '—'}</td>
                             <td data-label="Size" style={styles.td}>{o.size}</td>
                             <td data-label="Gov." style={styles.td}>{o.governorate}</td>
@@ -706,14 +707,14 @@ const AdminPanel: React.FC = () => {
                           }
                         }} />
                       </th>
-                      {['#', 'Customer', 'Phone', 'Product', 'Size', 'Gov.', 'Address', 'Total', 'Status', 'WhatsApp', 'Date'].map((h) => (
+                      {['#', 'Customer', 'Phone', 'Email', 'Product', 'Size', 'Gov.', 'Address', 'Total', 'Status', 'WhatsApp', 'Date'].map((h) => (
                         <th key={h} style={styles.th}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {ordersPagination.items.length === 0 ? (
-                      <tr><td colSpan={11} style={styles.emptyCell}>No orders found.</td></tr>
+                      <tr><td colSpan={12} style={styles.emptyCell}>No orders found.</td></tr>
                     ) : (
                       ordersPagination.items.map((o: any) => (
                         <tr key={o.id}>
@@ -728,6 +729,7 @@ const AdminPanel: React.FC = () => {
                           <td data-label="#" style={styles.td}>#{String(o.id).padStart(3, '0')}</td>
                           <td data-label="Customer" style={styles.td}>{o.customers?.name || '—'}</td>
                           <td data-label="Phone" style={styles.td}>{o.customers?.phone || ''}</td>
+                          <td data-label="Email" style={styles.td}>{o.customers?.email || '—'}</td>
                           <td data-label="Product" style={{ ...styles.td, minWidth: '180px', whiteSpace: 'normal' }}>{o.products?.name || '—'}</td>
                           <td data-label="Size" style={styles.td}>{o.size}</td>
                           <td data-label="Gov." style={styles.td}>{o.governorate}</td>
@@ -803,14 +805,14 @@ const AdminPanel: React.FC = () => {
                           }
                         }} />
                       </th>
-                      {['Name', 'Phone', 'Governorate', 'Orders', 'Total Spent', 'Last Order', 'WhatsApp'].map((h) => (
+                      {['Name', 'Email', 'Phone', 'Governorate', 'Orders', 'Total Spent', 'Last Order', 'WhatsApp'].map((h) => (
                         <th key={h} style={styles.th}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {customersPagination.items.length === 0 ? (
-                      <tr><td colSpan={7} style={styles.emptyCell}>No customers found.</td></tr>
+                      <tr><td colSpan={8} style={styles.emptyCell}>No customers found.</td></tr>
                     ) : (
                       customersPagination.items.map((c: any) => (
                         <tr key={c.id}>
@@ -823,6 +825,7 @@ const AdminPanel: React.FC = () => {
                             }} />
                           </td>
                           <td data-label="Name" style={styles.td}>{c.name}</td>
+                          <td data-label="Email" style={styles.td}>{c.email || '—'}</td>
                           <td data-label="Phone" style={styles.td}>{c.phone}</td>
                           <td data-label="Gov." style={styles.td}>{c.governorate || '—'}</td>
                           <td data-label="Orders" style={styles.td}>{c.orderCount}</td>

@@ -74,7 +74,7 @@ const Navbar: React.FC<NavbarProps> = ({ onOpenCart, onOpenSearch }) => {
 
       {/* Mobile Menu Backdrop */}
       {mobileMenuOpen && (
-        <div 
+        <div
           onClick={() => setMobileMenuOpen(false)}
           style={{
             position: 'fixed',

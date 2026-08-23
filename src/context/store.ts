@@ -4,19 +4,19 @@ import type { CartItem } from '../types';
 
 interface CartState {
   cart: CartItem[];
-  wishlist: number[];
+
   addToCart: (item: CartItem) => void;
   removeFromCart: (index: number) => void;
   updateQuantity: (index: number, qty: number) => void;
   clearCart: () => void;
-  toggleWishlist: (id: number) => void;
+
 }
 
 export const useCartStore = create<CartState>()(
   persist(
     (set) => ({
       cart: [],
-      wishlist: [],
+
       addToCart: (item) =>
         set((state) => {
           const existingIndex = state.cart.findIndex(
@@ -44,15 +44,7 @@ export const useCartStore = create<CartState>()(
           return { cart: newCart };
         }),
       clearCart: () => set({ cart: [] }),
-      toggleWishlist: (id) =>
-        set((state) => {
-          const isWished = state.wishlist.includes(id);
-          return {
-            wishlist: isWished
-              ? state.wishlist.filter((wId) => wId !== id)
-              : [...state.wishlist, id],
-          };
-        }),
+
     }),
     {
       name: 'hazed-storage',

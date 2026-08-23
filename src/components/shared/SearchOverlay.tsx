@@ -30,9 +30,9 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose }) => {
     ? products.filter(p => p.name.toLowerCase().includes(query.toLowerCase()))
     : [];
 
-  const handleProductClick = () => {
+  const handleProductClick = (productId: string | number) => {
     onClose();
-    navigate('/shop');
+    navigate(`/product/${productId}`);
   };
 
   return (
@@ -51,9 +51,16 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose }) => {
         <div className="search-res">
           {filteredProducts.length > 0 ? (
             filteredProducts.map(p => (
-              <div key={p.id} className="sri" onClick={() => handleProductClick()}>
-                <div className="sri-name">{p.name}</div>
-                <div className="sri-price">{p.price.toLocaleString()} EGP</div>
+              <div key={p.id} className="sri" onClick={() => handleProductClick(p.id)} style={{ display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}>
+                {(p.visual && (p.visual.includes('images/') || p.visual.startsWith('http'))) ? (
+                  <img src={p.visual} alt={p.name} style={{ width: '48px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} />
+                ) : (
+                  <div style={{ width: '48px', height: '60px', background: 'var(--bd)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>{p.visual || 'H.S'}</div>
+                )}
+                <div>
+                  <div className="sri-name">{p.name}</div>
+                  <div className="sri-price">{p.price.toLocaleString()} EGP</div>
+                </div>
               </div>
             ))
           ) : (

@@ -64,14 +64,45 @@ export default async function handler(req, res) {
       }
     `;
 
+    const zoneMap = {
+      "Cairo": { zone: 1, subzone: 344 },
+      "Giza": { zone: 2, subzone: 330 },
+      "Alexandria": { zone: 3, subzone: 61 },
+      "Qalyubia": { zone: 4, subzone: 107 },
+      "Dakahlia": { zone: 7, subzone: 136 },
+      "Damietta": { zone: 9, subzone: 162 },
+      "Port Said": { zone: 10, subzone: 169 },
+      "Ismailia": { zone: 11, subzone: 176 },
+      "Suez": { zone: 12, subzone: 184 },
+      "Sharqia": { zone: 14, subzone: 200 },
+      "Kafr El Sheikh": { zone: 8, subzone: 153 },
+      "Beheira": { zone: 15, subzone: 214 },
+      "Matrouh": { zone: 16, subzone: 229 },
+      "South Sinai": { zone: 29, subzone: 297 },
+      "North Sinai": { zone: 1, subzone: 307 },
+      "Faiyum": { zone: 17, subzone: 238 },
+      "Minya": { zone: 19, subzone: 248 },
+      "Asyut": { zone: 20, subzone: 255 },
+      "Sohag": { zone: 21, subzone: 262 },
+      "Qena": { zone: 22, subzone: 269 },
+      "Luxor": { zone: 23, subzone: 276 },
+      "Aswan": { zone: 24, subzone: 280 },
+      "Red Sea": { zone: 26, subzone: 288 },
+      "New Valley": { zone: 25, subzone: 285 },
+      "Beni Suef": { zone: 18, subzone: 243 },
+      "Monufia": { zone: 5, subzone: 119 },
+      "Gharbia": { zone: 6, subzone: 128 }
+    };
+    
+    const mappedZone = zoneMap[governorate] || { zone: 1, subzone: 344 };
+
     const variables = {
       input: {
         recipientName: customerName,
         recipientMobile: phone,
         recipientAddress: address,
-        // TODO: Map string governorate to correct Flottex Zone and Subzone IDs
-        recipientZoneId: 1, 
-        recipientSubzoneId: 1,
+        recipientZoneId: mappedZone.zone,
+        recipientSubzoneId: mappedZone.subzone,
         description: products,
         price: finalCodAmount, // 0 if InstaPay, full price if COD
         refNumber: `ORDER-${orderId}`,

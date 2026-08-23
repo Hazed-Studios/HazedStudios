@@ -3895,7 +3895,7 @@ footer {
 
 .plp-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: 16px;
 }
 
@@ -4292,6 +4292,7 @@ footer {
         font-size: 2rem !important;
         margin-top: 20px !important;
     }
+
     .shop-title-main span {
         white-space: nowrap !important;
     }
@@ -4321,32 +4322,53 @@ footer {
         display: none !important;
     }
 }
+
 @media (max-width: 768px) {
-  .sec-lbl { margin-bottom: 16px; }
-  .sp-title { margin-bottom: 8px; font-size: 32px; line-height: 1.1; }
-  .sp-price { font-size: 22px; margin-bottom: 16px; }
-  .prod-price { font-size: 14px; }
-  .sp-desc { margin-bottom: 24px; padding-bottom: 24px; font-size: 12px; line-height: 1.6; }
-  .sp-model-info {
-    background: var(--bg2);
-    border: 1px solid var(--bd);
-    padding: 12px;
-    margin-bottom: 24px;
-    font-size: 11px;
-    color: var(--dk);
-    line-height: 1.4;
-  }
+    .sec-lbl {
+        margin-bottom: 16px;
+    }
+
+    .sp-title {
+        margin-bottom: 8px;
+        font-size: 32px;
+        line-height: 1.1;
+    }
+
+    .sp-price {
+        font-size: 22px;
+        margin-bottom: 16px;
+    }
+
+    .prod-price {
+        font-size: 14px;
+    }
+
+    .sp-desc {
+        margin-bottom: 24px;
+        padding-bottom: 24px;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .sp-model-info {
+        background: var(--bg2);
+        border: 1px solid var(--bd);
+        padding: 12px;
+        margin-bottom: 24px;
+        font-size: 11px;
+        color: var(--dk);
+        line-height: 1.4;
+    }
 }
 
 @media (min-width: 769px) {
-  .sp-model-info {
-    background: var(--bg2);
-    border: 1px solid var(--bd);
-    padding: 16px;
-    margin-bottom: 32px;
-    font-size: 12px;
-    color: var(--dk);
-    line-height: 1.6;
-  }
+    .sp-model-info {
+        background: var(--bg2);
+        border: 1px solid var(--bd);
+        padding: 16px;
+        margin-bottom: 32px;
+        font-size: 12px;
+        color: var(--dk);
+        line-height: 1.6;
+    }
 }
-

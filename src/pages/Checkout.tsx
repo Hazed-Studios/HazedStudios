@@ -16,8 +16,8 @@ const CustomCombobox = ({ value, onChange, options, placeholder }: { value: stri
   const [isOpen, setIsOpen] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
-  const filteredOptions = showAll 
-    ? options 
+  const filteredOptions = showAll
+    ? options
     : options.filter(o => o.toLowerCase().includes(value.toLowerCase()));
 
   return (
@@ -84,11 +84,14 @@ const Checkout: React.FC = () => {
   const { showNotif } = useNotificationStore();
 
   const [formData, setFormData] = useState({
-    fn: '',
+    fName: '',
+    lName: '',
     fe: '',
     fp: '',
     fgov: 'Cairo',
+    fcity: '',
     fa: '',
+    apt: '',
     paymentMethod: 'COD',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -137,7 +140,9 @@ const Checkout: React.FC = () => {
 
   const submitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { fn, fe, fp, fgov, fa, paymentMethod } = formData;
+    const { fName, lName, fe, fp, fgov, fcity, fa, apt, paymentMethod } = formData;
+    const fn = `${fName} ${lName}`.trim();
+    const fullAddress = [fcity, fa, apt].filter(Boolean).join(', ');
 
     setFieldErrors({});
     let hasError = false;
@@ -160,8 +165,8 @@ const Checkout: React.FC = () => {
       return;
     }
 
-    if (!fn || !fe || !fp || !fgov || !fa) {
-      showNotif('Please fill all fields', '#c0392b');
+    if (!fName || !lName || !fp || !fgov || !fcity || !fa) {
+      showNotif('Please fill all required fields', '#c0392b');
       return;
     }
 
@@ -210,7 +215,7 @@ const Checkout: React.FC = () => {
         p_phone: fp,
         p_email: fe,
         p_gov: fgov,
-        p_address: fa,
+        p_address: fullAddress,
         p_items: orderItems
       });
 
@@ -235,7 +240,7 @@ const Checkout: React.FC = () => {
             Customer_Email: fe,
             Phone: fp,
             Governorate: fgov,
-            Address: fa,
+            Address: fullAddress,
             Products: productsSummary,
             Sizes: sizesSummary,
             Colors: colorsSummary,
@@ -243,15 +248,18 @@ const Checkout: React.FC = () => {
             Payment_Method: paymentMethod
           };
 
-          const backendUrl = import.meta.env.VITE_APP_URL || 'http://localhost:5000';
-          const emailRes = await fetch(`${backendUrl}/api/purchase-email`, {
+          const emailUrl = import.meta.env.PROD 
+            ? '/api/purchase-email'
+            : `${import.meta.env.VITE_APP_URL || 'http://localhost:5000'}/api/purchase-email`;
+
+          const emailRes = await fetch(emailUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)
           });
-          
+
           if (!emailRes.ok) {
             const errText = await emailRes.text();
             console.error('Store email error response:', errText);
@@ -279,7 +287,7 @@ const Checkout: React.FC = () => {
                 customerName: fn,
                 product: productsSummary,
                 size: sizesSummary,
-                address: fa,
+                address: fullAddress,
                 gov: fgov,
                 price: finalTotal,
                 shippingCost: shippingCost,
@@ -302,10 +310,10 @@ const Checkout: React.FC = () => {
         const productsSummary = cart.map(i => `${i.quantity || 1}x ${i.name} (${i.size})`).join(', ');
         // Use relative path '/api/...' in production for Vercel Serverless Functions, 
         // fallback to local Express server for local development testing.
-        const flottexUrl = import.meta.env.PROD 
-          ? '/api/shipping/flottex' 
+        const flottexUrl = import.meta.env.PROD
+          ? '/api/shipping/flottex'
           : `${import.meta.env.VITE_APP_URL || 'http://localhost:5000'}/api/shipping/flottex`;
-          
+
         const shippingRes = await fetch(flottexUrl, {
           method: 'POST',
           headers: {
@@ -314,7 +322,7 @@ const Checkout: React.FC = () => {
           body: JSON.stringify({
             customerName: fn,
             phone: fp,
-            address: fa,
+            address: fullAddress,
             governorate: fgov,
             products: productsSummary,
             orderId: firstOrderId,
@@ -372,17 +380,32 @@ const Checkout: React.FC = () => {
 
               <div className="frow">
                 <div className="fg">
-                  <label className="fl">Full Name</label>
+                  <label className="fl">First Name</label>
                   <input
                     type="text"
                     className="fi"
-                    id="fn"
-                    placeholder="Your Full Name"
+                    id="fName"
+                    placeholder="First Name"
                     required
-                    value={formData.fn}
+                    value={formData.fName}
                     onChange={handleChange}
                   />
                 </div>
+                <div className="fg">
+                  <label className="fl">Last Name</label>
+                  <input
+                    type="text"
+                    className="fi"
+                    id="lName"
+                    placeholder="Last Name"
+                    required
+                    value={formData.lName}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <div className="frow">
                 <div className="fg">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                     <label className="fl" style={{ marginBottom: 0 }}>Phone Number</label>
@@ -398,22 +421,20 @@ const Checkout: React.FC = () => {
                     onChange={handleChange}
                   />
                 </div>
-              </div>
-
-              <div className="fg">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <label className="fl" style={{ marginBottom: 0 }}>Email Address</label>
-                  {fieldErrors.fe && <span style={{ color: '#c0392b', fontSize: '11px' }}>{fieldErrors.fe}</span>}
+                <div className="fg">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <label className="fl" style={{ marginBottom: 0 }}>Email Address</label>
+                    {fieldErrors.fe && <span style={{ color: '#c0392b', fontSize: '11px' }}>{fieldErrors.fe}</span>}
+                  </div>
+                  <input
+                    type="email"
+                    className="fi"
+                    id="fe"
+                    placeholder="your.email@example.com (Optional)"
+                    value={formData.fe}
+                    onChange={handleChange}
+                  />
                 </div>
-                <input
-                  type="email"
-                  className="fi"
-                  id="fe"
-                  placeholder="your.email@example.com"
-                  required
-                  value={formData.fe}
-                  onChange={handleChange}
-                />
               </div>
 
               <div className="frow">
@@ -427,14 +448,40 @@ const Checkout: React.FC = () => {
                   />
                 </div>
                 <div className="fg">
-                  <label className="fl">Detailed Address</label>
+                  <label className="fl">City / District</label>
+                  <input
+                    type="text"
+                    className="fi"
+                    id="fcity"
+                    placeholder="City"
+                    required
+                    value={formData.fcity}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <div className="frow">
+                <div className="fg">
+                  <label className="fl">Address</label>
                   <input
                     type="text"
                     className="fi"
                     id="fa"
-                    placeholder="Street, Building, Apt..."
+                    placeholder="Street, Building"
                     required
                     value={formData.fa}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="fg">
+                  <label className="fl">Apartment (optional)</label>
+                  <input
+                    type="text"
+                    className="fi"
+                    id="apt"
+                    placeholder="Apartment, suite, etc."
+                    value={formData.apt}
                     onChange={handleChange}
                   />
                 </div>
@@ -554,20 +601,20 @@ const Checkout: React.FC = () => {
                       Transfer the amount of <strong>{(completedOrderTotal || finalTotal).toLocaleString()} EGP</strong> via InstaPay.
                     </p>
                   </div>
-                  
+
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '300px', margin: '0 auto' }}>
-                    <a 
-                      href="https://ipn.eg/S/kerolosayman22/instapay/84qWvF" 
-                      target="_blank" 
+                    <a
+                      href="https://ipn.eg/S/kerolosayman22/instapay/84qWvF"
+                      target="_blank"
                       rel="noopener noreferrer"
                       style={{ padding: '14px 20px', background: '#2ecc71', color: 'white', textDecoration: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}
                     >
                       Pay Now via InstaPay
                     </a>
-                    
-                    <a 
-                      href={`https://wa.me/201226292572?text=${encodeURIComponent(`Hello, I have paid for order #${completedOrderId} via InstaPay. Here is my payment screenshot:`)}`} 
-                      target="_blank" 
+
+                    <a
+                      href={`https://wa.me/201226292572?text=${encodeURIComponent(`Hello, I have paid for order #${completedOrderId} via InstaPay. Here is my payment screenshot:`)}`}
+                      target="_blank"
                       rel="noopener noreferrer"
                       style={{ padding: '14px 20px', background: '#25D366', color: 'white', textDecoration: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}
                     >

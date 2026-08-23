@@ -77,8 +77,11 @@ const Contact: React.FC = () => {
         formData.delete('Attachment');
       }
 
-      const backendUrl = import.meta.env.VITE_APP_URL || 'http://localhost:5000';
-      const response = await fetch(`${backendUrl}/api/contact`, {
+      const contactUrl = import.meta.env.PROD
+        ? '/api/contact'
+        : `${import.meta.env.VITE_APP_URL || 'http://localhost:5000'}/api/contact`;
+        
+      const response = await fetch(contactUrl, {
         method: 'POST',
         body: formData,
         headers: {

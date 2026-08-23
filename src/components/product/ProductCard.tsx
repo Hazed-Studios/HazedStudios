@@ -9,14 +9,12 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
-  const { addToCart, wishlist, toggleWishlist } = useCartStore();
+  const { addToCart } = useCartStore();
   const { showNotif } = useNotificationStore();
   const [selectedSize, setSelectedSize] = useState<string>('M');
   const [quantity, setQuantity] = useState<number>(1);
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
-
-  const isWished = wishlist.includes(product.dbId);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -48,15 +46,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
     navigate('/checkout');
   };
 
-  const handleToggleWish = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toggleWishlist(product.dbId);
-    if (!isWished) {
-      showNotif(`${product.name} saved ♥`);
-    } else {
-      showNotif('Removed from wishlist');
-    }
-  };
 
   const handleSizeSelect = (e: React.MouseEvent, size: string, isAvailable: boolean) => {
     e.stopPropagation();
@@ -74,12 +63,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
       onMouseLeave={() => window.innerWidth > 768 && setIsHovered(false)}
       style={{ background: 'transparent', border: 'none' }}
     >
-      <button
-        className={`prod-wish ${isWished ? 'wished' : ''}`}
-        onClick={handleToggleWish}
-      >
-        {isWished ? '♥' : '♡'}
-      </button>
 
       <div className="prod-vis" style={{ borderRadius: '8px', overflow: 'hidden', position: 'relative', background: 'transparent' }}>
         {product.visual && (product.visual.includes('images/') || product.visual.startsWith('http')) ? (
