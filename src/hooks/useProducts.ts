@@ -18,8 +18,8 @@ const FALLBACK_PRODUCTS: Product[] = [
     serial: 'DROP-01-POLO',
     visual: `${import.meta.env.BASE_URL}images/baby blue.webp`,
     gallery: [
-      `${import.meta.env.BASE_URL}images/IMG_8829.webp`,
       `${import.meta.env.BASE_URL}images/IMG_8844.webp`,
+      `${import.meta.env.BASE_URL}images/IMG_8829.webp`,
       `${import.meta.env.BASE_URL}images/IMG_8868.webp`,
       `${import.meta.env.BASE_URL}images/IMG_8853.webp`,
     ],
@@ -77,7 +77,7 @@ export const useProducts = () => {
             visual = 'images/natural linen.webp';
           } else if (row.name.includes('Baby Blue')) {
             // Front, Side, Back, Side
-            gallery = ['images/IMG_8829.webp', 'images/IMG_8844.webp', 'images/IMG_8868.webp', 'images/IMG_8853.webp'];
+            gallery = ['images/IMG_8844.webp', 'images/IMG_8829.webp', 'images/IMG_8868.webp', 'images/IMG_8853.webp'];
             visual = 'images/baby blue.webp';
           }
 
