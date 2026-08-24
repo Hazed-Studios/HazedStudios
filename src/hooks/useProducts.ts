@@ -16,12 +16,12 @@ const FALLBACK_PRODUCTS: Product[] = [
       'Our highly anticipated drop. Crafted from premium linen, this polo redefines summer elegance with a relaxed yet tailored fit.',
     details: ['Premium linen blend', 'Relaxed tailored fit', 'Breathable'],
     serial: 'DROP-01-POLO',
-    visual: `${import.meta.env.BASE_URL}images/IMG_9247.webp`,
+    visual: `${import.meta.env.BASE_URL}images/IMG_8829.webp`,
     gallery: [
-      `${import.meta.env.BASE_URL}images/IMG_9247.webp`,
-      `${import.meta.env.BASE_URL}images/IMG_9248.webp`,
-      `${import.meta.env.BASE_URL}images/IMG_9251.webp`,
-      `${import.meta.env.BASE_URL}images/IMG_9252.webp`,
+      `${import.meta.env.BASE_URL}images/IMG_8829.webp`,
+      `${import.meta.env.BASE_URL}images/IMG_8844.webp`,
+      `${import.meta.env.BASE_URL}images/IMG_8868.webp`,
+      `${import.meta.env.BASE_URL}images/IMG_8853.webp`,
     ],
   },
 ];
@@ -77,8 +77,8 @@ export const useProducts = () => {
             visual = 'images/natural linen.webp';
           } else if (row.name.includes('Baby Blue')) {
             // Front, Side, Back, Side
-            gallery = ['images/IMG_9247.webp', 'images/IMG_9248.webp', 'images/IMG_9251.webp', 'images/IMG_9252.webp'];
-            visual = 'images/baby blue.webp';
+            gallery = ['images/IMG_8829.webp', 'images/IMG_8844.webp', 'images/IMG_8868.webp', 'images/IMG_8853.webp'];
+            visual = 'images/IMG_8829.webp';
           }
 
           return {
