@@ -165,7 +165,7 @@ const AdminPanel: React.FC = () => {
 
     const verifySession = async () => {
       const { data } = await supabase.auth.getSession();
-      if (!data.session) {
+      if (!data.session || !localStorage.getItem('hazed_admin_pass')) {
         logout();
       }
     };

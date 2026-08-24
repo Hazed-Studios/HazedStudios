@@ -78,6 +78,7 @@ const AdminLogin: React.FC = () => {
         return;
       }
 
+      localStorage.setItem('hazed_admin_pass', password);
       login();
       setIsOpen(false);
       setPassword('');
