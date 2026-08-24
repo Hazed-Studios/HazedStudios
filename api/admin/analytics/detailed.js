@@ -3,8 +3,27 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { password } = req.body || {};
-  if (password !== process.env.VITE_ADMIN_PASS) {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '');
+
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // Verify this is a real, currently-valid Supabase session - not a
+  // separately-stored password. Avoids ever needing the admin password
+  // to live in the browser beyond the moment it's typed.
+  try {
+    const verifyRes = await fetch(`${process.env.VITE_SUPABASE_URL}/auth/v1/user`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: process.env.VITE_SUPABASE_ANON_KEY,
+      },
+    });
+    if (!verifyRes.ok) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+  } catch (err) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 

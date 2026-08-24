@@ -5,6 +5,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { supabase } from '../../lib/supabase';
 import AdminService from './admin.service';
 import type {
   Order,
@@ -405,14 +406,20 @@ export function useAnalytics(service: AdminService | null) {
 
   const fetchWebAnalytics = useCallback(async () => {
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) return;
+
       // Use the environment variable if available, otherwise default to localhost:5000
       const apiUrl = import.meta.env.PROD
         ? '/api/admin/analytics/detailed'
         : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/analytics/detailed`;
       const res = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: localStorage.getItem('hazed_admin_pass') || '' })
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
       const resData = await res.json();
       if (resData.data) {

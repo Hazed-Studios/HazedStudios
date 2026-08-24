@@ -63,10 +63,7 @@ export const useAdminStore = create<AdminState>()(
     (set) => ({
       isAdmin: false,
       login: () => set({ isAdmin: true }),
-      logout: () => {
-        localStorage.removeItem('hazed_admin_pass');
-        set({ isAdmin: false });
-      },
+      logout: () => set({ isAdmin: false }),
     }),
     {
       name: 'hz_adm',
