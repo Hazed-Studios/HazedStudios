@@ -183,7 +183,7 @@ const AdminPanel: React.FC = () => {
       console.error('Sign out error (continuing anyway):', err);
     } finally {
       logout();
-      navigate('/home');
+      navigate('/');
     }
   };
 

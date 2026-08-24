@@ -1,6 +1,6 @@
 import React, { useState, Suspense, lazy } from 'react';
 import ScrollToTop from './components/shared/ScrollToTop';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import CartDrawer from './components/cart/CartDrawer';
@@ -8,13 +8,12 @@ import Notification from './components/shared/Notification';
 import CookieBanner from './components/shared/CookieBanner';
 import SearchOverlay from './components/shared/SearchOverlay';
 import SplashScreen from './components/shared/SplashScreen';
-import { useAdminStore, useAppStore } from './context/store';
+import { useAdminStore } from './context/store';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 
 // Lazy loaded components (code-splitting)
 const AdminLogin = lazy(() => import('./components/admin/AdminLogin'));
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel'));
-const EarlyAccess = lazy(() => import('./pages/EarlyAccess'));
 const Home = lazy(() => import('./pages/Home'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const Shop = lazy(() => import('./pages/Shop'));
@@ -35,16 +34,6 @@ const PageLoader = () => (
     <style>{`@keyframes pulse { 0%, 100% { opacity: 0.5; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1); } }`}</style>
   </div>
 );
-
-const ProtectedRoute = () => {
-  const { isSiteUnlocked } = useAppStore();
-  const { isAdmin } = useAdminStore();
-  
-  if (!isSiteUnlocked && !isAdmin) {
-    return <Navigate to="/" replace />;
-  }
-  return <Outlet />;
-};
 
 const App: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -68,13 +57,6 @@ const App: React.FC = () => {
       <Routes>
         <Route
           path="/"
-          element={
-            <Suspense fallback={<PageLoader />}><EarlyAccess /></Suspense>
-          }
-        />
-        <Route element={<ProtectedRoute />}>
-          <Route
-            path="/home"
           element={
             <>
               <Navbar onOpenCart={() => setIsCartOpen(true)} onOpenSearch={() => setIsSearchOpen(true)} />
@@ -149,7 +131,6 @@ const App: React.FC = () => {
             <Suspense fallback={<PageLoader />}><Checkout /></Suspense>
           }
         />
-        </Route>
       </Routes>
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />

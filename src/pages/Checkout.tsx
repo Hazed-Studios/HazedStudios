@@ -354,7 +354,7 @@ const Checkout: React.FC = () => {
   return (
     <div className="page-view open" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <div className="ck-nav">
-        <Link to="/home" className="ck-logo">
+        <Link to="/" className="ck-logo">
           <img src={`${import.meta.env.BASE_URL}images/logo.png`} alt="Hazed Studios" style={{ height: '110px', objectFit: 'contain' }} />
         </Link>
       </div>
@@ -636,7 +636,7 @@ const Checkout: React.FC = () => {
               )}
             </div>
           </div>
-          <Link to="/home" style={{ marginTop: '40px', padding: '16px 32px', background: 'var(--cr)', color: 'var(--bg)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.2em', fontSize: '12px', fontWeight: 600, borderRadius: '8px', transition: 'background 0.3s, transform 0.2s', display: 'inline-block' }} onMouseOver={(e) => e.currentTarget.style.background = 'var(--dk)'} onMouseOut={(e) => e.currentTarget.style.background = 'var(--cr)'} onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'} onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+          <Link to="/" style={{ marginTop: '40px', padding: '16px 32px', background: 'var(--cr)', color: 'var(--bg)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.2em', fontSize: '12px', fontWeight: 600, borderRadius: '8px', transition: 'background 0.3s, transform 0.2s', display: 'inline-block' }} onMouseOver={(e) => e.currentTarget.style.background = 'var(--dk)'} onMouseOut={(e) => e.currentTarget.style.background = 'var(--cr)'} onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'} onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}>
             Back to Home Page
           </Link>
         </div>
