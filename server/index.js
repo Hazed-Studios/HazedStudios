@@ -461,13 +461,24 @@ app.post('/api/admin/analytics/detailed', async (req, res) => {
 
   try {
     const fetchVercel = async (endpoint, query = '', type = 'visits') => {
-      const q = query ? `&${query}` : '';
-      const response = await fetch(`https://api.vercel.com/v1/query/web-analytics/${type}/${endpoint}?projectId=${process.env.VERCEL_PROJECT_ID}${q}`, {
+      // Fetch data for the last 30 days
+      const sinceDate = new Date();
+      sinceDate.setDate(sinceDate.getDate() - 30);
+      const since = sinceDate.toISOString();
+      const until = new Date().toISOString();
+      
+      let q = `since=${since}&until=${until}`;
+      if (query) q += `&${query}`;
+
+      const response = await fetch(`https://api.vercel.com/v1/query/web-analytics/${type}/${endpoint}?projectId=${process.env.VERCEL_PROJECT_ID}&${q}`, {
         headers: {
           'Authorization': `Bearer ${process.env.VERCEL_TOKEN}`
         }
       });
-      return await response.json();
+      const res = await response.json();
+      // the vercel api puts the actual payload in `.data`
+      // if there's an error (e.g. no data), we return an empty array or object as a fallback
+      return res.data || (res.error ? [] : res);
     };
 
     const [
