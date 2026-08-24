@@ -149,7 +149,8 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
                     width={1200}
                     height={1600}
                     loading="eager"
-                    decoding="sync"
+                    decoding="async"
+                    fetchPriority="high"
                     className="sp-img" 
                     style={{ 
                       flex: '0 0 100%',
