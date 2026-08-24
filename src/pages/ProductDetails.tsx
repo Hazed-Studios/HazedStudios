@@ -148,8 +148,8 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
                     alt={`The Polo Linen Shirt - view ${idx + 1}`} 
                     width={1200}
                     height={1600}
-                    loading={idx === 0 ? "eager" : "lazy"}
-                    decoding="async"
+                    loading="eager"
+                    decoding="sync"
                     className="sp-img" 
                     style={{ 
                       flex: '0 0 100%',

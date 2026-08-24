@@ -73,7 +73,7 @@ export const useProducts = () => {
 
           if (row.name.includes('Natural Linen')) {
             // Front, Side, Back
-            gallery = ['images/IMG_9196.webp', 'images/IMG_9055.webp', 'images/IMG_9132.webp'];
+            gallery = ['images/IMG_9132.webp', 'images/IMG_9196.webp', 'images/IMG_9055.webp'];
             visual = 'images/natural linen.webp';
           } else if (row.name.includes('Baby Blue')) {
             // Front, Side, Back, Side
