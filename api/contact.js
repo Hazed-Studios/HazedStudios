@@ -1,5 +1,5 @@
-const multer = require('multer');
-const nodemailer = require('nodemailer');
+import multer from 'multer';
+import nodemailer from 'nodemailer';
 
 const upload = multer({ storage: multer.memoryStorage() });
 
