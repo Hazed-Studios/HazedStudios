@@ -18,10 +18,10 @@ const FALLBACK_PRODUCTS: Product[] = [
     serial: 'DROP-01-POLO',
     visual: `${import.meta.env.BASE_URL}images/baby blue.webp`,
     gallery: [
-      `${import.meta.env.BASE_URL}images/IMG_8844.webp`,
-      `${import.meta.env.BASE_URL}images/IMG_8829.webp`,
-      `${import.meta.env.BASE_URL}images/IMG_8868.webp`,
-      `${import.meta.env.BASE_URL}images/IMG_8853.webp`,
+      `${import.meta.env.BASE_URL}images/1B.jpeg`,
+      `${import.meta.env.BASE_URL}images/2B.jpeg`,
+      `${import.meta.env.BASE_URL}images/3B.jpeg`,
+      `${import.meta.env.BASE_URL}images/4B.jpeg`,
     ],
   },
 ];
@@ -73,11 +73,11 @@ export const useProducts = () => {
 
           if (row.name.includes('Natural Linen')) {
             // Front, Side, Back, Side
-            gallery = ['images/IMG_9177.webp', 'images/IMG_9196.webp', 'images/IMG_9132.webp', 'images/IMG_9055.webp'];
+            gallery = ['images/1N.jpg', 'images/2N.jpg', 'images/3N.jpg', 'images/4N.jpg'];
             visual = 'images/natural linen.webp';
           } else if (row.name.includes('Baby Blue')) {
             // Front, Side, Back, Side
-            gallery = ['images/IMG_8844.webp', 'images/IMG_8829.webp', 'images/IMG_8868.webp', 'images/IMG_8853.webp'];
+            gallery = ['images/1B.jpeg', 'images/2B.jpeg', 'images/3B.jpeg', 'images/4B.jpeg'];
             visual = 'images/baby blue.webp';
           }
 
