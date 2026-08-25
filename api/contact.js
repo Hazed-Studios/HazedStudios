@@ -1,7 +1,10 @@
 import multer from 'multer';
 import nodemailer from 'nodemailer';
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB cap
+});
 
 export const config = {
   api: {
