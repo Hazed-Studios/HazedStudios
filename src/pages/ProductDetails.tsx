@@ -62,17 +62,27 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
     setCurrentImageIndex((i) => (i - 1 + images.length) % images.length);
   };
 
+  const [touchOffset, setTouchOffset] = useState(0);
+
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
+    setTouchOffset(0);
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    const currentX = e.targetTouches[0].clientX;
+    setTouchEnd(currentX);
+    if (touchStart !== null) {
+      setTouchOffset(currentX - touchStart);
+    }
   };
 
   const onTouchEndEvent = () => {
-    if (!touchStart || !touchEnd) return;
+    if (!touchStart || !touchEnd) {
+      setTouchOffset(0);
+      return;
+    }
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
@@ -82,6 +92,10 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
     } else if (isRightSwipe) {
       prevImage();
     }
+    
+    setTouchOffset(0);
+    setTouchStart(null);
+    setTouchEnd(null);
   };
 
   const handleAddToCart = () => {
@@ -137,8 +151,8 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
                   display: 'flex', 
                   width: '100%', 
                   height: '100%',
-                  transition: 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)', 
-                  transform: `translateX(-${currentImageIndex * 100}%)` 
+                  transition: touchOffset !== 0 ? 'none' : 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)', 
+                  transform: `translateX(calc(-${currentImageIndex * 100}% + ${touchOffset}px))` 
                 }}
               >
                 {images.map((src: string, idx: number) => (
