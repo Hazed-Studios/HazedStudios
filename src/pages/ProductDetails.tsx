@@ -55,11 +55,11 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
 
   const nextImage = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    setCurrentImageIndex((i) => (i + 1) % images.length);
+    setCurrentImageIndex((i) => (i < images.length - 1 ? i + 1 : i));
   };
   const prevImage = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    setCurrentImageIndex((i) => (i - 1 + images.length) % images.length);
+    setCurrentImageIndex((i) => (i > 0 ? i - 1 : i));
   };
 
   const [touchOffset, setTouchOffset] = useState(0);
@@ -183,7 +183,7 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
                   <button 
                     className="desktop-arrow"
                     onClick={prevImage}
-                    style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', background: 'var(--bg)', backdropFilter: 'blur(4px)', border: '1px solid var(--bd)', width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--dk)', transition: 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)', boxShadow: '0 4px 14px rgba(26,18,8,0.08)', zIndex: 10 }}
+                    style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', background: 'var(--bg)', backdropFilter: 'blur(4px)', border: '1px solid var(--bd)', width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer', display: currentImageIndex > 0 ? 'flex' : 'none', alignItems: 'center', justifyContent: 'center', color: 'var(--dk)', transition: 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)', boxShadow: '0 4px 14px rgba(26,18,8,0.08)', zIndex: 10 }}
                     onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--cr)'; e.currentTarget.style.color = 'var(--bg)'; e.currentTarget.style.borderColor = 'var(--cr)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1.05)'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg)'; e.currentTarget.style.color = 'var(--dk)'; e.currentTarget.style.borderColor = 'var(--bd)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1)'; }}
                   >
@@ -192,7 +192,7 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
                   <button 
                     className="desktop-arrow"
                     onClick={nextImage}
-                    style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'var(--bg)', backdropFilter: 'blur(4px)', border: '1px solid var(--bd)', width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--dk)', transition: 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)', boxShadow: '0 4px 14px rgba(26,18,8,0.08)', zIndex: 10 }}
+                    style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'var(--bg)', backdropFilter: 'blur(4px)', border: '1px solid var(--bd)', width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer', display: currentImageIndex < images.length - 1 ? 'flex' : 'none', alignItems: 'center', justifyContent: 'center', color: 'var(--dk)', transition: 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)', boxShadow: '0 4px 14px rgba(26,18,8,0.08)', zIndex: 10 }}
                     onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--cr)'; e.currentTarget.style.color = 'var(--bg)'; e.currentTarget.style.borderColor = 'var(--cr)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1.05)'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg)'; e.currentTarget.style.color = 'var(--dk)'; e.currentTarget.style.borderColor = 'var(--bd)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1)'; }}
                   >
