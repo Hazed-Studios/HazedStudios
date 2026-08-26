@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import { useCartStore, useNotificationStore } from '../context/store';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -33,9 +33,10 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
   const [selectedSize, setSelectedSize] = useState<string>('M');
   const [quantity, setQuantity] = useState<number>(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [isZoomed, setIsZoomed] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const touchStartRef = useRef<number | null>(null);
+  const touchEndRef = useRef<number | null>(null);
   const [totalStockLeft, setTotalStockLeft] = useState<number | null>(null);
   const [showSizeChart, setShowSizeChart] = useState(false);
   const navigate = useNavigate();
@@ -62,40 +63,54 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
     setCurrentImageIndex((i) => (i > 0 ? i - 1 : i));
   };
 
-  const [touchOffset, setTouchOffset] = useState(0);
-
   const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-    setTouchOffset(0);
+    touchStartRef.current = e.targetTouches[0].clientX;
+    touchEndRef.current = null;
+    if (carouselRef.current) {
+      carouselRef.current.style.transition = 'none';
+    }
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
+    if (touchStartRef.current === null) return;
     const currentX = e.targetTouches[0].clientX;
-    setTouchEnd(currentX);
-    if (touchStart !== null) {
-      setTouchOffset(currentX - touchStart);
+    touchEndRef.current = currentX;
+    
+    const offset = currentX - touchStartRef.current;
+    if (carouselRef.current) {
+      carouselRef.current.style.transform = `translateX(calc(-${currentImageIndex * 100}% + ${offset}px))`;
     }
   };
 
   const onTouchEndEvent = () => {
-    if (!touchStart || !touchEnd) {
-      setTouchOffset(0);
+    if (touchStartRef.current === null || touchEndRef.current === null) {
+      if (carouselRef.current) {
+        carouselRef.current.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+        carouselRef.current.style.transform = `translateX(-${currentImageIndex * 100}%)`;
+      }
+      touchStartRef.current = null;
+      touchEndRef.current = null;
       return;
     }
-    const distance = touchStart - touchEnd;
+    
+    const distance = touchStartRef.current - touchEndRef.current;
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
     
-    if (isLeftSwipe) {
-      nextImage();
-    } else if (isRightSwipe) {
-      prevImage();
+    if (carouselRef.current) {
+       carouselRef.current.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+       const nextIndex = (isLeftSwipe && currentImageIndex < images.length - 1) ? currentImageIndex + 1 : (isRightSwipe && currentImageIndex > 0) ? currentImageIndex - 1 : currentImageIndex;
+       carouselRef.current.style.transform = `translateX(-${nextIndex * 100}%)`;
+    }
+
+    if (isLeftSwipe && currentImageIndex < images.length - 1) {
+      setCurrentImageIndex(i => i + 1);
+    } else if (isRightSwipe && currentImageIndex > 0) {
+      setCurrentImageIndex(i => i - 1);
     }
     
-    setTouchOffset(0);
-    setTouchStart(null);
-    setTouchEnd(null);
+    touchStartRef.current = null;
+    touchEndRef.current = null;
   };
 
   const handleAddToCart = () => {
@@ -147,12 +162,13 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
               style={{ cursor: 'zoom-in' }}
             >
               <div 
+                ref={carouselRef}
                 style={{ 
                   display: 'flex', 
                   width: '100%', 
                   height: '100%',
-                  transition: touchOffset !== 0 ? 'none' : 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)', 
-                  transform: `translateX(calc(-${currentImageIndex * 100}% + ${touchOffset}px))` 
+                  transition: 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)', 
+                  transform: `translateX(-${currentImageIndex * 100}%)` 
                 }}
               >
                 {images.map((src: string, idx: number) => (
