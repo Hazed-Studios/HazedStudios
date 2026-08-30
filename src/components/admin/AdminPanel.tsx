@@ -13,7 +13,7 @@ import { useAdminService, useOrders, useCustomers, useProducts, useAnalytics, us
 import { exporters, whatsapp } from './admin.utils';
 import { useNavigate } from 'react-router-dom';
 
-type TabType = 'overview' | 'orders' | 'customers' | 'stock' | 'finance' | 'early access' | 'analytics';
+type TabType = 'overview' | 'orders' | 'customers' | 'stock' | 'finance' | 'early access' | 'analytics' | 'insights';
 
 const STATUS_CLASS: Record<string, { bg: string; color: string; border: string }> = {
   Pending: { bg: 'rgba(214,137,16,.1)', color: 'var(--amber)', border: 'rgba(214,137,16,.2)' },
@@ -309,6 +309,70 @@ const AdminPanel: React.FC = () => {
     return Object.entries(revs).sort((a, b) => b[1].rev - a[1].rev);
   })();
 
+  // ===== Sales Insights: parse "2x M (Baby Blue)" style labels to get
+  // real units sold per size and per color, not just order counts =====
+  const parseOrderLine = (o: any) => {
+    const match = /^(\d+)x\s+(\S+)/.exec(o.size || '');
+    return {
+      qty: match ? parseInt(match[1], 10) : 1,
+      size: match ? match[2] : (o.size || 'Unknown'),
+    };
+  };
+
+  const unitsBySize = (() => {
+    const bySize: Record<string, number> = {};
+    validOrders.forEach((o: any) => {
+      const { qty, size } = parseOrderLine(o);
+      bySize[size] = (bySize[size] || 0) + qty;
+    });
+    return Object.entries(bySize).sort((a, b) => b[1] - a[1]);
+  })();
+
+  const unitsByColor = (() => {
+    const byColor: Record<string, number> = {};
+    validOrders.forEach((o: any) => {
+      const { qty } = parseOrderLine(o);
+      const name = o.products?.name || 'Unknown';
+      byColor[name] = (byColor[name] || 0) + qty;
+    });
+    return Object.entries(byColor).sort((a, b) => b[1] - a[1]);
+  })();
+
+  // Restock priority: real sales velocity (units/day since first order)
+  // vs current stock per product+size, so restocking is based on actual
+  // demand rather than a guess.
+  const earliestOrderDate = validOrders.length
+    ? Math.min(...validOrders.map((o: any) => new Date(o.created_at).getTime()))
+    : Date.now();
+  const daysSinceLaunch = Math.max(1, (Date.now() - earliestOrderDate) / (1000 * 60 * 60 * 24));
+
+  const restockPriority = (() => {
+    const soldByProductSize: Record<string, number> = {};
+    validOrders.forEach((o: any) => {
+      const { qty, size } = parseOrderLine(o);
+      const key = `${o.product_id}|${size}`;
+      soldByProductSize[key] = (soldByProductSize[key] || 0) + qty;
+    });
+
+    const rows: { product: string; size: string; sold: number; velocity: number; currentStock: number; daysLeft: number | null }[] = [];
+    products.forEach((p: any) => {
+      Object.entries(p.size_stock || {}).forEach(([size, stock]) => {
+        const key = `${p.id}|${size}`;
+        const sold = soldByProductSize[key] || 0;
+        const velocity = sold / daysSinceLaunch;
+        const currentStock = Number(stock) || 0;
+        const daysLeft = velocity > 0 ? Math.round(currentStock / velocity) : null;
+        rows.push({ product: p.name, size, sold, velocity, currentStock, daysLeft });
+      });
+    });
+
+    return rows.sort((a, b) => {
+      if (a.daysLeft === null) return 1;
+      if (b.daysLeft === null) return -1;
+      return a.daysLeft - b.daysLeft;
+    });
+  })();
+
   const overviewOrdersPagination = usePagination(orders, 10);
   const ordersPagination = usePagination(orders, 50);
   const customersPagination = usePagination(customersWithStats, 50);
@@ -509,7 +573,7 @@ const AdminPanel: React.FC = () => {
 
         <div className={`adm-nav-menu ${menuOpen ? 'open' : ''}`}>
           <div className="adm-panel-tabs">
-            {(['overview', 'analytics', 'orders', 'customers', 'stock', 'finance', 'early access'] as TabType[]).map((tab) => (
+            {(['overview', 'insights', 'analytics', 'orders', 'customers', 'stock', 'finance', 'early access'] as TabType[]).map((tab) => (
               <button
                 key={tab}
                 className={activeTab === tab ? 'active' : ''}
@@ -1209,6 +1273,117 @@ const AdminPanel: React.FC = () => {
                 </div>
               </div>
 
+            </div>
+          </div>
+        )}
+
+        {/* ===== INSIGHTS (sales by size/color, restock priority) ===== */}
+        {activeTab === 'insights' && (
+          <div>
+            <div className="adm-page-header">
+              <div>
+                <div style={styles.pageTitle}>Sales Insights</div>
+                <div style={styles.pageSub}>Based on {validOrders.length} orders — what's actually selling</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '24px' }}>
+              {/* Best Selling Sizes */}
+              <div style={styles.admCard}>
+                <div style={styles.admCardHead}>
+                  <div style={styles.admCardTtl}>Best Selling Sizes</div>
+                </div>
+                <div style={{ padding: '20px' }}>
+                  {unitsBySize.length === 0 ? (
+                    <div style={{ color: 'var(--mu)', fontSize: '11px' }}>No sales yet.</div>
+                  ) : (
+                    unitsBySize.map(([size, units]) => {
+                      const maxUnits = unitsBySize[0][1];
+                      const pct = Math.round((units / maxUnits) * 100);
+                      return (
+                        <div key={size} style={{ marginBottom: '14px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                            <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{size}</span>
+                            <span style={{ fontSize: '13px', color: 'var(--cr)' }}>{units} sold</span>
+                          </div>
+                          <div style={{ height: '4px', background: 'rgba(192,127,69,.12)' }}>
+                            <div style={{ height: '100%', width: `${pct}%`, background: 'var(--cr)' }} />
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
+              {/* Best Selling Color */}
+              <div style={styles.admCard}>
+                <div style={styles.admCardHead}>
+                  <div style={styles.admCardTtl}>Best Selling Color</div>
+                </div>
+                <div style={{ padding: '20px' }}>
+                  {unitsByColor.length === 0 ? (
+                    <div style={{ color: 'var(--mu)', fontSize: '11px' }}>No sales yet.</div>
+                  ) : (
+                    unitsByColor.map(([name, units]) => {
+                      const maxUnits = unitsByColor[0][1];
+                      const pct = Math.round((units / maxUnits) * 100);
+                      return (
+                        <div key={name} style={{ marginBottom: '14px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                            <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{name}</span>
+                            <span style={{ fontSize: '13px', color: 'var(--cr)' }}>{units} sold</span>
+                          </div>
+                          <div style={{ height: '4px', background: 'rgba(192,127,69,.12)' }}>
+                            <div style={{ height: '100%', width: `${pct}%`, background: 'var(--cr)' }} />
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Restock Priority */}
+            <div style={styles.admCard}>
+              <div style={styles.admCardHead}>
+                <div style={styles.admCardTtl}>Restock Priority</div>
+              </div>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={styles.table}>
+                  <thead>
+                    <tr>
+                      {['Product', 'Size', 'Units Sold', 'Current Stock', 'Est. Days Left'].map((h) => (
+                        <th key={h} style={styles.th}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {restockPriority.length === 0 ? (
+                      <tr><td colSpan={5} style={styles.emptyCell}>No stock data yet.</td></tr>
+                    ) : (
+                      restockPriority.map((r, i) => {
+                        const urgent = r.daysLeft !== null && r.daysLeft <= 14;
+                        return (
+                          <tr key={i}>
+                            <td style={styles.td}>{r.product}</td>
+                            <td style={styles.td}>{r.size}</td>
+                            <td style={styles.td}>{r.sold}</td>
+                            <td style={styles.td}>{r.currentStock}</td>
+                            <td style={{ ...styles.td, color: urgent ? 'var(--red)' : 'var(--dk)', fontWeight: urgent ? 600 : 400 }}>
+                              {r.daysLeft === null ? '—' : `${r.daysLeft} days${urgent ? ' — restock soon' : ''}`}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div style={{ fontSize: '10px', color: 'var(--mu)', marginTop: '12px' }}>
+              Estimate based on average sales velocity since your first order ({Math.round(daysSinceLaunch)} days ago). Treat as a guide, not a guarantee.
             </div>
           </div>
         )}
