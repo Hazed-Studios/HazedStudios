@@ -12,6 +12,10 @@ import { supabase } from '../../lib/supabase';
 import { useAdminService, useOrders, useCustomers, useProducts, useAnalytics, usePagination, useWaitlist } from './useAdmin';
 import { exporters, whatsapp } from './admin.utils';
 import { useNavigate } from 'react-router-dom';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell,
+} from 'recharts';
 
 type TabType = 'overview' | 'orders' | 'customers' | 'stock' | 'finance' | 'early access' | 'analytics' | 'insights';
 
@@ -1287,8 +1291,8 @@ const AdminPanel: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '24px' }}>
-              {/* Best Selling Sizes */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px', marginBottom: '24px' }}>
+              {/* Best Selling Sizes - Bar Chart */}
               <div style={styles.admCard}>
                 <div style={styles.admCardHead}>
                   <div style={styles.admCardTtl}>Best Selling Sizes</div>
@@ -1297,26 +1301,23 @@ const AdminPanel: React.FC = () => {
                   {unitsBySize.length === 0 ? (
                     <div style={{ color: 'var(--mu)', fontSize: '11px' }}>No sales yet.</div>
                   ) : (
-                    unitsBySize.map(([size, units]) => {
-                      const maxUnits = unitsBySize[0][1];
-                      const pct = Math.round((units / maxUnits) * 100);
-                      return (
-                        <div key={size} style={{ marginBottom: '14px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                            <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{size}</span>
-                            <span style={{ fontSize: '13px', color: 'var(--cr)' }}>{units} sold</span>
-                          </div>
-                          <div style={{ height: '4px', background: 'rgba(192,127,69,.12)' }}>
-                            <div style={{ height: '100%', width: `${pct}%`, background: 'var(--cr)' }} />
-                          </div>
-                        </div>
-                      );
-                    })
+                    <ResponsiveContainer width="100%" height={220}>
+                      <BarChart data={unitsBySize.map(([size, units]) => ({ size, units }))}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(192,127,69,.12)" vertical={false} />
+                        <XAxis dataKey="size" tick={{ fontSize: 11, fill: 'var(--mu)' }} axisLine={{ stroke: 'var(--bd)' }} tickLine={false} />
+                        <YAxis tick={{ fontSize: 11, fill: 'var(--mu)' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                        <Tooltip
+                          contentStyle={{ background: 'var(--bg2)', border: '1px solid var(--bd)', fontSize: 12 }}
+                          formatter={(value: any) => [`${value} sold`, '']}
+                        />
+                        <Bar dataKey="units" fill="var(--cr)" radius={[3, 3, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
                   )}
                 </div>
               </div>
 
-              {/* Best Selling Color */}
+              {/* Best Selling Color - Pie Chart */}
               <div style={styles.admCard}>
                 <div style={styles.admCardHead}>
                   <div style={styles.admCardTtl}>Best Selling Color</div>
@@ -1325,30 +1326,80 @@ const AdminPanel: React.FC = () => {
                   {unitsByColor.length === 0 ? (
                     <div style={{ color: 'var(--mu)', fontSize: '11px' }}>No sales yet.</div>
                   ) : (
-                    unitsByColor.map(([name, units]) => {
-                      const maxUnits = unitsByColor[0][1];
-                      const pct = Math.round((units / maxUnits) * 100);
-                      return (
-                        <div key={name} style={{ marginBottom: '14px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                            <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{name}</span>
-                            <span style={{ fontSize: '13px', color: 'var(--cr)' }}>{units} sold</span>
-                          </div>
-                          <div style={{ height: '4px', background: 'rgba(192,127,69,.12)' }}>
-                            <div style={{ height: '100%', width: `${pct}%`, background: 'var(--cr)' }} />
-                          </div>
-                        </div>
-                      );
-                    })
+                    <ResponsiveContainer width="100%" height={220}>
+                      <PieChart>
+                        <Pie
+                          data={unitsByColor.map(([name, units]) => ({ name, units }))}
+                          dataKey="units"
+                          nameKey="name"
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={75}
+                          label={({ name, units }: any) => `${name.split('—').pop()?.trim() || name}: ${units}`}
+                          labelLine={false}
+                        >
+                          {unitsByColor.map((_, i) => (
+                            <Cell key={i} fill={['#C07F45', '#97C6E0', '#9a8878', '#27a06a'][i % 4]} />
+                          ))}
+                        </Pie>
+                        <Tooltip contentStyle={{ background: 'var(--bg2)', border: '1px solid var(--bd)', fontSize: 12 }} />
+                      </PieChart>
+                    </ResponsiveContainer>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Restock Priority */}
+            {/* Restock Urgency Chart */}
             <div style={styles.admCard}>
               <div style={styles.admCardHead}>
-                <div style={styles.admCardTtl}>Restock Priority</div>
+                <div style={styles.admCardTtl}>Restock Urgency — Estimated Days Left</div>
+              </div>
+              <div style={{ padding: '20px' }}>
+                {restockPriority.length === 0 ? (
+                  <div style={{ color: 'var(--mu)', fontSize: '11px' }}>No stock data yet.</div>
+                ) : (
+                  <ResponsiveContainer width="100%" height={Math.max(180, restockPriority.length * 40)}>
+                    <BarChart
+                      layout="vertical"
+                      data={restockPriority
+                        .filter((r) => r.daysLeft !== null)
+                        .map((r) => ({
+                          label: `${r.product.split('—').pop()?.trim() || r.product} - ${r.size}`,
+                          daysLeft: r.daysLeft,
+                          urgent: r.daysLeft !== null && r.daysLeft <= 14,
+                        }))}
+                      margin={{ left: 20 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(192,127,69,.12)" horizontal={false} />
+                      <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--mu)' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                      <YAxis type="category" dataKey="label" tick={{ fontSize: 11, fill: 'var(--dk)' }} axisLine={false} tickLine={false} width={140} />
+                      <Tooltip
+                        contentStyle={{ background: 'var(--bg2)', border: '1px solid var(--bd)', fontSize: 12 }}
+                        formatter={(value: any) => [`${value} days`, 'Est. left']}
+                      />
+                      <Bar dataKey="daysLeft" radius={[0, 3, 3, 0]}>
+                        {restockPriority
+                          .filter((r) => r.daysLeft !== null)
+                          .map((r, i) => (
+                            <Cell key={i} fill={r.daysLeft !== null && r.daysLeft <= 14 ? 'var(--red)' : 'var(--cr)'} />
+                          ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+                {restockPriority.some((r) => r.daysLeft === null) && (
+                  <div style={{ fontSize: '10px', color: 'var(--mu)', marginTop: '8px' }}>
+                    Sizes with no sales yet aren't shown on this chart (no velocity to estimate from) — see the table below for those.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Restock Priority Table - exact numbers */}
+            <div style={{ ...styles.admCard, marginTop: '24px' }}>
+              <div style={styles.admCardHead}>
+                <div style={styles.admCardTtl}>Restock Priority — Exact Numbers</div>
               </div>
               <div style={{ overflowX: 'auto' }}>
                 <table style={styles.table}>
