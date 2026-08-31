@@ -1338,9 +1338,15 @@ const AdminPanel: React.FC = () => {
                           label={({ name, units }: any) => `${name.split('—').pop()?.trim() || name}: ${units}`}
                           labelLine={false}
                         >
-                          {unitsByColor.map((_, i) => (
-                            <Cell key={i} fill={['#C07F45', '#97C6E0', '#9a8878', '#27a06a'][i % 4]} />
-                          ))}
+                          {unitsByColor.map(([name], i) => {
+                            const colorMap: Record<string, string> = {
+                              'Baby Blue': '#a4c2d3',
+                              'Natural Linen': '#e3dac9',
+                            };
+                            const matchedColor = Object.keys(colorMap).find((c) => name.includes(c));
+                            const fallback = ['#C07F45', '#9a8878', '#27a06a', '#5a9abf'][i % 4];
+                            return <Cell key={i} fill={matchedColor ? colorMap[matchedColor] : fallback} />;
+                          })}
                         </Pie>
                         <Tooltip contentStyle={{ background: 'var(--bg2)', border: '1px solid var(--bd)', fontSize: 12 }} />
                       </PieChart>
