@@ -22,7 +22,7 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
   const { id } = useParams<{ id: string }>();
   const initialProduct = products.find(p => String(p.id) === id);
   const initialColor = initialProduct?.name.includes('Baby Blue') ? 'Baby Blue' : 'Natural Linen';
-  
+
   const [selectedColor, setSelectedColor] = useState<string>(initialColor);
 
   useEffect(() => {
@@ -75,7 +75,7 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
     if (touchStartRef.current === null) return;
     const currentX = e.targetTouches[0].clientX;
     touchEndRef.current = currentX;
-    
+
     const offset = currentX - touchStartRef.current;
     if (carouselRef.current) {
       carouselRef.current.style.transform = `translateX(calc(-${currentImageIndex * 100}% + ${offset}px))`;
@@ -92,15 +92,15 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
       touchEndRef.current = null;
       return;
     }
-    
+
     const distance = touchStartRef.current - touchEndRef.current;
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
-    
+
     if (carouselRef.current) {
-       carouselRef.current.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
-       const nextIndex = (isLeftSwipe && currentImageIndex < images.length - 1) ? currentImageIndex + 1 : (isRightSwipe && currentImageIndex > 0) ? currentImageIndex - 1 : currentImageIndex;
-       carouselRef.current.style.transform = `translateX(-${nextIndex * 100}%)`;
+      carouselRef.current.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+      const nextIndex = (isLeftSwipe && currentImageIndex < images.length - 1) ? currentImageIndex + 1 : (isRightSwipe && currentImageIndex > 0) ? currentImageIndex - 1 : currentImageIndex;
+      carouselRef.current.style.transform = `translateX(-${nextIndex * 100}%)`;
     }
 
     if (isLeftSwipe && currentImageIndex < images.length - 1) {
@@ -108,7 +108,7 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
     } else if (isRightSwipe && currentImageIndex > 0) {
       setCurrentImageIndex(i => i - 1);
     }
-    
+
     touchStartRef.current = null;
     touchEndRef.current = null;
   };
@@ -153,7 +153,7 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
           {loading ? (
             <div style={{ color: 'var(--mu)', fontSize: '11px', letterSpacing: '.2em' }}>CURATING...</div>
           ) : (
-            <div 
+            <div
               className="sp-img-container"
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
@@ -161,42 +161,42 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
               onClick={() => setIsZoomed(true)}
               style={{ cursor: 'zoom-in' }}
             >
-              <div 
+              <div
                 ref={carouselRef}
-                style={{ 
-                  display: 'flex', 
-                  width: '100%', 
+                style={{
+                  display: 'flex',
+                  width: '100%',
                   height: '100%',
-                  transition: 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)', 
-                  transform: `translateX(-${currentImageIndex * 100}%)` 
+                  transition: 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
+                  transform: `translateX(-${currentImageIndex * 100}%)`
                 }}
               >
                 {images.map((src: string, idx: number) => (
-                  <img 
+                  <img
                     key={idx}
-                    src={src} 
-                    alt={`The Polo Linen Shirt - view ${idx + 1}`} 
+                    src={src}
+                    alt={`The Polo Linen Shirt - view ${idx + 1}`}
                     width={1200}
                     height={1600}
                     loading="eager"
                     decoding="async"
                     fetchPriority="high"
-                    className="sp-img" 
-                    style={{ 
+                    className="sp-img"
+                    style={{
                       flex: '0 0 100%',
-                      width: '100%', 
-                      height: '100%', 
+                      width: '100%',
+                      height: '100%',
                       objectFit: 'cover',
                       margin: 0,
                       boxShadow: 'none',
                       pointerEvents: 'none' // Prevent dragging image which interferes with swipe
-                    }} 
+                    }}
                   />
                 ))}
               </div>
               {images.length > 1 && (
                 <>
-                  <button 
+                  <button
                     className="desktop-arrow"
                     onClick={prevImage}
                     style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', background: 'var(--bg)', backdropFilter: 'blur(4px)', border: '1px solid var(--bd)', width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer', display: currentImageIndex > 0 ? 'flex' : 'none', alignItems: 'center', justifyContent: 'center', color: 'var(--dk)', transition: 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)', boxShadow: '0 4px 14px rgba(26,18,8,0.08)', zIndex: 10 }}
@@ -205,7 +205,7 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
                   >
                     <ChevronLeft size={22} strokeWidth={1.5} />
                   </button>
-                  <button 
+                  <button
                     className="desktop-arrow"
                     onClick={nextImage}
                     style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'var(--bg)', backdropFilter: 'blur(4px)', border: '1px solid var(--bd)', width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer', display: currentImageIndex < images.length - 1 ? 'flex' : 'none', alignItems: 'center', justifyContent: 'center', color: 'var(--dk)', transition: 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)', boxShadow: '0 4px 14px rgba(26,18,8,0.08)', zIndex: 10 }}
@@ -240,14 +240,14 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
                     </span>
                     <span style={{ color: 'var(--cr)', display: 'inline-flex', alignItems: 'center', gap: '12px', whiteSpace: 'nowrap' }}>
                       {thePolo.price.toLocaleString()} EGP
-                      <span style={{ 
+                      <span style={{
                         fontFamily: 'system-ui, -apple-system, sans-serif',
-                        fontSize: '11px', 
-                        textTransform: 'uppercase', 
-                        letterSpacing: '0.05em', 
-                        color: 'var(--bg)', 
-                        background: 'var(--cr)', 
-                        padding: '4px 8px', 
+                        fontSize: '11px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        color: 'var(--bg)',
+                        background: 'var(--cr)',
+                        padding: '4px 8px',
                         borderRadius: '4px',
                         fontWeight: 700
                       }}>
@@ -294,8 +294,8 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
                         cursor: 'pointer',
                         transition: 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
                         outline: 'none',
-                        boxShadow: selectedColor === c 
-                          ? '0 0 0 2px var(--bg), 0 0 0 4px var(--cr)' 
+                        boxShadow: selectedColor === c
+                          ? '0 0 0 2px var(--bg), 0 0 0 4px var(--cr)'
                           : 'inset 0 0 0 1px rgba(0,0,0,0.1)'
                       }}
                       title={c}
@@ -308,8 +308,8 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
               <div className="spc-section">
                 <div className="spc-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>Size</span>
-                  <button 
-                    onClick={() => setShowSizeChart(true)} 
+                  <button
+                    onClick={() => setShowSizeChart(true)}
                     style={{ background: 'none', border: 'none', color: 'var(--mu)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '.1em', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
                   >
                     Size Guide
@@ -337,8 +337,8 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
                 <div className="spc-options" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <button style={{ border: '1px solid var(--bd)', background: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }} onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
                   <span style={{ fontSize: '16px' }}>{quantity}</span>
-                  <button 
-                    style={{ border: '1px solid var(--bd)', background: 'none', cursor: (thePolo && quantity >= (thePolo.sizeStock[selectedSize] || 0)) ? 'not-allowed' : 'pointer', opacity: (thePolo && quantity >= (thePolo.sizeStock[selectedSize] || 0)) ? 0.5 : 1, padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }} 
+                  <button
+                    style={{ border: '1px solid var(--bd)', background: 'none', cursor: (thePolo && quantity >= (thePolo.sizeStock[selectedSize] || 0)) ? 'not-allowed' : 'pointer', opacity: (thePolo && quantity >= (thePolo.sizeStock[selectedSize] || 0)) ? 0.5 : 1, padding: '8px 16px', borderRadius: '4px', fontSize: '16px', color: 'var(--dk)' }}
                     onClick={() => setQuantity(quantity + 1)}
                     disabled={thePolo && quantity >= (thePolo.sizeStock[selectedSize] || 0)}
                   >+</button>
@@ -346,17 +346,17 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px', marginBottom: '24px' }}>
-                <button 
-                  className="sp-atc" 
+                <button
+                  className="sp-atc"
                   onClick={handleAddToCart}
                   disabled={!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0}
                   style={{ opacity: (!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0) ? 0.5 : 1, cursor: (!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0) ? 'not-allowed' : 'pointer' }}
                 >
                   {(!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0) ? 'Out of Stock' : 'Add to Cart'}
                 </button>
-                <button 
-                  className="sp-atc" 
-                  style={{ background: 'transparent', color: 'var(--dk)', border: '1px solid var(--dk)', opacity: (!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0) ? 0.5 : 1, cursor: (!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0) ? 'not-allowed' : 'pointer' }} 
+                <button
+                  className="sp-atc"
+                  style={{ background: 'transparent', color: 'var(--dk)', border: '1px solid var(--dk)', opacity: (!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0) ? 0.5 : 1, cursor: (!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0) ? 'not-allowed' : 'pointer' }}
                   onClick={handleBuyNow}
                   disabled={!thePolo || (thePolo.sizeStock[selectedSize] || 0) === 0}
                 >
@@ -365,8 +365,7 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
               </div>
 
               <div className="sp-model-info">
-                <div><strong>First model:</strong> 179 cm, 70 kg, wearing size M in Natural Linen.</div>
-                <div style={{ marginTop: '8px' }}><strong>Second model:</strong> 170 cm, 60 kg, wearing size M in Baby Blue.</div>
+                <div><strong>The Model:</strong> 179 cm, 70 kg, wearing size M.</div>
               </div>
 
               <div className="sp-details">
@@ -380,14 +379,14 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
       </section>
 
       {isZoomed && (
-        <div 
+        <div
           style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(250, 246, 240, 0.98)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out' }}
           onClick={() => setIsZoomed(false)}
         >
-          <img 
-            src={images[currentImageIndex]} 
-            style={{ maxWidth: '95vw', maxHeight: '95vh', objectFit: 'contain', borderRadius: '4px', boxShadow: '0 20px 40px rgba(26, 18, 8, .1)' }} 
-            alt="Zoomed product" 
+          <img
+            src={images[currentImageIndex]}
+            style={{ maxWidth: '95vw', maxHeight: '95vh', objectFit: 'contain', borderRadius: '4px', boxShadow: '0 20px 40px rgba(26, 18, 8, .1)' }}
+            alt="Zoomed product"
           />
           <button style={{ position: 'absolute', top: '24px', right: '32px', background: 'none', border: 'none', fontSize: '40px', fontWeight: 300, color: 'var(--dk)', cursor: 'pointer' }}>×</button>
         </div>
