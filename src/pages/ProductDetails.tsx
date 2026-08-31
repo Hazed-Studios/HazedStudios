@@ -365,7 +365,7 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
               </div>
 
               <div className="sp-model-info">
-                <div><strong>The Model:</strong> 179 cm, 70 kg, wearing size M.</div>
+                <div><strong>The Model:</strong> Model: 179 cm | 70 kg | Wearing size M</div>
               </div>
 
               <div className="sp-details">
