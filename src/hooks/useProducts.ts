@@ -8,7 +8,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     dbId: 1,
     name: 'Polo Linen Shirt',
     cat: 'Tops',
-    price: 999,
+    price: 750,
     oldPrice: 1200,
     stock: 50,
     sizeStock: { S: 15, M: 20, L: 15 },
@@ -73,7 +73,7 @@ export const useProducts = () => {
 
           if (row.name.includes('Natural Linen')) {
             // Front, Side, Back, Side
-            gallery = ['images/1N.jpg', 'images/2N.webp', 'images/3N.jpg', 'images/4N.webp'];
+            gallery = ['images/1N.JPG', 'images/2N.webp', 'images/3N.JPG', 'images/4N.webp'];
             visual = 'images/natural linen.webp';
           } else if (row.name.includes('Baby Blue')) {
             // Front, Side, Back, Side
@@ -86,8 +86,8 @@ export const useProducts = () => {
             dbId: row.id,
             name: row.name,
             cat: row.cat || row.collection || '',
-            price: Number(row.price) || 0,
-            oldPrice: row.old_price ? Number(row.old_price) : undefined,
+            price: row.name.includes('Linen') || row.name.includes('Polo') ? 750 : (Number(row.price) || 0),
+            oldPrice: row.name.includes('Linen') || row.name.includes('Polo') ? 1200 : (row.old_price ? Number(row.old_price) : undefined),
             stock: totalStock,
             sizeStock,
             story: row.story || row.description || '',

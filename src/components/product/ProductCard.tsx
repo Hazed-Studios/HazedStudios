@@ -151,7 +151,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
               fontWeight: 700,
               whiteSpace: 'nowrap'
             }}>
-              Limited Time
+              SALE -37.5%
             </span>
           )}
         </div>

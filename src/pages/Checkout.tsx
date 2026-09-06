@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase';
 import { track } from '@vercel/analytics/react';
 import { Link } from 'react-router-dom';
 
+import { calculateCartTotal } from '../utils/cartUtils';
+
 const EGYPTIAN_GOVERNORATES = [
   "Cairo", "Giza", "Alexandria", "Aswan", "Asyut", "Beheira", "Beni Suef", "Dakahlia",
   "Damietta", "Faiyum", "Gharbia", "Ismailia", "Kafr El Sheikh",
@@ -102,11 +104,11 @@ const Checkout: React.FC = () => {
   const [discountApplied, setDiscountApplied] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ fp?: string; fe?: string }>({});
 
-  const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
+  const total = calculateCartTotal(cart);
   const discountAmount = discountApplied ? total * 0.10 : 0;
   const subtotalAfterDiscount = total - discountAmount;
 
-  const isFreeShipping = subtotalAfterDiscount >= 1990;
+  const isFreeShipping = subtotalAfterDiscount >= 1800;
   const shippingCost = isFreeShipping ? 0 : (['Cairo', 'Giza'].includes(formData.fgov) ? 85 : 100);
   const finalTotal = subtotalAfterDiscount + shippingCost;
 
@@ -199,12 +201,18 @@ const Checkout: React.FC = () => {
       }
     }
 
+    // Calculate proportional discount for DB records
+    const originalLinenTotal = cart.reduce((sum, item) => item.name.toLowerCase().includes('linen') || item.name.toLowerCase().includes('polo') ? sum + item.price * (item.quantity || 1) : sum, 0);
+    const linenCart = cart.filter(item => item.name.toLowerCase().includes('linen') || item.name.toLowerCase().includes('polo'));
+    const newLinenTotal = calculateCartTotal(linenCart);
+    const linenDiscountRatio = originalLinenTotal > 0 ? newLinenTotal / originalLinenTotal : 1;
+
     // Construct the items array
     const orderItems = cart.map(item => ({
       id: item.id,
       size: item.size,
       color: item.color,
-      price: item.price,
+      price: (item.name.toLowerCase().includes('linen') || item.name.toLowerCase().includes('polo')) ? Math.round(item.price * linenDiscountRatio) : item.price,
       qty: item.quantity || 1
     }));
 
@@ -369,7 +377,7 @@ const Checkout: React.FC = () => {
 
             <div className="ord-feats">
               <div className="ord-feat">Cash on Delivery & InstaPay Accepted</div>
-              <div className="ord-feat">Free standard shipping over 1990 EGP</div>
+              <div className="ord-feat">Free standard shipping over 1800 EGP</div>
               <div className="ord-feat">14-Day Returns & Exchanges</div>
             </div>
           </div>
@@ -554,10 +562,24 @@ const Checkout: React.FC = () => {
                   </button>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '15px', color: 'var(--mu)' }}>Subtotal</span>
-                  <span style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px', color: 'var(--dk)' }}>{total.toLocaleString()} EGP</span>
-                </div>
+                {(() => {
+                  const originalTotal = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
+                  const bundleSavings = originalTotal - total;
+                  return (
+                    <>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <span style={{ fontSize: '15px', color: 'var(--mu)' }}>Subtotal</span>
+                        <span style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px', color: 'var(--dk)' }}>{originalTotal.toLocaleString()} EGP</span>
+                      </div>
+                      {bundleSavings > 0 && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                          <span style={{ fontSize: '15px', color: 'var(--cr)' }}>Bundle Savings</span>
+                          <span style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px', color: 'var(--cr)' }}>-{bundleSavings.toLocaleString()} EGP</span>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
                 {discountApplied && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                     <span style={{ fontSize: '15px', color: 'var(--cr)' }}>Discount (10%)</span>

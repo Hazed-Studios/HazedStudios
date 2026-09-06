@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCartStore } from '../../context/store';
 import { useNavigate } from 'react-router-dom';
+import { calculateCartTotal } from '../../utils/cartUtils';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -11,7 +12,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
   const { cart, removeFromCart, updateQuantity } = useCartStore();
   const navigate = useNavigate();
 
-  const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
+  const total = calculateCartTotal(cart);
 
   const handleCheckout = () => {
     onClose();
@@ -73,7 +74,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                             borderRadius: '3px',
                             fontWeight: 700
                           }}>
-                            Limited Time
+                            SALE -37.5%
                           </span>
                         </span>
                       </>
@@ -96,10 +97,24 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         </div>
         {cart.length > 0 && (
           <div className="cart-foot">
-            <div className="cart-total-row">
-              <div className="cart-total-lbl">Total</div>
-              <div className="cart-total-val" style={{ fontFamily: '"Times New Roman", Times, serif' }}>{total.toLocaleString()} EGP</div>
-            </div>
+            {(() => {
+              const originalTotal = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
+              const bundleSavings = originalTotal - total;
+              return (
+                <>
+                  {bundleSavings > 0 && (
+                    <div className="cart-total-row" style={{ color: 'var(--cr)', fontSize: '14px', marginBottom: '8px' }}>
+                      <div className="cart-total-lbl">Bundle Savings</div>
+                      <div className="cart-total-val" style={{ fontFamily: '"Times New Roman", Times, serif' }}>-{bundleSavings.toLocaleString()} EGP</div>
+                    </div>
+                  )}
+                  <div className="cart-total-row">
+                    <div className="cart-total-lbl">Total</div>
+                    <div className="cart-total-val" style={{ fontFamily: '"Times New Roman", Times, serif' }}>{total.toLocaleString()} EGP</div>
+                  </div>
+                </>
+              );
+            })()}
             <button className="btn-checkout" onClick={handleCheckout}>
               Checkout →
             </button>
