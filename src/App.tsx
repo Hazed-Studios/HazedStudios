@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import ScrollToTop from './components/shared/ScrollToTop';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
@@ -10,6 +10,7 @@ import SearchOverlay from './components/shared/SearchOverlay';
 import SplashScreen from './components/shared/SplashScreen';
 import { useAdminStore } from './context/store';
 import ErrorBoundary from './components/shared/ErrorBoundary';
+import { captureAttribution } from './lib/attribution';
 
 // Lazy loaded components (code-splitting)
 const AdminLogin = lazy(() => import('./components/admin/AdminLogin'));
@@ -39,6 +40,10 @@ const App: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { isAdmin } = useAdminStore();
+
+  useEffect(() => {
+    captureAttribution();
+  }, []);
 
   return (
     <Router basename={import.meta.env.BASE_URL}>

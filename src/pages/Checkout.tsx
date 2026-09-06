@@ -5,6 +5,7 @@ import { track } from '@vercel/analytics/react';
 import { Link } from 'react-router-dom';
 
 import { calculateCartTotal } from '../utils/cartUtils';
+import { getAttribution } from '../lib/attribution';
 
 const EGYPTIAN_GOVERNORATES = [
   "Cairo", "Giza", "Alexandria", "Aswan", "Asyut", "Beheira", "Beni Suef", "Dakahlia",
@@ -224,7 +225,8 @@ const Checkout: React.FC = () => {
         p_email: fe,
         p_gov: fgov,
         p_address: fullAddress,
-        p_items: orderItems
+        p_items: orderItems,
+        p_attribution: getAttribution()
       });
 
       if (rpcErr) {
@@ -234,6 +236,22 @@ const Checkout: React.FC = () => {
       }
 
       const firstOrderId = response?.first_order_id || 0;
+
+      // Notify ad platforms of the purchase, so Meta/TikTok's own ad
+      // managers can attribute this sale to the campaign that drove it.
+      // Safe to call even without a Pixel ID configured yet - these are
+      // no-ops until VITE_META_PIXEL_ID / VITE_TIKTOK_PIXEL_ID are set.
+      try {
+        const win = window as any;
+        if (typeof win.fbq === 'function') {
+          win.fbq('track', 'Purchase', { value: finalTotal, currency: 'EGP' });
+        }
+        if (typeof win.ttq?.track === 'function') {
+          win.ttq.track('CompletePayment', { value: finalTotal, currency: 'EGP' });
+        }
+      } catch (pixelErr) {
+        console.warn('Pixel tracking failed (non-critical):', pixelErr);
+      }
 
       // Send email to Store Owner via FormSubmit
       if (fn) {

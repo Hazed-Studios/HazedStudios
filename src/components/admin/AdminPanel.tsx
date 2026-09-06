@@ -377,6 +377,22 @@ const AdminPanel: React.FC = () => {
     });
   })();
 
+  // Which campaigns/sources actually drove sales, using the attribution
+  // data captured at checkout (UTM params, ad click IDs).
+  const salesBySource = (() => {
+    const bySource: Record<string, { orders: number; revenue: number }> = {};
+    validOrders.forEach((o: any) => {
+      const attr = o.attribution || {};
+      const source = attr.utm_source || (attr.fbclid ? 'Facebook/Instagram (unlabeled ad)' : attr.ttclid ? 'TikTok (unlabeled ad)' : attr.gclid ? 'Google (unlabeled ad)' : 'Direct / Unknown');
+      const campaign = attr.utm_campaign ? ` — ${attr.utm_campaign}` : '';
+      const key = `${source}${campaign}`;
+      if (!bySource[key]) bySource[key] = { orders: 0, revenue: 0 };
+      bySource[key].orders += 1;
+      bySource[key].revenue += o.total_price || 0;
+    });
+    return Object.entries(bySource).sort((a, b) => b[1].revenue - a[1].revenue);
+  })();
+
   const overviewOrdersPagination = usePagination(orders, 10);
   const ordersPagination = usePagination(orders, 50);
   const customersPagination = usePagination(customersWithStats, 50);
@@ -1439,8 +1455,35 @@ const AdminPanel: React.FC = () => {
                 </table>
               </div>
             </div>
-            <div style={{ fontSize: '10px', color: 'var(--mu)', marginTop: '12px' }}>
+            <div style={{ fontSize: '10px', color: 'var(--mu)', marginTop: '12px', marginBottom: '24px' }}>
               Estimate based on average sales velocity since your first order ({Math.round(daysSinceLaunch)} days ago). Treat as a guide, not a guarantee.
+            </div>
+
+            {/* Sales by Campaign Source */}
+            <div style={styles.admCard}>
+              <div style={styles.admCardHead}>
+                <div style={styles.admCardTtl}>Sales by Ad / Campaign Source</div>
+              </div>
+              <div style={{ padding: '20px' }}>
+                {salesBySource.length === 0 ? (
+                  <div style={{ color: 'var(--mu)', fontSize: '11px' }}>No sales yet.</div>
+                ) : (
+                  salesBySource.map(([source, d]) => (
+                    <div key={source} style={styles.revRow}>
+                      <span style={{ fontSize: '13px', color: 'var(--dk)' }}>{source}</span>
+                      <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                        <span style={{ fontSize: '11px', color: 'var(--mu)' }}>{d.orders} orders</span>
+                        <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '18px', color: 'var(--cr)' }}>
+                          {d.revenue.toLocaleString()} EGP
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+                <div style={{ fontSize: '10px', color: 'var(--mu)', marginTop: '12px' }}>
+                  "Direct / Unknown" means the visitor didn't arrive through a tagged link (e.g. typed the URL directly, or the ad link is missing UTM parameters). Use links like yoursite.com/?utm_source=instagram&utm_campaign=launch to track future campaigns.
+                </div>
+              </div>
             </div>
           </div>
         )}
