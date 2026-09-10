@@ -201,18 +201,12 @@ const Checkout: React.FC = () => {
       }
     }
 
-    // Calculate proportional discount for DB records
-    const originalLinenTotal = cart.reduce((sum, item) => item.name.toLowerCase().includes('linen') || item.name.toLowerCase().includes('polo') ? sum + item.price * (item.quantity || 1) : sum, 0);
-    const linenCart = cart.filter(item => item.name.toLowerCase().includes('linen') || item.name.toLowerCase().includes('polo'));
-    const newLinenTotal = calculateCartTotal(linenCart);
-    const linenDiscountRatio = originalLinenTotal > 0 ? newLinenTotal / originalLinenTotal : 1;
-
     // Construct the items array
     const orderItems = cart.map(item => ({
       id: item.id,
       size: item.size,
       color: item.color,
-      price: (item.name.toLowerCase().includes('linen') || item.name.toLowerCase().includes('polo')) ? Math.round(item.price * linenDiscountRatio) : item.price,
+      price: item.price,
       qty: item.quantity || 1
     }));
 
@@ -562,24 +556,10 @@ const Checkout: React.FC = () => {
                   </button>
                 </div>
 
-                {(() => {
-                  const originalTotal = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
-                  const bundleSavings = originalTotal - total;
-                  return (
-                    <>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                        <span style={{ fontSize: '15px', color: 'var(--mu)' }}>Subtotal</span>
-                        <span style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px', color: 'var(--dk)' }}>{originalTotal.toLocaleString()} EGP</span>
-                      </div>
-                      {bundleSavings > 0 && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                          <span style={{ fontSize: '15px', color: 'var(--cr)' }}>Bundle Savings</span>
-                          <span style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px', color: 'var(--cr)' }}>-{bundleSavings.toLocaleString()} EGP</span>
-                        </div>
-                      )}
-                    </>
-                  );
-                })()}
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '15px', color: 'var(--mu)' }}>Subtotal</span>
+                  <span style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px', color: 'var(--dk)' }}>{total.toLocaleString()} EGP</span>
+                </div>
                 {discountApplied && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                     <span style={{ fontSize: '15px', color: 'var(--cr)' }}>Discount (10%)</span>

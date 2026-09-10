@@ -251,7 +251,7 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
                         borderRadius: '4px',
                         fontWeight: 700
                       }}>
-                        SALE -37.5%
+                        SALE
                       </span>
                     </span>
                   </>
@@ -264,19 +264,7 @@ const ProductDetails: React.FC<ShopProps> = ({ onOpenCart }) => {
                   Only {totalStockLeft} pieces left
                 </div>
               )}
-              <div style={{ marginTop: '16px', padding: '16px', background: 'rgba(192, 127, 69, 0.05)', borderRadius: '6px', border: '1px solid rgba(192, 127, 69, 0.15)' }}>
-                <div style={{ fontWeight: 600, color: 'var(--cr)', fontSize: '11px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Bundle & Save</div>
-                <div style={{ fontSize: '13px', color: 'var(--dk)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Buy 2 pieces</span>
-                    <strong>1300 EGP <span style={{ color: 'var(--mu)', fontWeight: 400, fontSize: '12px' }}>(Save 200)</span></strong>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Buy 3 pieces</span>
-                    <strong>1800 EGP <span style={{ color: 'var(--mu)', fontWeight: 400, fontSize: '12px' }}>(Save 450)</span></strong>
-                  </div>
-                </div>
-              </div>
+
 
               <div className="sp-desc" style={{ marginTop: '20px' }}>
                 {thePolo.story}
