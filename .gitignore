@@ -26,3 +26,9 @@ dist-ssr
 # Environment variables
 .env
 .env.local
+
+# Shopify theme and zip archives
+*.zip
+shopify-theme/
+zip.py
+public/images/*.txt

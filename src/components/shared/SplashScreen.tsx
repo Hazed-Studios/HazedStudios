@@ -23,7 +23,7 @@ const SplashScreen: React.FC = () => {
       clearTimeout(fallbackTimer);
       document.body.style.overflow = 'auto';
     };
-  }, []);
+  }, [hasSeenSplash, isVisible]);
 
   useEffect(() => {
     if (hasSeenSplash && !isVisible) return;

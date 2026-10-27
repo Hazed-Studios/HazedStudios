@@ -43,7 +43,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
       newValue = Math.max(newValue, parseFloat(minPrice) + 1);
       setMaxPrice(newValue.toFixed(2));
     }
-  }, [activeThumb, minPrice, maxPrice, maxPossiblePrice]);
+  }, [activeThumb, minPrice, maxPrice, maxPossiblePrice, setMinPrice, setMaxPrice]);
 
   const handlePointerUp = useCallback(() => {
     setActiveThumb(null);

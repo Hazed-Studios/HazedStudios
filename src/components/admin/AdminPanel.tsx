@@ -254,8 +254,7 @@ const AdminPanel: React.FC = () => {
     });
   };
 
-  if (!isAdmin) return null;
-
+  // Early return moved down to comply with Rules of Hooks
   // ===== Derived data (matches the original's client-side calculations) =====
   const total = report?.totalRevenue ?? 0;
   const avg = orders.length ? Math.round(total / orders.length) : 0;
@@ -407,6 +406,7 @@ const AdminPanel: React.FC = () => {
   const handleWhatsAppCustomer = (c: any) => {
     whatsapp.sendMessage(c.phone, `Hi ${c.name}! HAZED.STUDIOS here 🖤`);
   };
+  if (!isAdmin) return null;
 
   return (
     <div className="adm-panel" style={styles.container}>

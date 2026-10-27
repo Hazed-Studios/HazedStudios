@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { track } from '@vercel/analytics/react';
 import { Link } from 'react-router-dom';
 
-import { calculateCartTotal } from '../utils/cartUtils';
+import { calculateCartTotal, getBundleInfo, isPoloItem } from '../utils/cartUtils';
 import { getAttribution } from '../lib/attribution';
 
 const EGYPTIAN_GOVERNORATES = [
@@ -105,12 +105,12 @@ const Checkout: React.FC = () => {
   const [discountApplied, setDiscountApplied] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ fp?: string; fe?: string }>({});
 
+  const bundle = getBundleInfo(cart);
   const total = calculateCartTotal(cart);
   const discountAmount = discountApplied ? total * 0.10 : 0;
   const subtotalAfterDiscount = total - discountAmount;
 
-  const isFreeShipping = subtotalAfterDiscount >= 1800;
-  const shippingCost = isFreeShipping ? 0 : (['Cairo', 'Giza'].includes(formData.fgov) ? 85 : 100);
+  const shippingCost = ['Cairo', 'Giza'].includes(formData.fgov) ? 80 : 100;
   const finalTotal = subtotalAfterDiscount + shippingCost;
 
   const handleApplyCoupon = (e: React.MouseEvent) => {
@@ -202,14 +202,20 @@ const Checkout: React.FC = () => {
       }
     }
 
-    // Construct the items array
-    const orderItems = cart.map(item => ({
-      id: item.id,
-      size: item.size,
-      color: item.color,
-      price: item.price,
-      qty: item.quantity || 1
-    }));
+    // Construct the items array with bundle-adjusted unit prices so sum matches bundleTotal
+    const orderItems = cart.map(item => {
+      let unitPrice = item.price;
+      if (bundle.bundleDiscount > 0 && bundle.totalPoloQty > 0 && isPoloItem(item)) {
+        unitPrice = Math.round(bundle.bundleTotal / bundle.totalPoloQty);
+      }
+      return {
+        id: item.id,
+        size: item.size,
+        color: item.color,
+        price: unitPrice,
+        qty: item.quantity || 1
+      };
+    });
 
     setIsSubmitting(true);
     try {
@@ -389,7 +395,7 @@ const Checkout: React.FC = () => {
 
             <div className="ord-feats">
               <div className="ord-feat">Cash on Delivery & InstaPay Accepted</div>
-              <div className="ord-feat">Free standard shipping over 1800 EGP</div>
+              <div className="ord-feat">Fast & Secure Delivery Across Egypt</div>
               <div className="ord-feat">14-Day Returns & Exchanges</div>
             </div>
           </div>
@@ -576,8 +582,29 @@ const Checkout: React.FC = () => {
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <span style={{ fontSize: '15px', color: 'var(--mu)' }}>Subtotal</span>
-                  <span style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px', color: 'var(--dk)' }}>{total.toLocaleString()} EGP</span>
+                  <span style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px', color: 'var(--dk)' }}>
+                    {bundle.qualifies ? (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ textDecoration: 'line-through', color: 'var(--mu2)', fontSize: '14px' }}>
+                          {bundle.regularSaleTotal.toLocaleString()} EGP
+                        </span>
+                        <span>{bundle.bundleTotal.toLocaleString()} EGP</span>
+                      </span>
+                    ) : (
+                      `${total.toLocaleString()} EGP`
+                    )}
+                  </span>
                 </div>
+                {bundle.qualifies && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', background: 'rgba(192, 127, 69, 0.08)', padding: '6px 10px', borderRadius: '4px' }}>
+                    <span style={{ fontSize: '12.5px', color: 'var(--cr)', fontWeight: 600 }}>
+                      ✓ {bundle.totalPoloQty === 2 ? 'Buy 2 for 1,200 Deal' : bundle.totalPoloQty === 3 ? 'Buy 3 for 1,650 Deal' : 'Bundle & Save'} (Saved {bundle.totalSavedVsOriginal.toLocaleString()} EGP)
+                    </span>
+                    <span style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '15px', color: 'var(--cr)', fontWeight: 700 }}>
+                      -{bundle.bundleDiscount.toLocaleString()} EGP
+                    </span>
+                  </div>
+                )}
                 {discountApplied && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                     <span style={{ fontSize: '15px', color: 'var(--cr)' }}>Discount (10%)</span>
@@ -586,7 +613,7 @@ const Checkout: React.FC = () => {
                 )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                   <span style={{ fontSize: '15px', color: 'var(--mu)' }}>Shipping</span>
-                  <span style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px', color: 'var(--dk)' }}>{isFreeShipping ? 'Free' : `${shippingCost} EGP`}</span>
+                  <span style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px', color: 'var(--dk)' }}>{shippingCost} EGP</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--bd)', paddingTop: '16px' }}>
                   <span style={{ fontSize: '15px', letterSpacing: '.15em', textTransform: 'uppercase', color: 'var(--cr)' }}>Total</span>

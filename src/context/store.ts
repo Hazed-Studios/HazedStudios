@@ -6,6 +6,7 @@ interface CartState {
   cart: CartItem[];
 
   addToCart: (item: CartItem) => void;
+  addMultipleToCart: (items: CartItem[]) => void;
   removeFromCart: (index: number) => void;
   updateQuantity: (index: number, qty: number) => void;
   clearCart: () => void;
@@ -28,6 +29,21 @@ export const useCartStore = create<CartState>()(
             return { cart: newCart };
           }
           return { cart: [...state.cart, { ...item, quantity: item.quantity || 1 }] };
+        }),
+      addMultipleToCart: (items) =>
+        set((state) => {
+          const newCart = [...state.cart];
+          for (const item of items) {
+            const existingIndex = newCart.findIndex(
+              (i) => i.id === item.id && i.size === item.size && i.color === item.color
+            );
+            if (existingIndex >= 0) {
+              newCart[existingIndex].quantity = (newCart[existingIndex].quantity || 1) + (item.quantity || 1);
+            } else {
+              newCart.push({ ...item, quantity: item.quantity || 1 });
+            }
+          }
+          return { cart: newCart };
         }),
       removeFromCart: (index) =>
         set((state) => ({

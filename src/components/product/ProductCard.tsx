@@ -65,11 +65,32 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
     >
 
       <div className="prod-vis" style={{ borderRadius: '8px', overflow: 'hidden', position: 'relative', background: 'transparent' }}>
+        {product.oldPrice && (
+          <div style={{
+            position: 'absolute',
+            top: '12px',
+            left: '12px',
+            zIndex: 10,
+            background: 'rgba(250, 246, 240, 0.95)',
+            backdropFilter: 'blur(8px)',
+            color: 'var(--dk)',
+            fontSize: '10px',
+            fontWeight: 700,
+            padding: '6px 12px',
+            borderRadius: '20px',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+            border: '1px solid rgba(0,0,0,0.05)'
+          }}>
+            Sale -{Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)}%
+          </div>
+        )}
         {product.visual && (product.visual.includes('images/') || product.visual.startsWith('http')) ? (
           <>
-            <img src={product.visual} alt={product.name} loading="lazy" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain', display: 'block', borderRadius: '8px', opacity: isHovered && product.gallery?.length ? 0 : 1, transition: 'opacity 0.4s ease' }} />
+            <img src={product.visual} alt={product.name} loading="lazy" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain', display: 'block', borderRadius: '8px', opacity: isHovered && product.gallery?.length ? 0 : 1, transition: 'opacity 0.4s ease', mixBlendMode: 'multiply' }} />
             {product.gallery && product.gallery.length > 0 && (
-              <img src={product.gallery[0]} alt={product.name} loading="lazy" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: '8px', opacity: isHovered ? 1 : 0, transition: 'opacity 0.4s ease' }} />
+              <img src={product.gallery[0]} alt={product.name} loading="lazy" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: '8px', opacity: isHovered ? 1 : 0, transition: 'opacity 0.4s ease', mixBlendMode: 'multiply' }} />
             )}
           </>
         ) : (
@@ -129,31 +150,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
           </div>
           <div className="prod-cat">{product.cat}</div>
         </div>
-        <div className="prod-price" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '6px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'nowrap' }}>
+        <div className="prod-price" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'nowrap' }}>
             {product.oldPrice && (
-              <span style={{ textDecoration: 'line-through', color: 'var(--mu)', opacity: 0.6, whiteSpace: 'nowrap' }}>
+              <span style={{ textDecoration: 'line-through', color: 'var(--mu)', opacity: 0.6, whiteSpace: 'nowrap', fontSize: '13px' }}>
                 {product.oldPrice.toLocaleString()} EGP
               </span>
             )}
-            <span style={{ whiteSpace: 'nowrap' }}>{product.price.toLocaleString()} EGP</span>
+            <span style={{ whiteSpace: 'nowrap', color: 'var(--cr)', fontWeight: 600, fontSize: '15px' }}>{product.price.toLocaleString()} EGP</span>
           </div>
-          {product.oldPrice && (
-            <span style={{
-              fontFamily: 'system-ui, -apple-system, sans-serif',
-              fontSize: '9px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              color: 'var(--bg)',
-              background: 'var(--cr)',
-              padding: '3px 6px',
-              borderRadius: '3px',
-              fontWeight: 700,
-              whiteSpace: 'nowrap'
-            }}>
-              SALE -37.5%
-            </span>
-          )}
+          <div style={{ fontSize: '10.5px', color: 'var(--cr)', letterSpacing: '0.04em', background: 'rgba(192, 127, 69, 0.08)', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+            Bundle: 2 for 1,200 | 3 for 1,650
+          </div>
         </div>
       </div>
     </div>

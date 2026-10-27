@@ -6,10 +6,10 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function updatePrices() {
-  console.log('Updating prices in Supabase...');
+  console.log('Updating prices in Supabase to 700 (sale from 1200)...');
   const { data, error } = await supabase
     .from('products')
-    .update({ price: 750, old_price: 1200 })
+    .update({ price: 700, old_price: 1200 })
     .eq('name', 'Polo Linen Shirt — Natural Linen')
     .select();
 
@@ -21,7 +21,7 @@ async function updatePrices() {
 
   const { data2, error2 } = await supabase
     .from('products')
-    .update({ price: 750, old_price: 1200 })
+    .update({ price: 700, old_price: 1200 })
     .eq('name', 'Polo Linen Shirt — Baby Blue')
     .select();
 
@@ -31,14 +31,18 @@ async function updatePrices() {
     console.log('Updated Baby Blue:', data2);
   }
 
-  // Also catch variations just in case
-  const { data3, error3 } = await supabase
+  // Also catch all rows
+  const { data: allData, error: allError } = await supabase
     .from('products')
-    .update({ price: 750, old_price: 1200 })
-    .neq('id', 0) // updates all rows
+    .update({ price: 700, old_price: 1200 })
+    .neq('id', 0)
     .select();
     
-    console.log('Updated all:', data3);
+  if (allError) {
+    console.error('Error updating all:', allError.message);
+  } else {
+    console.log('Updated all products to 700:', allData);
+  }
 }
 
 updatePrices();
